@@ -1,0 +1,27 @@
+{
+  "name": "fraction-mania",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint --cache --report-unused-disable-directives . && prettier --check .",
+    "lint:fix": "(eslint --fix --cache --report-unused-disable-directives . || true) && prettier --write .",
+    "prepare": "cd .. && husky"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.15",
+    "konva": "^10.0.2",
+    "tailwindcss": "^4.1.15"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
+    "eslint": "^9.38.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7"
+  }
+}
