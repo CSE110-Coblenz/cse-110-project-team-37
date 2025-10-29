@@ -1,13 +1,13 @@
-// stripped from lab 3. The idea is that as we add screens, we can update this file, 
+// stripped from lab 3. The idea is that as we add screens, we can update this file,
 // so that switching screens becomes easy.
 import type { Group } from "konva/lib/Group";
 
 // interface for view
-export interface View {
-	getGroup(): Group;
-	show(): void;
-	hide(): void;
-}
+export type View = {
+  getGroup: () => Group;
+  show: () => void;
+  hide: () => void;
+};
 
 /**
  * Screen types for navigation
@@ -16,23 +16,20 @@ export interface View {
  * - "game": Gameplay screen
  * - "help": Tutorial Help screen
  */
-export type Screen =
-	| { type: "menu" }
-	| { type: "game" }
-	| { type: "help"};
+export type Screen = { type: "menu" } | { type: "game" } | { type: "help" };
 
 export abstract class ScreenController {
-	abstract getView(): View;
+  abstract getView(): View;
 
-	show(): void {
-		this.getView().show();
-	}
+  show(): void {
+    this.getView().show();
+  }
 
-	hide(): void {
-		this.getView().hide();
-	}
+  hide(): void {
+    this.getView().hide();
+  }
 }
 
-export interface ScreenSwitcher {
-	switchToScreen(screen: Screen): void;
-}
+export type ScreenSwitcher = {
+  switchToScreen: (screen: Screen) => void;
+};
