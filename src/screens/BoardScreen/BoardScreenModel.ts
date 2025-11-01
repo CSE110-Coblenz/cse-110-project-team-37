@@ -1,8 +1,10 @@
+import { Player } from "./containers/Player";
 import { Tile } from "./containers/Tile";
 
 export class BoardScreenModel {
 
-    private startingTile: Tile;
+    private player : Player;
+    private startingTile : Tile;
 
     constructor() {
         // Placeholder for board structure.
@@ -30,11 +32,19 @@ export class BoardScreenModel {
         const c1 = new Tile("c1", {type: "normal"}, {north: null, east: c2, south: null});
         
         this.startingTile = c1;
+        this.player = new Player("playboy", this.startingTile);
     }
 
     /*
-    Returns the starting tile, origin of board render and player position.
-    */
+     * Returns 
+     */
+    getPlayer() : Player {
+        return this.player;
+    }
+
+    /*
+     * Returns the starting tile, origin of board render and player position.
+     */
     getStart() : Tile {
         return this.startingTile;
     }

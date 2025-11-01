@@ -23,7 +23,8 @@ export class BoardScreenController extends ScreenController {
     }
 
     private handleDiceClick() : void {
-        
+        this.model.getPlayer().move();
+        this.view.updatePlayerPos(this.model.getPlayer());
     }
 
     getView(): BoardScreenView {

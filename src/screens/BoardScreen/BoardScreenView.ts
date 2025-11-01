@@ -5,6 +5,7 @@ import { BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Tile } from "./containers/Tile.ts";
 import { BoardRenderer } from "./utils/BoardRenderer.ts";
 import { BoardLayout } from "./containers/BoardLayout.ts";
+import type { Player } from "./containers/Player.ts";
 
 export class BoardScreenView implements View {
 
@@ -51,6 +52,17 @@ export class BoardScreenView implements View {
         this.boardRenderer.drawBoard(this.model.getStart());
         this.boardGroup.position({x: -400,y: 0})
 
+        this.boardRenderer.drawPlayer(this.model.getPlayer());
+
+        // Connect board render elements to a board group.
+        this.boardRenderer.renderedTileMap
+            .forEach(tile => (
+                this.boardGroup.add(tile)
+            ));
+
+        this.boardGroup.add(this.boardRenderer.renderedPlayer);
+
+        // UI buttons
         this.drawPauseButton();
         this.drawDiceButton();
     }
@@ -123,6 +135,14 @@ export class BoardScreenView implements View {
             diceButtonGroup.add(diceText);
             diceButtonGroup.on("click", this.onDiceClick);
             this.viewGroup.add(diceButtonGroup);
+    }
+
+    /*
+     * Updates the position of a player
+     * @param player - player object state
+     */
+    public updatePlayerPos(player : Player) {
+        this.boardRenderer.updatePlayer(player.currentTile);
     }
 
     /*
