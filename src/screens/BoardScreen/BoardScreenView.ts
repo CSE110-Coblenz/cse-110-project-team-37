@@ -2,15 +2,20 @@ import Konva from "konva";
 
 import type { View } from "../../types.ts";
 import { BoardScreenModel } from "./BoardScreenModel.ts";
-import type { Tile, TileSuccessors } from "./containers/Tile.ts";
+import type { Tile } from "./containers/Tile.ts";
 import { BoardRenderer } from "./utils/BoardRenderer.ts";
+import { BoardLayout } from "./containers/BoardLayout.ts";
 
 export class BoardScreenView implements View {
 
     private readonly width = window.innerWidth;
     private readonly height = window.innerHeight;
 
-    private readonly group : Konva.Group;
+    // The whole screen group.
+    private readonly viewGroup : Konva.Group;
+    // Specifically tiles and player render group, good to keep separate for the future (aka camera).
+    private readonly boardGroup : Konva.Group;
+
     private readonly boardRenderer : BoardRenderer;
 
     private readonly model : BoardScreenModel;
@@ -22,8 +27,12 @@ export class BoardScreenView implements View {
         onDiceClick: () => void,
         model : BoardScreenModel) {
 
-        this.group = new Konva.Group({ visible: true });
-        this.boardRenderer = new BoardRenderer(this.group, this.width, this.height);
+        this.viewGroup = new Konva.Group({ visible: true });
+        this.boardGroup = new Konva.Group({ visible: true });
+
+        this.viewGroup.add(this.boardGroup);
+
+        this.boardRenderer = new BoardRenderer(this.boardGroup, this.width, this.height);
 
         this.model = model;
         this.onPauseClick = onPauseClick;
@@ -34,14 +43,14 @@ export class BoardScreenView implements View {
     }
 
     /*
-    Calls all main rendering functions.
-    */
+     *Calls all main rendering functions.
+     */
     private initializeBoard(): void {
-        var tileIterator : Tile = this.model.getStart();
 
         // Specify the start tile and origin of the board.
-        this.boardRenderer.drawTile(tileIterator, -200, 0);
-        
+        this.boardRenderer.drawBoard(this.model.getStart());
+        this.boardGroup.position({x: -400,y: 0})
+
         this.drawPauseButton();
         this.drawDiceButton();
     }
@@ -78,7 +87,7 @@ export class BoardScreenView implements View {
             pauseButtonGroup.add(pauseButton);
             pauseButtonGroup.add(pauseText);
             pauseButtonGroup.on("click", this.onPauseClick);
-            this.group.add(pauseButtonGroup);
+            this.viewGroup.add(pauseButtonGroup);
     }
 
     // TODO Create a Button factory to avoid duplicates as this
@@ -113,27 +122,30 @@ export class BoardScreenView implements View {
             diceButtonGroup.add(diceButton);
             diceButtonGroup.add(diceText);
             diceButtonGroup.on("click", this.onDiceClick);
-            this.group.add(diceButtonGroup);
+            this.viewGroup.add(diceButtonGroup);
     }
 
-    /**
-    * Show the screens)
-    */
+    /*
+     * Show the screens
+     */
     show(): void {
-        this.group.visible(true);
-        this.group.getLayer()?.draw();
+        this.viewGroup.visible(true);
+        this.viewGroup.getLayer()?.draw();
     }
 
-    /**
-    * Hide the screen
-    */
+    /*
+     * Hide the screen
+     */
     hide(): void {
-        this.group.visible(false);
-        this.group.getLayer()?.draw();
+        this.viewGroup.visible(false);
+        this.viewGroup.getLayer()?.draw();
     }
 
+    /*
+     * Returns view group
+     */
     getGroup(): Konva.Group {
-        return this.group;
+        return this.viewGroup;
     }
     
 }
