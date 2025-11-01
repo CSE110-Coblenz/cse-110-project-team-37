@@ -12,7 +12,18 @@ export class BoardScreenController extends ScreenController {
     constructor() {
         super();
         this.model = new BoardScreenModel();
-        this.view = new BoardScreenView(this.model);
+        this.view = new BoardScreenView(
+        () => this.handlePauseClick(),
+        () => this.handleDiceClick(),
+            this.model);
+    }
+
+    private handlePauseClick() : void {
+        // TODO Pause placeholder
+    }
+
+    private handleDiceClick() : void {
+        
     }
 
     getView(): BoardScreenView {

@@ -1,10 +1,12 @@
-import { Tile } from "./containers/util/Tile";
+import { Tile } from "./containers/Tile";
 
 export class BoardScreenModel {
 
     private startingTile: Tile;
 
     constructor() {
+        // Placeholder for board structure.
+        // TODO Automatic/Random generation of the board tiles.
         const c9 = new Tile("c9", {type: "end"}, {north: null, east: null, south: null});
         const c8 = new Tile("c8", {type: "normal"}, {north: null, east: c9, south: null});
         const c7 = new Tile("c7", {type: "normal"}, {north: null, east: c8, south: null});
@@ -30,6 +32,9 @@ export class BoardScreenModel {
         this.startingTile = c1;
     }
 
+    /*
+    Returns the starting tile, origin of board render and player position.
+    */
     getStart() : Tile {
         return this.startingTile;
     }
