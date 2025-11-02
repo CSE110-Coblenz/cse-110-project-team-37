@@ -1,139 +1,124 @@
-// PauseScreen/PauseScreen.ts
+// screens/PauseScreen/PauseScreenView.ts
 import Konva from "konva";
+import type { View } from "../../types.ts";
 
-type ButtonSpec = {
-  label: string;
-};
+/**
+ * PauseScreenView - implements View
+ * No constructor parameter properties (tsconfig: erasableSyntaxOnly).
+ */
+export class PauseScreenView implements View {
+  private readonly group: Konva.Group;
 
-const BUTTONS: ButtonSpec[] = [
-  { label: "Resume" },
-  { label: "Help" },
-  { label: "Restart" },
-  { label: "Quit" },
-];
+  private readonly onResume: () => void;
+  private readonly onHelp: () => void;
+  private readonly onRestart: () => void;
+  private readonly onQuit: () => void;
 
-export function createPauseScreen(stage: Konva.Stage): Konva.Layer {
-  const layer = new Konva.Layer();
+  constructor(
+    onResume: () => void,
+    onHelp: () => void,
+    onRestart: () => void,
+    onQuit: () => void,
+  ) {
+    this.onResume = onResume;
+    this.onHelp = onHelp;
+    this.onRestart = onRestart;
+    this.onQuit = onQuit;
 
-  // ====== Title ======
-  const title = new Konva.Text({
-    text: "Paused",
-    fontSize: 40,
-    fontFamily:
-      "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto",
-    fill: "#111827", // near-black
-    align: "center",
-  });
-  layer.add(title);
+    this.group = new Konva.Group({ visible: false, listening: true });
 
-  // ====== Buttons (visual only; with hover highlight) ======
-  const buttonGroups: Konva.Group[] = [];
-  const buttonHeight = 48;
-  const buttonGap = 12;
-  const padX = 24; // horizontal padding inside panel area
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-  for (const { label } of BUTTONS) {
-    const g = new Konva.Group({ listening: true });
-
-    const rect = new Konva.Rect({
-      fill: "#F3F4F6", // gray-100
-      cornerRadius: 12,
-      shadowColor: "#000",
-      shadowBlur: 0,
-      shadowOpacity: 0,
-    });
-
-    const text = new Konva.Text({
-      text: label,
-      fill: "#111827", // gray-900
-      fontSize: 18,
-      fontFamily:
-        "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto",
+    // ----------------------------- Title -----------------------------
+    const title = new Konva.Text({
+      x: width / 2,
+      y: height / 5,
+      text: "Paused",
+      fontSize: 80,
+      fontFamily: "Arial",
+      fill: "gray",
+      stroke: "black",
+      strokeWidth: 3,
       align: "center",
+      fontStyle: "bold",
     });
+    title.offsetX(title.width() / 2);
+    this.group.add(title);
 
-    g.add(rect);
-    g.add(text);
+    // ----------------------------- Buttons -----------------------------
+    const buttons = [
+      { label: "Resume", onClick: this.onResume },
+      { label: "Help", onClick: this.onHelp },
+      { label: "Restart", onClick: this.onRestart },
+      { label: "Quit", onClick: this.onQuit },
+    ] as const;
 
-    // Hover highlight (no click action)
-    g.on("mouseenter", () => {
-      stage.container().style.cursor = "pointer";
-      rect.fill("#E5E7EB"); // gray-200
-      rect.shadowBlur(8);
-      rect.shadowOpacity(0.15);
-      layer.batchDraw();
+    const buttonWidth = 220;
+    const buttonHeight = 60;
+    const spacing = 20;
+    const startY = height / 2.5;
+
+    buttons.forEach((btn, i) => {
+      const g = new Konva.Group({
+        x: width / 2 - buttonWidth / 2,
+        y: startY + i * (buttonHeight + spacing),
+      });
+
+      const rect = new Konva.Rect({
+        width: buttonWidth,
+        height: buttonHeight,
+        fill: "gray",
+        cornerRadius: 10,
+        stroke: "black",
+        strokeWidth: 2,
+      });
+
+      const text = new Konva.Text({
+        x: 0,
+        y: 0,
+        width: buttonWidth,
+        height: buttonHeight,
+        text: btn.label,
+        fontSize: 24,
+        fontFamily: "Arial",
+        fill: "white",
+        align: "center",
+        verticalAlign: "middle",
+      });
+
+      // hover
+      g.on("mouseenter", () => {
+        document.body.style.cursor = "pointer";
+        rect.fill("darkgray");
+        g.getLayer()?.draw();
+      });
+      g.on("mouseleave", () => {
+        document.body.style.cursor = "default";
+        rect.fill("gray");
+        g.getLayer()?.draw();
+      });
+
+      // click
+      g.on("click", () => btn.onClick());
+
+      g.add(rect);
+      g.add(text);
+      this.group.add(g);
     });
-    g.on("mouseleave", () => {
-      stage.container().style.cursor = "default";
-      rect.fill("#F3F4F6");
-      rect.shadowBlur(0);
-      rect.shadowOpacity(0);
-      layer.batchDraw();
-    });
-
-    layer.add(g);
-    buttonGroups.push(g);
   }
 
-  // ====== Layout: centers content, keeps responsive ======
-  function layout() {
-    const W = stage.width();
-    const H = stage.height();
-
-    // Title width for centering
-    title.width(W);
-    // Top margin
-    const topMargin = Math.max(24, Math.round(H * 0.08));
-    title.position({ x: 0, y: topMargin });
-
-    // Calculate button column width
-    const maxButtonWidth = Math.min(520, Math.max(280, Math.round(W * 0.6)));
-    const bw = Math.max(220, Math.min(maxButtonWidth, W - padX * 2));
-
-    // Start buttons beneath title with spacing
-    let y = title.y() + title.height() + 24;
-
-    for (const g of buttonGroups) {
-      const rect = g.findOne<Konva.Rect>("Rect")!;
-      const text = g.findOne<Konva.Text>("Text")!;
-
-      rect.size({ width: bw, height: buttonHeight });
-
-      // horizontally center column
-      const x = (W - bw) / 2;
-
-      rect.position({ x, y });
-
-      text.width(bw);
-      text.x(x);
-      // vertically center text in rect
-      text.y(y + (buttonHeight - text.height()) / 2);
-
-      g.position({ x: 0, y: 0 }); // groups use child positions; keep group origin at 0
-
-      y += buttonHeight + buttonGap;
-    }
-
-    layer.batchDraw();
+  show(): void {
+    this.group.visible(true);
+    this.group.getLayer()?.draw();
   }
 
-  layout();
+  hide(): void {
+    this.group.visible(false);
+    this.group.getLayer()?.draw();
+  }
 
-  // Consumers can call this if they resize the stage manually.
-  (layer as any).relayout = layout;
-
-  // Helpful if you manage global resize in main.ts
-  // (You can also keep this file “pure” and do the listener in main.ts)
-  const onResize = () => {
-    layout();
-  };
-  window.addEventListener("resize", onResize);
-
-  // Clean-up API (optional)
-  (layer as any).destroyWithEvents = () => {
-    window.removeEventListener("resize", onResize);
-    layer.destroy();
-  };
-
-  return layer;
+  getGroup(): Konva.Group {
+    return this.group;
+  }
 }
