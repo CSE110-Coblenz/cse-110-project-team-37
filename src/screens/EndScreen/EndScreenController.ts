@@ -1,18 +1,21 @@
 import { ScreenController } from "../../types.ts";
-import type { ScreenSwitcher } from "../../types.ts";
+
+import { STAGE_WIDTH, STAGE_HEIGHT } from "../../constants.ts";
+
 import { EndScreenModel } from "./EndScreenModel.ts";
 import { EndScreenView } from "./EndScreenView.ts";
-import { STAGE_WIDTH } from "../../constants.ts";
-import { STAGE_HEIGHT } from "../../constants.ts";
+
+import type { ScreenSwitcher } from "../../types.ts";
+
 import type { Layer } from "konva/lib/Layer";
 
 /**
  * EndScreenController - Coordinates game logic between Model and View
  */
 export class EndScreenController extends ScreenController {
-	private model: EndScreenModel;
-	private view: EndScreenView;
-	private screenSwitcher: ScreenSwitcher;
+	private readonly model: EndScreenModel;
+	private readonly view: EndScreenView;
+	private readonly screenSwitcher: ScreenSwitcher;
 
 	constructor(screenSwitcher: ScreenSwitcher, layer: Layer) {
 		super();

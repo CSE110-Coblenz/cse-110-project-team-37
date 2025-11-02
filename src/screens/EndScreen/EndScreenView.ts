@@ -1,16 +1,16 @@
 import Konva from "konva";
+
 import type { View } from "../../types.ts";
-import { STAGE_WIDTH, STAGE_HEIGHT } from "../../constants.ts";
 
 /**
  * EndScreenView - Renders the game UI using Konva
  */
 export class EndScreenView implements View {
-	private root: Konva.Group;
-	private title: Konva.Text;
-	private buttonGroup: Konva.Group;
-	private btnRect: Konva.Rect;
-	private btnText: Konva.Text;
+	private readonly root: Konva.Group;
+	private readonly title: Konva.Text;
+	private readonly buttonGroup: Konva.Group;
+	private readonly btnRect: Konva.Rect;
+	private readonly btnText: Konva.Text;
 
 	private onReturn?: () => void;
 
@@ -57,7 +57,7 @@ export class EndScreenView implements View {
 		this.buttonGroup = new Konva.Group({
 			listening: true
 		});
-		this.buttonGroup.app(this.btnRect);
+		this.buttonGroup.add(this.btnRect);
 		this.buttonGroup.add(this.btnText);
 
 		this.root.add(this.title);
