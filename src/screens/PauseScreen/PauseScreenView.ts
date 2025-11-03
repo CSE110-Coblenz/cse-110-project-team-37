@@ -1,5 +1,6 @@
 // screens/PauseScreen/PauseScreenView.ts
 import Konva from "konva";
+
 import type { View } from "../../types.ts";
 
 /**
@@ -14,12 +15,7 @@ export class PauseScreenView implements View {
   private readonly onRestart: () => void;
   private readonly onQuit: () => void;
 
-  constructor(
-    onResume: () => void,
-    onHelp: () => void,
-    onRestart: () => void,
-    onQuit: () => void,
-  ) {
+  constructor(onResume: () => void, onHelp: () => void, onRestart: () => void, onQuit: () => void) {
     this.onResume = onResume;
     this.onHelp = onHelp;
     this.onRestart = onRestart;

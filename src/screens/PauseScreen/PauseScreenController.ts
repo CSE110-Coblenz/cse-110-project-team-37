@@ -1,7 +1,9 @@
 // screens/PauseScreen/PauseScreenController.ts
 import { ScreenController } from "../../types.ts";
-import type { ScreenSwitcher } from "../../types.ts";
+
 import { PauseScreenView } from "./PauseScreenView.ts";
+
+import type { ScreenSwitcher } from "../../types.ts";
 
 /**
  * PauseScreenController - mirrors MainMenuScreenController structure,

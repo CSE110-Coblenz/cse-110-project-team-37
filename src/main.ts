@@ -58,14 +58,13 @@ class App implements ScreenSwitcher {
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
-    
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
     this.layer.add(this.mainMenuController.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
 
-     // start on main menu
+    // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
     this.current = "menu";
@@ -73,7 +72,7 @@ class App implements ScreenSwitcher {
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
 
-     window.addEventListener("keydown", (e) => {
+    window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (this.current === "game") {
           this.switchToScreen({ type: "pause" });
