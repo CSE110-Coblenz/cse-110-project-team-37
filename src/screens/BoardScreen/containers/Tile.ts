@@ -1,7 +1,7 @@
 export type TileType = { type: "normal" } | { type: "minigame" } | { type: "end" };
-export type TileSuccessors = {north: Tile | null, east: Tile | null, south: Tile | null};
+export type TileSuccessors = { north: Tile | null; east: Tile | null; south: Tile | null };
 
-export class  Tile {
+export class Tile {
   id: string;
   type: TileType;
   nextTile: TileSuccessors;
@@ -15,5 +15,4 @@ export class  Tile {
   isDeadEnd(): boolean {
     return !this.nextTile.north && !this.nextTile.east && !this.nextTile.south;
   }
-  
 }

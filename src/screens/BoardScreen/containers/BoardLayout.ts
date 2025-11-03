@@ -6,7 +6,7 @@ import type { Tile } from "./Tile";
  */
 export class BoardLayout {
   private readonly positions = new Map<Tile, { x: number; y: number }>();
-  private readonly step : number; // distance between tiles in pixels
+  private readonly step: number; // distance between tiles in pixels
 
   constructor(step: number) {
     this.step = step;
