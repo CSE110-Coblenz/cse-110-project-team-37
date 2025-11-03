@@ -1,10 +1,8 @@
 import Konva from "konva";
 
 import type { View } from "../../types.ts";
-import { BoardScreenModel } from "./BoardScreenModel.ts";
-import type { Tile } from "./containers/Tile.ts";
+import type { BoardScreenModel } from "./BoardScreenModel.ts";
 import { BoardRenderer } from "./utils/BoardRenderer.ts";
-import { BoardLayout } from "./containers/BoardLayout.ts";
 import type { Player } from "./containers/Player.ts";
 
 export class BoardScreenView implements View {
