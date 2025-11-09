@@ -47,7 +47,7 @@ export class QuestionScreenController extends ScreenController {
   }
 
   private handleHelpClick(): void {
-    this.screenSwitcher.switchToScreen({ type: "help" });
+    this.screenSwitcher.switchToScreen({ type: "equation_help" });
   }
 
   startQuestion(): void {
