@@ -11,18 +11,20 @@ export class QuestionScreenView implements View {
   private readonly answerButtons: Konva.Group[] = [];
   private readonly answerTexts: Konva.Text[] = [];
 
-  constructor(onAnswerClick: (index: number) => void) {
+  constructor(onAnswerClick: (index: number) => void, onHelpClick: () => void) {
     this.group = new Konva.Group({ visible: false });
 
     this.createExpressionBox();
     this.createAnswerButtons(onAnswerClick);
+
+    this.createHelpButton(onHelpClick);
   }
 
   //creates a white box for the expression
   private createExpressionBox(): void {
     const box = new Konva.Rect({
       x: STAGE_WIDTH / 2 - 200,
-      y: 100,
+      y: STAGE_HEIGHT / 5 - 50,
       width: 400,
       height: 150,
       fill: "white",
@@ -34,8 +36,7 @@ export class QuestionScreenView implements View {
     //placeholder, this will be changed by generate question
     this.expressionText = new Konva.Text({
       x: STAGE_WIDTH / 2,
-      y: 160,
-      text: "1/2 + 1/4 = ?",
+      y: STAGE_HEIGHT / 5,
       fontSize: 32,
       fontFamily: "Arial",
       fill: "black",
@@ -51,7 +52,7 @@ export class QuestionScreenView implements View {
     const buttonHeight = 100;
     const spacing = 20;
     const startX = (STAGE_WIDTH - (4 * buttonWidth + 3 * spacing)) / 2;
-    const yPos = STAGE_HEIGHT - 150;
+    const yPos = (STAGE_HEIGHT * 3) / 5;
 
     for (let i = 0; i < 4; i++) {
       const buttonGroup = new Konva.Group();
@@ -86,6 +87,42 @@ export class QuestionScreenView implements View {
       this.answerButtons.push(buttonGroup); //adds buttons to empty array defined at top
       this.group.add(buttonGroup);
     }
+  }
+
+  private createHelpButton(onHelpClick: () => void): void {
+    const HELP_BUTTON_WIDTH = 150;
+    const HELP_BUTTON_HEIGHT = 70;
+    const helpButtonGroup = new Konva.Group();
+
+    const helpButton = new Konva.Rect({
+      x: STAGE_WIDTH / 2 + HELP_BUTTON_WIDTH / 2,
+      y: (STAGE_HEIGHT * 4) / 5,
+      width: HELP_BUTTON_WIDTH,
+      height: HELP_BUTTON_HEIGHT,
+      fill: "#EEE",
+      stroke: "black",
+      cornerRadius: 5,
+    });
+
+    helpButton.offsetX(HELP_BUTTON_WIDTH); // Offset to align with the right edge
+
+    // Button Text
+    const helpText = new Konva.Text({
+      x: STAGE_WIDTH / 2,
+      y: (STAGE_HEIGHT * 4) / 5 + HELP_BUTTON_HEIGHT / 4, // Vertically centered
+      text: "HELP",
+      fontSize: 36,
+      fill: "black",
+      align: "center",
+    });
+    helpText.offsetX(helpText.width() / 2);
+
+    helpButtonGroup.add(helpButton, helpText);
+
+    // Attach the handler!
+    helpButtonGroup.on("click", onHelpClick);
+
+    this.group.add(helpButtonGroup);
   }
 
   updateExpression(expression: string): void {
