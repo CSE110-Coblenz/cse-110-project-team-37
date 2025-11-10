@@ -34,8 +34,11 @@ export class EquationHelpScreenView implements View {
 
   // defining HTML element so we can embed the YouTube videos
   private videoContainer: HTMLDivElement | null = null;
-  private closeButton: Konva.Group | null = null;
+  // 🎯 FIX 1: New property to hold the separate, opaque layer for the Close button
+  private closeLayer: Konva.Layer | null = null;
 
+  // 🎯 FIX 2: Property to hold the Back button group for toggling visibility
+  private backButtonGroup: Konva.Group | null = null;
   constructor(onVideoSelect: OnVideoSelect, onBackClick: () => void) {
     this.group = new Konva.Group({ visible: false });
 
@@ -86,6 +89,7 @@ export class EquationHelpScreenView implements View {
         cornerRadius: 10,
       });
 
+      // each button will let the user know what topic they will be learning about
       const text = new Konva.Text({
         x: STAGE_WIDTH / 2,
         y: currentY + 18,
@@ -93,6 +97,8 @@ export class EquationHelpScreenView implements View {
         fontSize: 24,
         fill: "black",
       });
+
+      // offsetting text so that it is centered to the rectangle
       text.offsetX(text.width() / 2);
 
       buttonGroup.add(rect, text);
@@ -108,7 +114,7 @@ export class EquationHelpScreenView implements View {
   // creating back button so user can go back to teaching options
   private createBackButton(onBackClick: () => void): void {
     const buttonGroup = new Konva.Group();
-    const yPos = STAGE_HEIGHT - 60; // 60px from the bottom
+    const yPos = STAGE_HEIGHT - 60;
     const width = 120;
     const height = 40;
 
@@ -127,17 +133,18 @@ export class EquationHelpScreenView implements View {
       y: yPos + 10,
       text: "BACK",
       fontSize: 20,
-      fill: "white",
+      fill: "black",
     });
     text.offsetX(text.width() / 2);
 
     buttonGroup.add(rect, text);
     buttonGroup.on("click", onBackClick);
     this.group.add(buttonGroup);
+
+    this.backButtonGroup = buttonGroup;
   }
 
-  // --- VIDEO EMBED METHODS ---
-
+  // embedding videos
   public showVideoEmbed(url: string): void {
     // Use embed URL format for IFRAME
     const videoUrl = url.replace("watch?v=", "embed/");
@@ -148,10 +155,16 @@ export class EquationHelpScreenView implements View {
 
     if (!appContainer) return;
 
-    // Dim the Konva elements on the canvas
+    // dimming buttons in the background
     this.group.opacity(0.1);
 
-    // 1. Create or reuse the HTML container
+    if (this.backButtonGroup) {
+      this.backButtonGroup.visible(false);
+    }
+
+    this.group.getLayer()?.draw();
+
+    // creating video container if it doesn't alredy exist
     if (!this.videoContainer) {
       this.videoContainer = document.createElement("div");
       this.videoContainer.id = "video-embed-container";
@@ -160,7 +173,7 @@ export class EquationHelpScreenView implements View {
       appContainer.appendChild(this.videoContainer);
     }
 
-    // 2. Position the container
+    // cetnering the video
     const left = (window.innerWidth - videoWidth) / 2;
     const top = (window.innerHeight - videoHeight) / 2;
 
@@ -169,7 +182,7 @@ export class EquationHelpScreenView implements View {
     this.videoContainer.style.left = `${left}px`;
     this.videoContainer.style.top = `${top}px`;
 
-    // 3. Embed the iframe with autoplay
+    // using HTML to embed the video
     this.videoContainer.innerHTML = `
             <iframe 
                 width="${videoWidth}" 
@@ -182,8 +195,15 @@ export class EquationHelpScreenView implements View {
 
     this.videoContainer.style.display = "block";
 
-    // 4. Create a Konva "Close" button
+    // creating the close button
     this.createCloseButton();
+
+    // Find the stage and add the new layer
+    const stage = this.group.getStage();
+    if (this.closeLayer && stage) {
+      stage.add(this.closeLayer);
+      this.closeLayer.draw();
+    }
   }
 
   public hideVideoEmbed(): void {
@@ -194,18 +214,21 @@ export class EquationHelpScreenView implements View {
     }
 
     // 2. Remove the Konva close button
-    if (this.closeButton) {
-      this.closeButton.destroy();
-      this.closeButton = null;
+    if (this.closeLayer) {
+      this.closeLayer.destroy();
+      this.closeLayer = null;
     }
 
     // 3. Restore Konva opacity and redraw
     this.group.opacity(1);
+    if (this.backButtonGroup) {
+      this.backButtonGroup.visible(true);
+    }
     this.group.getLayer()?.draw();
   }
 
   private createCloseButton(): void {
-    if (this.closeButton) return;
+    if (this.closeLayer) return;
 
     const buttonGroup = new Konva.Group();
     const yPos = (window.innerHeight + 450) / 2 + 50; // Position below video center
@@ -217,7 +240,7 @@ export class EquationHelpScreenView implements View {
       y: yPos,
       width,
       height,
-      fill: "#E00000", // Red for stop/close
+      fill: "#fd0404ff", // Red for stop/close
       stroke: "black",
       cornerRadius: 5,
     });
@@ -227,7 +250,7 @@ export class EquationHelpScreenView implements View {
       y: yPos + 10,
       text: "CLOSE VIDEO",
       fontSize: 18,
-      fill: "white",
+      fill: "black",
     });
     text.offsetX(text.width() / 2);
 
@@ -236,12 +259,10 @@ export class EquationHelpScreenView implements View {
     // IMPORTANT: The handler must call the instance method
     buttonGroup.on("click", () => this.hideVideoEmbed());
 
-    this.closeButton = buttonGroup;
-    this.group.add(this.closeButton);
-    this.group.getLayer()?.draw();
+    const newCloseLayer = new Konva.Layer();
+    newCloseLayer.add(buttonGroup);
+    this.closeLayer = newCloseLayer;
   }
-
-  // --- STANDARD VIEW INTERFACE METHODS ---
 
   show(): void {
     this.group.visible(true);

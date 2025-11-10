@@ -44,8 +44,10 @@ export class EquationHelpScreenController extends ScreenController {
     // Before switching screens, ensure the video embed is completely cleared from the DOM.
     this.view.hideVideoEmbed();
 
+    this.view.hide();
+
     // Route back to the main menu screen.
-    this.screenSwitcher.switchToScreen({ type: "menu" });
+    this.screenSwitcher.switchToScreen({ type: "game" });
   }
 
   /**
