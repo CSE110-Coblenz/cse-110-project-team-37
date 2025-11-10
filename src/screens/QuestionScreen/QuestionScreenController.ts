@@ -46,6 +46,7 @@ export class QuestionScreenController extends ScreenController {
     this.view.flashFeedback(isCorrect, index);
   }
 
+  // making sure that help button leads to right place
   private handleHelpClick(): void {
     this.screenSwitcher.switchToScreen({ type: "equation_help" });
   }

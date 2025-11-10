@@ -1,3 +1,4 @@
+// imports needed for controller
 import { ScreenController } from "../../types.ts";
 
 import { EquationHelpScreenView } from "./EquationHelpView.ts";
@@ -8,50 +9,53 @@ import type { ScreenSwitcher } from "../../types.ts";
  * HelpScreenController - Manages interactions and state for the help screen.
  */
 export class EquationHelpScreenController extends ScreenController {
-  // Properties are marked readonly as they are only set in the constructor.
+  // properties needed for the controller
   private readonly view: EquationHelpScreenView;
   private readonly screenSwitcher: ScreenSwitcher;
 
+  // constructor for controller
   constructor(screenSwitcher: ScreenSwitcher) {
     super();
+
+    // initialize screenSwitcher
     this.screenSwitcher = screenSwitcher;
 
-    // Initialize the View and pass the two necessary handler functions.
+    // initialize view
     this.view = new EquationHelpScreenView(
-      // Handler for when a specific video topic is clicked
+      // handling video select
       (url) => this.handleVideoSelect(url),
-      // Handler for when the "BACK" button is clicked
+      // handling when back button is pressed
       () => this.handleBackClick(),
     );
   }
 
   /**
-   * Handles the selection of a video topic button.
-   * Tells the view to display the embedded HTML video player.
-   * @param url The YouTube URL of the video selected.
+   * plays the correct YouTube video depending on
+   * which button was pressed.
    */
   private handleVideoSelect(url: string): void {
-    // The View handles creating, positioning, and displaying the HTML iframe.
+    // playing video as defined in the view
     this.view.showVideoEmbed(url);
   }
 
   /**
-   * Handles the click of the "BACK" or "CLOSE" button.
-   * 1. Ensures the video player is hidden.
-   * 2. Routes the user back to the main menu screen.
+   * handles when back button was clicked. mean to take
+   * user back to question screen
    */
   private handleBackClick(): void {
-    // Before switching screens, ensure the video embed is completely cleared from the DOM.
+    // edge cases/ preventive measure: making sure video is not playing while back button is pressed
+    // even though it was designed in a way where video should not be playing to begin with
     this.view.hideVideoEmbed();
 
+    // hiding the view
     this.view.hide();
 
-    // Route back to the main menu screen.
+    // go back to question screen
     this.screenSwitcher.switchToScreen({ type: "game" });
   }
 
   /**
-   * Get the view (Required by ScreenController base class).
+   * get the view
    */
   public getView(): EquationHelpScreenView {
     return this.view;

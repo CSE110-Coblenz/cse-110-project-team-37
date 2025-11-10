@@ -89,11 +89,15 @@ export class QuestionScreenView implements View {
     }
   }
 
+  // creating a help button so that users can get a refresher as to how to solve certain equations
+  // meant to teach users process, not give answers away
   private createHelpButton(onHelpClick: () => void): void {
+    // determining dimensions for help button
     const HELP_BUTTON_WIDTH = 150;
     const HELP_BUTTON_HEIGHT = 70;
     const helpButtonGroup = new Konva.Group();
 
+    // desigining the button
     const helpButton = new Konva.Rect({
       x: STAGE_WIDTH / 2 + HELP_BUTTON_WIDTH / 2,
       y: (STAGE_HEIGHT * 4) / 5,
@@ -104,9 +108,9 @@ export class QuestionScreenView implements View {
       cornerRadius: 5,
     });
 
-    helpButton.offsetX(HELP_BUTTON_WIDTH); // Offset to align with the right edge
+    helpButton.offsetX(HELP_BUTTON_WIDTH);
 
-    // Button Text
+    // text that goes inside the button
     const helpText = new Konva.Text({
       x: STAGE_WIDTH / 2,
       y: (STAGE_HEIGHT * 4) / 5 + HELP_BUTTON_HEIGHT / 4, // Vertically centered
@@ -117,9 +121,10 @@ export class QuestionScreenView implements View {
     });
     helpText.offsetX(helpText.width() / 2);
 
+    // adding button to the group
     helpButtonGroup.add(helpButton, helpText);
 
-    // Attach the handler!
+    // attaching handler
     helpButtonGroup.on("click", onHelpClick);
 
     this.group.add(helpButtonGroup);
