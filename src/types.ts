@@ -2,7 +2,7 @@
 // so that switching screens becomes easy.
 import type { Group } from "konva/lib/Group";
 
-// interface for view 
+// interface for view
 export type View = {
   getGroup: () => Group;
   show: () => void;
@@ -21,7 +21,8 @@ export type Screen =
   | { type: "game" }
   | { type: "help" }
   | { type: "pause" }
-  | { type: "end" };
+  | { type: "end" }
+  | { type: "equation_help" };
 
 export abstract class ScreenController {
   abstract getView(): View;

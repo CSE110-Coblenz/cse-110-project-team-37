@@ -1,6 +1,7 @@
 import Konva from "konva";
 
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
+import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
@@ -9,7 +10,7 @@ import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
 
 /**
- * Main Application - Coordinates all screens 
+ * Main Application - Coordinates all screens
  *
  * This class demonstrates screen management using Konva Groups.
  * Each screen (Menu, Game, Results) has its own Konva.Group that can be
@@ -26,6 +27,7 @@ class App implements ScreenSwitcher {
   private readonly pauseScreenController: PauseScreenController;
   private readonly gameScreenController: QuestionScreenController;
   private readonly endScreenController: EndScreenController;
+  private readonly equationHelpScreenController: EquationHelpScreenController;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
@@ -54,6 +56,7 @@ class App implements ScreenSwitcher {
       operations: ["+", "-"],
     } as QuestionConfig);
     this.endScreenController = new EndScreenController(this);
+    this.equationHelpScreenController = new EquationHelpScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -61,6 +64,7 @@ class App implements ScreenSwitcher {
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
+    this.layer.add(this.equationHelpScreenController.getView().getGroup());
 
     // start on main menu
     this.mainMenuController.show();
@@ -112,6 +116,8 @@ class App implements ScreenSwitcher {
       case "end":
         this.endScreenController.show();
         break;
+      case "equation_help":
+        this.equationHelpScreenController.show();
     }
 
     this.current = screen.type;
