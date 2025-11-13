@@ -2,7 +2,7 @@
 // so that switching screens becomes easy.
 import type { Group } from "konva/lib/Group";
 
-// interface for view
+// interface for view 
 export type View = {
   getGroup: () => Group;
   show: () => void;

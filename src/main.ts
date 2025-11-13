@@ -9,7 +9,7 @@ import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
 
 /**
- * Main Application - Coordinates all screens
+ * Main Application - Coordinates all screens 
  *
  * This class demonstrates screen management using Konva Groups.
  * Each screen (Menu, Game, Results) has its own Konva.Group that can be
