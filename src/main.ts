@@ -53,19 +53,19 @@ class App implements ScreenSwitcher {
       numChoices: 4,
       operations: ["+", "-"],
     } as QuestionConfig);
-	this.endScreenController = new EndScreenController(this);
+    this.endScreenController = new EndScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
     this.layer.add(this.mainMenuController.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
-	this.layer.add(this.endScreenController.getView().getGroup());
+    this.layer.add(this.endScreenController.getView().getGroup());
 
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
-	this.endScreenController.hide();
+    this.endScreenController.hide();
     this.current = "menu";
 
     // Draw the layer (render everything to the canvas)
@@ -96,7 +96,7 @@ class App implements ScreenSwitcher {
     this.mainMenuController.hide();
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
-	this.endScreenController.hide();
+    this.endScreenController.hide();
 
     // Show the requested screen based on the screen type
     switch (screen.type) {
@@ -109,9 +109,9 @@ class App implements ScreenSwitcher {
       case "game":
         this.gameScreenController.startQuestion();
         break;
-	  case "end":
-		this.endScreenController.show();
-		break;
+      case "end":
+        this.endScreenController.show();
+        break;
     }
 
     this.current = screen.type;
