@@ -4,7 +4,7 @@ import { ScreenController } from "../../types.ts";
 import { EndScreenModel } from "./EndScreenModel.ts";
 import { EndScreenView } from "./EndScreenView.ts";
 
-import type { ScreenSwitcher } from "../../types.ts";
+import type { ScreenSwitcher } from "../../types.ts"; 
 
 /**
  * EndScreenController - Coordinates game logic between Model and View
