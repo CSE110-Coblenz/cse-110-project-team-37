@@ -3,7 +3,7 @@ import Konva from "konva";
 import type { View } from "../../types.ts";
 
 /**
- * EndScreenView - Renders the game UI using Konva 
+ * EndScreenView - Renders the game UI using Konva
  */
 export class EndScreenView implements View {
   private readonly root: Konva.Group;

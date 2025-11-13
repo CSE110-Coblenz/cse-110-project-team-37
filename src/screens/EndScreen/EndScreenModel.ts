@@ -6,7 +6,7 @@ export class EndScreenModel {
   private score = 0;
 
   /**
-   * Reset game state for a new game 
+   * Reset game state for a new game
    */
   reset(): void {
     this.score = 0;

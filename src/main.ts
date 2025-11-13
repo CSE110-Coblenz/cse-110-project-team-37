@@ -1,4 +1,4 @@
-import Konva from "konva"; 
+import Konva from "konva";
 
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
