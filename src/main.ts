@@ -2,8 +2,8 @@ import Konva from "konva";
 
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
-import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
+import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
