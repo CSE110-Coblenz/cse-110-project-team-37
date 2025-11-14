@@ -59,7 +59,7 @@ class App implements ScreenSwitcher {
     } as QuestionConfig);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
-	this.tutorialScreenController = new TutorialScreenController(this);
+    this.tutorialScreenController = new TutorialScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -68,9 +68,9 @@ class App implements ScreenSwitcher {
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
-	this.layer.add(this.tutorialScreenController.getView().getGroup());
+    this.layer.add(this.tutorialScreenController.getView().getGroup());
 
-	/*
+    /*
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
@@ -78,12 +78,12 @@ class App implements ScreenSwitcher {
     this.current = "menu";
 	*/
 
-	// demo
-	this.mainMenuController.hide();
-	this.pauseScreenController.hide();
-	this.endScreenController.hide();
-	this.tutorialScreenController.show();
-	this.current = "tutorial";
+    // demo
+    this.mainMenuController.hide();
+    this.pauseScreenController.hide();
+    this.endScreenController.hide();
+    this.tutorialScreenController.show();
+    this.current = "tutorial";
 
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
