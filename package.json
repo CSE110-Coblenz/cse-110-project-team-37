@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint --cache --report-unused-disable-directives . && prettier --check .",
     "lint:fix": "(eslint --fix --cache --report-unused-disable-directives . || true) && prettier --write .",
-    "prepare": "cd .. && husky"
+    "prepare": "cd .. && husky",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.15",
@@ -22,6 +23,7 @@
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vitest": "^4.0.8"
   }
 }
