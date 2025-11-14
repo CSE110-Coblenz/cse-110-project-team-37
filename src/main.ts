@@ -5,6 +5,7 @@ import { EquationHelpScreenController } from "./screens/EquationHelpScreen/Equat
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
+import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScreenController.ts";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
@@ -28,6 +29,7 @@ class App implements ScreenSwitcher {
   private readonly gameScreenController: QuestionScreenController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
+  private readonly tutorialScreenController: TutorialScreenController;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
@@ -57,6 +59,7 @@ class App implements ScreenSwitcher {
     } as QuestionConfig);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
+	this.tutorialScreenController = new this.tutorialScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -65,12 +68,23 @@ class App implements ScreenSwitcher {
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
+	this.layer.add(this.tutorialScreenController.getView().getGroup());
 
+	/*
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
     this.endScreenController.hide();
     this.current = "menu";
+	*/
+
+	// demo
+
+	this.mainMenuController.hide();
+	this.pauseScreenController.hide();
+	this.endScreenController.hide();
+	this.tutorialScreenController.show();
+	this.current = "tutorial";
 
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
@@ -85,6 +99,8 @@ class App implements ScreenSwitcher {
       }
     });
   }
+
+  // TODO: figure out how we decide when game ends, link endScreen to this event
 
   /**
    * Switch to a different screen
