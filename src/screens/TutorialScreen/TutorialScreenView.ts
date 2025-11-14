@@ -26,7 +26,7 @@ export class TutorialScreenView implements View {
 	  align: "center",
 	  x: 0,
 	  width: stageWidth,
-	  y: stageHeight / 2 - 50,
+	  y: stageHeight / 2 - 200,
 	});
 
 	// Tutorial instructions
@@ -36,7 +36,7 @@ export class TutorialScreenView implements View {
 	  align: "center",
 	  x: 0,
 	  width: stageWidth,
-	  y: stageHeight / 2 - 150
+	  y: stageHeight / 2 - 50
 	});
 
 	// Close button
@@ -72,6 +72,7 @@ export class TutorialScreenView implements View {
 	this.buttonGroup.add(this.btnText);
 
 	this.root.add(this.title);
+	this.root.add(this.text);
 	this.root.add(this.buttonGroup);
 
 	this.buttonGroup.on("click tap", () => {
