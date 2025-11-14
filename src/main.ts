@@ -70,20 +70,11 @@ class App implements ScreenSwitcher {
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
     this.layer.add(this.tutorialScreenController.getView().getGroup());
 
-    /*
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
     this.endScreenController.hide();
     this.current = "menu";
-	*/
-
-    // demo
-    this.mainMenuController.hide();
-    this.pauseScreenController.hide();
-    this.endScreenController.hide();
-    this.tutorialScreenController.show();
-    this.current = "tutorial";
 
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
