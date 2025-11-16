@@ -1,5 +1,7 @@
 import Konva from "konva";
 
+import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
+import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
@@ -26,6 +28,8 @@ class App implements ScreenSwitcher {
   private readonly pauseScreenController: PauseScreenController;
   private readonly gameScreenController: QuestionScreenController;
   private readonly minigame1Controller: Minigame1ScreenController;
+  private readonly endScreenController: EndScreenController;
+  private readonly equationHelpScreenController: EquationHelpScreenController;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
@@ -54,6 +58,8 @@ class App implements ScreenSwitcher {
       operations: ["+", "-"],
     } as QuestionConfig);
     this.minigame1Controller = new Minigame1ScreenController(this);
+    this.endScreenController = new EndScreenController(this);
+    this.equationHelpScreenController = new EquationHelpScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -61,11 +67,14 @@ class App implements ScreenSwitcher {
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.minigame1Controller.getView().getGroup());
+    this.layer.add(this.endScreenController.getView().getGroup());
+    this.layer.add(this.equationHelpScreenController.getView().getGroup());
 
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
     this.minigame1Controller.hide();
+    this.endScreenController.hide();
     this.current = "menu";
 
     // Draw the layer (render everything to the canvas)
@@ -97,6 +106,7 @@ class App implements ScreenSwitcher {
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
     this.minigame1Controller.hide();
+    this.endScreenController.hide();
 
     // Show the requested screen based on the screen type
     switch (screen.type) {
@@ -112,6 +122,11 @@ class App implements ScreenSwitcher {
       case "minigame1":
         this.minigame1Controller.show();
         break;
+      case "end":
+        this.endScreenController.show();
+        break;
+      case "equation_help":
+        this.equationHelpScreenController.show();
     }
 
     this.current = screen.type;
