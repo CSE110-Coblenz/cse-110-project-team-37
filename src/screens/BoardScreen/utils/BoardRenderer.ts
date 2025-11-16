@@ -10,8 +10,8 @@ import type { Tile } from "../containers/Tile";
  */
 export class BoardRenderer {
   // Size of each individual tile
-  private readonly tileSize = 20;
-  private readonly strokeWidth = 2;
+  private readonly tileSize = 120;
+  private readonly strokeWidth = 10;
   private readonly tileOffset = this.tileSize + this.strokeWidth / 2 + 10;
 
   private readonly group: Konva.Group;
@@ -37,6 +37,21 @@ export class BoardRenderer {
    */
   public updatePlayer(tile: Tile) {
     this.renderedPlayer.position(this.boardLayout.getPosition(tile));
+    this.centerCameraOnPlayer(tile);
+  }
+
+  /*
+   * Moves board layer to simulat camera movement. 
+   * @param tile - players current tile
+   */
+  private centerCameraOnPlayer(tile: Tile) {
+    const playerPos = this.boardLayout.getPosition(tile) ?? {x: 0, y: 0};
+
+    const targetX = -playerPos.x - 500;
+    const targetY = -playerPos.y;
+
+    this.group.position({ x: targetX, y: targetY });
+    this.group.draw();
   }
 
   /*

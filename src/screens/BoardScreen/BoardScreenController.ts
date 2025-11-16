@@ -25,9 +25,9 @@ export class BoardScreenController extends ScreenController {
   }
 
   private handleDiceClick(): void {
-    // this.model.getPlayer().move();
-    // this.view.updatePlayerPos(this.model.getPlayer());
-    this.screenSwitcher.switchToScreen({ type: "game" });
+    this.model.getPlayer().move();
+    this.view.updatePlayerPos(this.model.getPlayer());
+    // this.screenSwitcher.switchToScreen({ type: "game" });
   }
 
   getView(): BoardScreenView {
