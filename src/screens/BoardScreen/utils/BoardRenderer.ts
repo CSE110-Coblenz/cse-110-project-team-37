@@ -6,12 +6,12 @@ import type { Player } from "../containers/Player";
 import type { Tile } from "../containers/Tile";
 
 /*
- * Class containing
+ * Class containing Render for the board.
  */
 export class BoardRenderer {
   // Size of each individual tile
-  private readonly tileSize = 80;
-  private readonly strokeWidth = 6;
+  private readonly tileSize = 20;
+  private readonly strokeWidth = 2;
   private readonly tileOffset = this.tileSize + this.strokeWidth / 2 + 10;
 
   private readonly group: Konva.Group;

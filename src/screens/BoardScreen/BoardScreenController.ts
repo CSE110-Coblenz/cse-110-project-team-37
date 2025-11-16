@@ -1,4 +1,4 @@
-import { ScreenController } from "../../types.ts";
+import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
 import { BoardScreenView } from "./BoardScreenView.ts";
@@ -7,8 +7,11 @@ export class BoardScreenController extends ScreenController {
   private readonly model: BoardScreenModel;
   private readonly view: BoardScreenView;
 
-  constructor() {
+  private readonly screenSwitcher: ScreenSwitcher;
+
+  constructor(screenSwitcher: ScreenSwitcher) {
     super();
+    this.screenSwitcher = screenSwitcher;
     this.model = new BoardScreenModel();
     this.view = new BoardScreenView(
       () => this.handlePauseClick(),
@@ -22,8 +25,9 @@ export class BoardScreenController extends ScreenController {
   }
 
   private handleDiceClick(): void {
-    this.model.getPlayer().move();
-    this.view.updatePlayerPos(this.model.getPlayer());
+    // this.model.getPlayer().move();
+    // this.view.updatePlayerPos(this.model.getPlayer());
+    this.screenSwitcher.switchToScreen({ type: "game" });
   }
 
   getView(): BoardScreenView {
