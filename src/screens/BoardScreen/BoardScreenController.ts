@@ -20,11 +20,20 @@ export class BoardScreenController extends ScreenController {
     );
   }
 
+  /*
+   * Updates the position of a camera
+   */
+  public updateCameraPanning(mousePos: {x: number, y: number}) {
+    this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, mousePos);
+  }
+
   private handlePauseClick(): void {
     // TODO Pause placeholder
   }
 
   private handleDiceClick(): void {
+    this.model.getPlayer().move();
+    this.model.getPlayer().move();
     this.model.getPlayer().move();
     this.view.updatePlayerPos(this.model.getPlayer());
     // this.screenSwitcher.switchToScreen({ type: "game" });

@@ -84,6 +84,14 @@ class App implements ScreenSwitcher {
         }
       }
     });
+
+    // If in board state, update the camera positioning.
+    // this.stage.on("mousemove", () => {
+    //   if (this.current == "board") {
+    //     this.boardScreenControoler.updateCameraPanning(
+    //       this.stage.getPointerPosition() ?? {x: 0, y: 0});
+    //   }
+    // });
   }
 
   /**

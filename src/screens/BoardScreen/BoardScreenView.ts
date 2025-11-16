@@ -15,7 +15,7 @@ export class BoardScreenView implements View {
   // Specifically tiles and player render group, good to keep separate for the future (aka camera).
   private readonly boardGroup: Konva.Group;
 
-  private readonly boardRenderer: BoardRenderer;
+  public readonly boardRenderer: BoardRenderer;
 
   private readonly model: BoardScreenModel;
   private readonly onPauseClick: () => void;
