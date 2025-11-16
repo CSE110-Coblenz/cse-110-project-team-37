@@ -40,24 +40,23 @@ export class BoardRenderer {
   public updatePlayer(tile: Tile) {
     this.renderedPlayer.position(this.boardLayout.getPosition(tile));
     this.centerCameraOnPlayer(tile, null);
-
   }
 
   /*
-   * Moves board layer to simulat camera movement. 
+   * Moves board layer to simulat camera movement.
    * @param tile - players current tile
    */
-  public centerCameraOnPlayer(tile: Tile, mousePos: {x: number, y: number} | null) {
-    const playerPos = this.boardLayout.getPosition(tile) ?? {x: 0, y: 0};
+  public centerCameraOnPlayer(tile: Tile, mousePos: { x: number; y: number } | null) {
+    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
     let panOffsetX = 0;
     let panOffsetY = 0;
 
     if (mousePos) {
-      const offsetXNorm = (mousePos.x - (this.width / 2)) / (this.width / 2); 
-      const offsetYNorm = (mousePos.y - (this.height / 2)) / (this.height / 2);
+      const offsetXNorm = (mousePos.x - this.width / 2) / (this.width / 2);
+      const offsetYNorm = (mousePos.y - this.height / 2) / (this.height / 2);
 
-      const maxPanOffset = 200; 
+      const maxPanOffset = 200;
 
       panOffsetX = offsetXNorm * maxPanOffset;
       panOffsetY = offsetYNorm * maxPanOffset;
@@ -72,15 +71,14 @@ export class BoardRenderer {
     }
 
     this.cameraTween = new Konva.Tween({
-        node: this.group,
-        duration: 0.5,
-        x: targetX,
-        y: targetY,
-        easing: Konva.Easings.EaseInOut,
+      node: this.group,
+      duration: 0.5,
+      x: targetX,
+      y: targetY,
+      easing: Konva.Easings.EaseInOut,
     });
 
     this.cameraTween.play();
-
   }
 
   /*

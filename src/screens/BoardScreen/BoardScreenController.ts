@@ -23,7 +23,7 @@ export class BoardScreenController extends ScreenController {
   /*
    * Updates the position of a camera
    */
-  public updateCameraPanning(mousePos: {x: number, y: number}) {
+  public updateCameraPanning(mousePos: { x: number; y: number }) {
     this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, mousePos);
   }
 
