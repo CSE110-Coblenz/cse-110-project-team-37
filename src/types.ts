@@ -18,7 +18,7 @@ export type View = {
  */
 export type Screen =
   | { type: "menu" }
-  | { type: "game" }
+  | { type: "game"; difficulty: string }
   | { type: "help" }
   | { type: "pause" }
   | { type: "end" }

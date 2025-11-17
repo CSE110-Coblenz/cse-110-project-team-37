@@ -55,7 +55,7 @@ export class MainMenuScreenView implements View {
 
     //-----------------------------Difficulty Bar Section-------------------------------------------------------------------
     // defining values that are necessary for the difficulty selector
-    const difficulties = ["EASY", "MEDIUM", "HARD"];
+    const difficulties = ["Easy", "Medium", "Hard"];
 
     // creating a group that displays difficulties
     const difficultyGroup = new Konva.Group({
