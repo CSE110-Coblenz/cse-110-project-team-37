@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 // importing fraction for testing
-import { Fraction } from "../models/Fraction";
+import { Fraction } from "../../models/Fraction";
 
 describe("fraction Model Arithmetic", () => {
   // testing toString function

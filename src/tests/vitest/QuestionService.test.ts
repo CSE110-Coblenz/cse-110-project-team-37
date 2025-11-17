@@ -2,10 +2,10 @@
 import { describe, expect, it } from "vitest";
 
 // importing fraction and question service to test equation generation
-import { Fraction } from "../models/Fraction";
-import { QuestionService } from "../services/QuestionService";
+import { Fraction } from "../../models/Fraction";
+import { QuestionService } from "../../services/QuestionService";
 
-import type { QuestionConfig } from "../services/QuestionService";
+import type { QuestionConfig } from "../../services/QuestionService";
 
 // defining number of times we will randomly generate a question
 const NUM_TEST_ITERATIONS = 100;

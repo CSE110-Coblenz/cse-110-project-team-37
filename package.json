@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.1",
     "eslint": "^9.38.0",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
