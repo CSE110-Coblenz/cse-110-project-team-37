@@ -40,7 +40,7 @@ export class BoardScreenController extends ScreenController {
     } else if (player.getCurrentTile().getType().type === "end") {
       this.screenSwitcher.switchToScreen({ type: "end" });
     } else {
-      this.screenSwitcher.switchToScreen({ type: "game", difficulty: "Easy" });
+      this.screenSwitcher.switchToScreen({ type: "game" });
       player.move();
     }
     this.view.updatePlayerPos(this.model.getPlayer());

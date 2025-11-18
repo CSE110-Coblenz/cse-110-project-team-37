@@ -1,5 +1,6 @@
 import Konva from "konva";
 
+import { GameState } from "./models/GameState.ts";
 import { BoardScreenController } from "./screens/BoardScreen/BoardScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
@@ -25,6 +26,8 @@ class App implements ScreenSwitcher {
   private readonly stage: Konva.Stage;
   private readonly layer: Konva.Layer;
 
+  private readonly gameState: GameState;
+
   private readonly mainMenuController: MainMenuScreenController;
   private readonly boardScreenControoler: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
@@ -49,9 +52,12 @@ class App implements ScreenSwitcher {
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
 
+    // Initialize Game state
+    this.gameState = new GameState();
+
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
-    this.mainMenuController = new MainMenuScreenController(this);
+    this.mainMenuController = new MainMenuScreenController(this, this.gameState);
     this.boardScreenControoler = new BoardScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
@@ -88,7 +94,7 @@ class App implements ScreenSwitcher {
         if (this.current === "game") {
           this.switchToScreen({ type: "pause" });
         } else if (this.current === "pause") {
-          this.switchToScreen({ type: "game", difficulty: "Easy" });
+          this.switchToScreen({ type: "game" });
         }
       }
     });
@@ -176,7 +182,7 @@ class App implements ScreenSwitcher {
         break;
       case "game":
         // Get the configuration for the selected difficulty
-        const config = this.getDifficultyConfig(screen.difficulty);
+        const config = this.getDifficultyConfig(this.gameState.getDifficulty());
         this.gameScreenController.getView().getGroup().remove();
         // creates a new controller with the correct difficulty config
         this.gameScreenController = new QuestionScreenController(this, config);
