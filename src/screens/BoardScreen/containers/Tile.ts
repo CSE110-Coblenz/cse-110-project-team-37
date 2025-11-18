@@ -15,4 +15,9 @@ export class Tile {
   isDeadEnd(): boolean {
     return !this.nextTile.north && !this.nextTile.east && !this.nextTile.south;
   }
+
+  getType(): TileType {
+    return this.type;
+  }
+  
 }
