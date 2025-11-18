@@ -6,12 +6,12 @@ import type { Player } from "../containers/Player";
 import type { Tile } from "../containers/Tile";
 
 /*
- * Class containing
+ * Class containing Render for the board.
  */
 export class BoardRenderer {
   // Size of each individual tile
-  private readonly tileSize = 80;
-  private readonly strokeWidth = 6;
+  private readonly tileSize = 120;
+  private readonly strokeWidth = 10;
   private readonly tileOffset = this.tileSize + this.strokeWidth / 2 + 10;
 
   private readonly group: Konva.Group;
@@ -22,6 +22,8 @@ export class BoardRenderer {
 
   public readonly renderedTileMap = new Map<Tile, Konva.Group>();
   public readonly renderedPlayer = new Konva.Group();
+
+  private cameraTween: Konva.Tween | null = null;
 
   constructor(group: Konva.Group, width: number, heigth: number) {
     this.group = group;
@@ -37,6 +39,46 @@ export class BoardRenderer {
    */
   public updatePlayer(tile: Tile) {
     this.renderedPlayer.position(this.boardLayout.getPosition(tile));
+    this.centerCameraOnPlayer(tile, null);
+  }
+
+  /*
+   * Moves board layer to simulat camera movement.
+   * @param tile - players current tile
+   */
+  public centerCameraOnPlayer(tile: Tile, mousePos: { x: number; y: number } | null) {
+    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+
+    let panOffsetX = 0;
+    let panOffsetY = 0;
+
+    if (mousePos) {
+      const offsetXNorm = (mousePos.x - this.width / 2) / (this.width / 2);
+      const offsetYNorm = (mousePos.y - this.height / 2) / (this.height / 2);
+
+      const maxPanOffset = 200;
+
+      panOffsetX = offsetXNorm * maxPanOffset;
+      panOffsetY = offsetYNorm * maxPanOffset;
+    }
+
+    const targetX = -playerPos.x - panOffsetX;
+    const targetY = -playerPos.y - panOffsetY;
+
+    if (this.cameraTween) {
+      this.cameraTween.pause();
+      this.cameraTween = null;
+    }
+
+    this.cameraTween = new Konva.Tween({
+      node: this.group,
+      duration: 0.5,
+      x: targetX,
+      y: targetY,
+      easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+    });
+
+    this.cameraTween.play();
   }
 
   /*
