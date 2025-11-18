@@ -1,5 +1,6 @@
 import Konva from "konva";
 
+import { BoardScreenController } from "./screens/BoardScreen/BoardScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
@@ -25,6 +26,7 @@ class App implements ScreenSwitcher {
   private readonly layer: Konva.Layer;
 
   private readonly mainMenuController: MainMenuScreenController;
+  private readonly boardScreenControoler: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
   private readonly minigame1Controller: Minigame1ScreenController;
   private readonly endScreenController: EndScreenController;
@@ -50,6 +52,7 @@ class App implements ScreenSwitcher {
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this);
+    this.boardScreenControoler = new BoardScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
       this,
@@ -62,6 +65,7 @@ class App implements ScreenSwitcher {
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
     this.layer.add(this.mainMenuController.getView().getGroup());
+    this.layer.add(this.boardScreenControoler.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.minigame1Controller.getView().getGroup());
@@ -71,6 +75,7 @@ class App implements ScreenSwitcher {
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
+    this.boardScreenControoler.hide();
     this.minigame1Controller.hide();
     this.endScreenController.hide();
     this.current = "menu";
@@ -87,6 +92,14 @@ class App implements ScreenSwitcher {
         }
       }
     });
+
+    // If in board state, update the camera positioning.
+    // this.stage.on("mousemove", () => {
+    //   if (this.current == "board") {
+    //     this.boardScreenControoler.updateCameraPanning(
+    //       this.stage.getPointerPosition() ?? {x: 0, y: 0});
+    //   }
+    // });
   }
 
   /**
@@ -144,6 +157,7 @@ class App implements ScreenSwitcher {
   switchToScreen(screen: Screen): void {
     // Hide all screens first by setting their Groups to invisible
     this.mainMenuController.hide();
+    this.boardScreenControoler.hide();
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
     this.minigame1Controller.hide();
@@ -153,6 +167,9 @@ class App implements ScreenSwitcher {
     switch (screen.type) {
       case "menu":
         this.mainMenuController.show();
+        break;
+      case "board":
+        this.boardScreenControoler.show();
         break;
       case "pause":
         this.pauseScreenController.show();
