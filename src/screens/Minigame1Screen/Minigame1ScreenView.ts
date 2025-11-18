@@ -2,6 +2,60 @@ import Konva from "konva";
 
 import type { View } from "../../types.ts";
 
+// --------- Minimal Rational helper ----------
+function gcd(a: number, b: number): number {
+  while (b !== 0) {
+    const t = b;
+    b = a % b;
+    a = t;
+  }
+  return Math.max(1, Math.abs(a));
+}
+
+class Rational {
+  readonly n: number;
+  readonly d: number;
+  constructor(n: number, d: number) {
+    if (d === 0) throw new Error("denominator cannot be 0");
+    const sign = d < 0 ? -1 : 1;
+    const nn = n * sign;
+    const dd = Math.abs(d);
+    const g = gcd(Math.abs(nn), dd);
+    this.n = nn / g;
+    this.d = dd / g;
+  }
+  static zero() {
+    return new Rational(0, 1);
+  }
+  static one() {
+    return new Rational(1, 1);
+  }
+  toNumber() {
+    return this.n / this.d;
+  }
+  toString() {
+    return `${this.n}/${this.d}`;
+  }
+  add(r: Rational) {
+    return new Rational(this.n * r.d + r.n * this.d, this.d * r.d);
+  }
+  sub(r: Rational) {
+    return new Rational(this.n * r.d - r.n * this.d, this.d * r.d);
+  }
+  gt(r: Rational) {
+    return this.n * r.d > r.n * this.d;
+  }
+  closeTo(r: Rational, eps: Rational) {
+    return this.sub(r).abs().toNumber() <= eps.toNumber();
+  }
+  abs() {
+    return new Rational(Math.abs(this.n), this.d);
+  }
+  clampMinZero() {
+    return this.gt(Rational.zero()) ? this : Rational.zero();
+  }
+}
+
 /**
  * Minigame1ScreenView
  * - Big pizza image on center-left (no orange crust fill)
@@ -26,7 +80,7 @@ export class Minigame1ScreenView implements View {
   private readonly PIZZA_SRC = "/whole-pizza.png"; // served from /public
 
   // Game state
-  private current: Rational = Rational.zero();
+  private current: Rational = new Rational(1, 1);
   private readonly epsilon = new Rational(1, 1000);
 
   // UI refs
@@ -43,17 +97,20 @@ export class Minigame1ScreenView implements View {
 
     this.drawBackground();
 
-    this.loadPizzaTexture().then(() => {
-      this.drawPizzaBaseWithImage();
-      this.drawHUD();
-      this.drawButtons([
-        new Rational(1, 4),
-        new Rational(1, 8),
-        new Rational(1, 2),
-        new Rational(1, 3),
-      ]);
-      this.group.getLayer()?.draw();
-    });
+    this.loadPizzaTexture().then(
+      () => {
+        this.drawPizzaBaseWithImage();
+        this.drawHUD();
+        this.drawButtons([
+          new Rational(1, 4),
+          new Rational(1, 8),
+          new Rational(1, 2),
+          new Rational(1, 3),
+        ]);
+        this.group.getLayer()?.draw();
+      },
+      () => console.error("We are coocked"),
+    );
   }
 
   // View interface
@@ -407,60 +464,6 @@ export class Minigame1ScreenView implements View {
     g.setAttr("data-wedge", true);
     this.pizzaGroup.add(g);
   }
-}
-
-// --------- Minimal Rational helper ----------
-class Rational {
-  readonly n: number;
-  readonly d: number;
-  constructor(n: number, d: number) {
-    if (d === 0) throw new Error("denominator cannot be 0");
-    const sign = d < 0 ? -1 : 1;
-    const nn = n * sign;
-    const dd = Math.abs(d);
-    const g = gcd(Math.abs(nn), dd);
-    this.n = nn / g;
-    this.d = dd / g;
-  }
-  static zero() {
-    return new Rational(0, 1);
-  }
-  static one() {
-    return new Rational(1, 1);
-  }
-  toNumber() {
-    return this.n / this.d;
-  }
-  toString() {
-    return `${this.n}/${this.d}`;
-  }
-  add(r: Rational) {
-    return new Rational(this.n * r.d + r.n * this.d, this.d * r.d);
-  }
-  sub(r: Rational) {
-    return new Rational(this.n * r.d - r.n * this.d, this.d * r.d);
-  }
-  gt(r: Rational) {
-    return this.n * r.d > r.n * this.d;
-  }
-  closeTo(r: Rational, eps: Rational) {
-    return this.sub(r).abs().toNumber() <= eps.toNumber();
-  }
-  abs() {
-    return new Rational(Math.abs(this.n), this.d);
-  }
-  clampMinZero() {
-    return this.gt(Rational.zero()) ? this : Rational.zero();
-  }
-}
-
-function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    const t = b;
-    b = a % b;
-    a = t;
-  }
-  return Math.max(1, Math.abs(a));
 }
 
 export default Minigame1ScreenView;
