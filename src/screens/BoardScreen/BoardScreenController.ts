@@ -2,7 +2,8 @@ import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
 import { BoardScreenView } from "./BoardScreenView.ts";
-import { Player } from "./containers/Player.ts";
+
+import type { Player } from "./containers/Player.ts";
 
 export class BoardScreenController extends ScreenController {
   private readonly model: BoardScreenModel;
@@ -34,10 +35,10 @@ export class BoardScreenController extends ScreenController {
 
   private handleDiceClick(): void {
     const player: Player = this.model.getPlayer();
-    if (player.getCurrentTile().getType().type == "normal") {
+    if (player.getCurrentTile().getType().type === "normal") {
       player.move();
-    } else if (player.getCurrentTile().getType().type == "end")  {
-      this.screenSwitcher.switchToScreen({ type: "end"});
+    } else if (player.getCurrentTile().getType().type === "end") {
+      this.screenSwitcher.switchToScreen({ type: "end" });
     } else {
       this.screenSwitcher.switchToScreen({ type: "game", difficulty: "Easy" });
       player.move();

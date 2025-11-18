@@ -19,5 +19,4 @@ export class Tile {
   getType(): TileType {
     return this.type;
   }
-  
 }

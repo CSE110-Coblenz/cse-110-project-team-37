@@ -32,7 +32,7 @@ export class MainMenuScreenController extends ScreenController {
    */
   private handleStartClick(): void {
     // once start is pressed, switch to game screen
-    this.screenSwitcher.switchToScreen({ type: "board"});
+    this.screenSwitcher.switchToScreen({ type: "board" });
   }
 
   private handleHelpClick(): void {
