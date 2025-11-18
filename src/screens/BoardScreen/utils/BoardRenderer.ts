@@ -75,7 +75,7 @@ export class BoardRenderer {
       duration: 0.5,
       x: targetX,
       y: targetY,
-      easing: Konva.Easings.EaseInOut,
+      easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
     });
 
     this.cameraTween.play();
