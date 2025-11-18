@@ -3,9 +3,9 @@ import Konva from "konva";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
+import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
-import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
@@ -29,7 +29,7 @@ class App implements ScreenSwitcher {
   private readonly minigame1Controller: Minigame1ScreenController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
-  
+
   private gameScreenController: QuestionScreenController;
 
   // track current screen so Esc can toggle game <-> pause

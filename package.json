@@ -12,9 +12,9 @@
     "prepare": "cd .. && husky"
   },
   "dependencies": {
-    "tailwindcss": "^4.1.15",
     "@tailwindcss/vite": "^4.1.15",
-    "konva": "^10.0.8"
+    "konva": "^10.0.8",
+    "tailwindcss": "^4.1.15"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
