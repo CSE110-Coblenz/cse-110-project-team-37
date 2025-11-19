@@ -1,8 +1,10 @@
 import Konva from "konva";
 
+import { BoardScreenController } from "./screens/BoardScreen/BoardScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
+import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
 import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScreenController.ts";
@@ -25,11 +27,14 @@ class App implements ScreenSwitcher {
   private readonly layer: Konva.Layer;
 
   private readonly mainMenuController: MainMenuScreenController;
+  private readonly boardScreenControoler: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
-  private readonly gameScreenController: QuestionScreenController;
+  private readonly minigame1Controller: Minigame1ScreenController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
   private readonly tutorialScreenController: TutorialScreenController;
+
+  private gameScreenController: QuestionScreenController;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
@@ -49,14 +54,13 @@ class App implements ScreenSwitcher {
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this);
+    this.boardScreenControoler = new BoardScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
-    this.gameScreenController = new QuestionScreenController(this, {
-      numOperations: 1,
-      maxDenominatorDigits: 2,
-      maxNumeratorDigits: 1,
-      numChoices: 4,
-      operations: ["+", "-"],
-    } as QuestionConfig);
+    this.gameScreenController = new QuestionScreenController(
+      this,
+      this.getDifficultyConfig("Easy"),
+    );
+    this.minigame1Controller = new Minigame1ScreenController(this);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
     this.tutorialScreenController = new TutorialScreenController(this);
@@ -64,8 +68,10 @@ class App implements ScreenSwitcher {
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
     this.layer.add(this.mainMenuController.getView().getGroup());
+    this.layer.add(this.boardScreenControoler.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
+    this.layer.add(this.minigame1Controller.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
     this.layer.add(this.tutorialScreenController.getView().getGroup());
@@ -73,6 +79,8 @@ class App implements ScreenSwitcher {
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
+    this.boardScreenControoler.hide();
+    this.minigame1Controller.hide();
     this.endScreenController.hide();
     this.current = "menu";
 
@@ -84,10 +92,61 @@ class App implements ScreenSwitcher {
         if (this.current === "game") {
           this.switchToScreen({ type: "pause" });
         } else if (this.current === "pause") {
-          this.switchToScreen({ type: "game" });
+          this.switchToScreen({ type: "game", difficulty: "Easy" });
         }
       }
     });
+
+    // If in board state, update the camera positioning.
+    // this.stage.on("mousemove", () => {
+    //   if (this.current == "board") {
+    //     this.boardScreenControoler.updateCameraPanning(
+    //       this.stage.getPointerPosition() ?? {x: 0, y: 0});
+    //   }
+    // });
+  }
+
+  /**
+   * Map difficulty level to question generation configuration
+   *
+   * Here, we define what each difficulty level means in terms of
+   * actual question parameters. This central function makes it easy to
+   * adjust difficulty levels without touching multiple files.
+   */
+  private getDifficultyConfig(difficulty: string): QuestionConfig {
+    switch (difficulty) {
+      case "Easy":
+        return {
+          operations: ["+", "-"],
+          numOperations: 1,
+          maxNumerator: 9,
+          maxDenominator: 9,
+          numChoices: 4,
+          commonDenominator: true,
+        };
+
+      case "Medium":
+        return {
+          operations: ["+", "-", "*", "/"],
+          numOperations: 1,
+          maxNumerator: 12,
+          maxDenominator: 12,
+          numChoices: 4,
+          commonDenominator: false,
+        };
+
+      case "Hard":
+        return {
+          operations: ["+", "-", "*", "/"],
+          numOperations: 2,
+          maxNumerator: 12,
+          maxDenominator: 12,
+          numChoices: 4,
+          commonDenominator: false,
+        };
+      default:
+        return this.getDifficultyConfig("Easy");
+    }
   }
 
   // TODO: figure out how we decide when game ends, link endScreen to this event
@@ -104,8 +163,10 @@ class App implements ScreenSwitcher {
   switchToScreen(screen: Screen): void {
     // Hide all screens first by setting their Groups to invisible
     this.mainMenuController.hide();
+    this.boardScreenControoler.hide();
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
+    this.minigame1Controller.hide();
     this.endScreenController.hide();
 
     // Show the requested screen based on the screen type
@@ -113,11 +174,25 @@ class App implements ScreenSwitcher {
       case "menu":
         this.mainMenuController.show();
         break;
+      case "board":
+        this.boardScreenControoler.show();
+        break;
       case "pause":
         this.pauseScreenController.show();
         break;
       case "game":
+        // Get the configuration for the selected difficulty
+        const config = this.getDifficultyConfig(screen.difficulty);
+        this.gameScreenController.getView().getGroup().remove();
+        // creates a new controller with the correct difficulty config
+        this.gameScreenController = new QuestionScreenController(this, config);
+        // add the new view to the layer
+        this.layer.add(this.gameScreenController.getView().getGroup());
+        // start the question (updates view and shows the screen)
         this.gameScreenController.startQuestion();
+        break;
+      case "minigame1":
+        this.minigame1Controller.show();
         break;
       case "end":
         this.endScreenController.show();
