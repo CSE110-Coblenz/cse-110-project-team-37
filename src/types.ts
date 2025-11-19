@@ -18,7 +18,7 @@ export type View = {
  * - "pause": Pause screen
  * - "end": Game over screen
  * - "equation_help": Help with minigame
- * _ "tutorial": Beginning tutorial
+ * - "tutorial": Beginning tutorial
  */
 export type Screen =
   | { type: "menu" }

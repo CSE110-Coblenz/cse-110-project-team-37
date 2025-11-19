@@ -124,10 +124,10 @@ class App implements ScreenSwitcher {
         break;
       case "equation_help":
         this.equationHelpScreenController.show();
-		break;
-	  case "tutorial":
-		this.tutorialScreenController.show();
-		break;
+        break;
+      case "tutorial":
+        this.tutorialScreenController.show();
+        break;
     }
 
     this.current = screen.type;
