@@ -15,6 +15,10 @@ export type View = {
  * - "menu": Main menu screen
  * - "game": Gameplay screen
  * - "help": Tutorial Help screen
+ * - "pause": Pause screen
+ * - "end": Game over screen
+ * - "equation_help": Help with minigame
+ * _ "tutorial": Beginning tutorial
  */
 export type Screen =
   | { type: "menu" }
