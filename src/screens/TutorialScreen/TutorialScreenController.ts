@@ -16,15 +16,11 @@ export class TutorialScreenController extends ScreenController {
     super();
     this.screenSwitcher = screenSwitcher;
 
-    this.view = new TutorialScreenView(
-		STAGE_WIDTH,
-		STAGE_HEIGHT,
-		() => this.handleReturn(),
-	);
+    this.view = new TutorialScreenView(STAGE_WIDTH, STAGE_HEIGHT, () => this.handleReturn());
   }
 
   private handleReturn(): void {
-	this.screenSwitcher.switchToScreen({ type: "menu" });
+    this.screenSwitcher.switchToScreen({ type: "menu" });
   }
 
   override show(): void {

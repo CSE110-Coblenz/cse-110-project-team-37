@@ -13,11 +13,7 @@ export class TutorialScreenView implements View {
   private readonly btnRect: Konva.Rect;
   private readonly btnText: Konva.Text;
 
-  constructor(
-	stageWidth: number,
-	stageHeight: number,
-	onReturn: () => void,
-) {
+  constructor(stageWidth: number, stageHeight: number, onReturn: () => void) {
     this.root = new Konva.Group({ visible: false });
 
     // Game Over
