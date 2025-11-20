@@ -84,6 +84,15 @@ class App implements ScreenSwitcher {
     this.endScreenController.hide();
     this.current = "menu";
 
+	//demo 
+	this.tutorialScreenController.show();
+	this.mainMenuController.hide();
+	this.pauseScreenController.hide();
+    this.boardScreenControoler.hide();
+    this.minigame1Controller.hide();
+    this.endScreenController.hide();
+
+
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
 
