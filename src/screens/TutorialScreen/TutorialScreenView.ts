@@ -29,11 +29,12 @@ export class TutorialScreenView implements View {
 
     // Tutorial instructions
     this.text = new Konva.Text({
-      text: "Hello Player!\n\n" +
-		"Welcome to Fraction Mania!" + 
-		"Your mission is to navigate through the paths, and pass the obstacles.\n\n" + 
-		"At each point you will be tasked with a minigame, complete it to progress.\n\n" + 
-		"Reach the finish, or be trapped forever!\n\n",
+      text:
+        "Hello Player!\n\n" +
+        "Welcome to Fraction Mania!" +
+        "Your mission is to navigate through the paths, and pass the obstacles.\n\n" +
+        "At each point you will be tasked with a minigame, complete it to progress.\n\n" +
+        "Reach the finish, or be trapped forever!\n\n",
       fontSize: 20,
       align: "center",
       x: 0,

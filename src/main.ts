@@ -38,6 +38,7 @@ class App implements ScreenSwitcher {
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
+  private readonly currentDifficulty: string = "Easy";
 
   constructor(container: string) {
     // Initialize Konva stage (the main canvas)
@@ -47,6 +48,9 @@ class App implements ScreenSwitcher {
       height: window.innerHeight,
     });
 
+    // Initiailize difficulty
+    this.currentDifficulty = "Easy";
+
     // Create a layer (screens will be added to this layer)
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
@@ -55,7 +59,7 @@ class App implements ScreenSwitcher {
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this);
     this.boardScreenControoler = new BoardScreenController(this);
-    this.pauseScreenController = new PauseScreenController(this);
+    this.pauseScreenController = new PauseScreenController(this, this.currentDifficulty);
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
@@ -84,14 +88,13 @@ class App implements ScreenSwitcher {
     this.endScreenController.hide();
     this.current = "menu";
 
-	//demo 
-	this.tutorialScreenController.show();
-	this.mainMenuController.hide();
-	this.pauseScreenController.hide();
+    //demo
+    this.tutorialScreenController.show();
+    this.mainMenuController.hide();
+    this.pauseScreenController.hide();
     this.boardScreenControoler.hide();
     this.minigame1Controller.hide();
     this.endScreenController.hide();
-
 
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
