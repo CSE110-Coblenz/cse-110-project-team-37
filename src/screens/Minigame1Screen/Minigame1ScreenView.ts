@@ -2,65 +2,14 @@ import Konva from "konva";
 
 import type { View } from "../../types.ts";
 
-// --------- Minimal Rational helper ----------
-function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    const t = b;
-    b = a % b;
-    a = t;
-  }
-  return Math.max(1, Math.abs(a));
-}
-
-class Rational {
-  readonly n: number;
-  readonly d: number;
-  constructor(n: number, d: number) {
-    if (d === 0) throw new Error("denominator cannot be 0");
-    const sign = d < 0 ? -1 : 1;
-    const nn = n * sign;
-    const dd = Math.abs(d);
-    const g = gcd(Math.abs(nn), dd);
-    this.n = nn / g;
-    this.d = dd / g;
-  }
-  static zero() {
-    return new Rational(0, 1);
-  }
-  static one() {
-    return new Rational(1, 1);
-  }
-  toNumber() {
-    return this.n / this.d;
-  }
-  toString() {
-    return `${this.n}/${this.d}`;
-  }
-  add(r: Rational) {
-    return new Rational(this.n * r.d + r.n * this.d, this.d * r.d);
-  }
-  sub(r: Rational) {
-    return new Rational(this.n * r.d - r.n * this.d, this.d * r.d);
-  }
-  gt(r: Rational) {
-    return this.n * r.d > r.n * this.d;
-  }
-  closeTo(r: Rational, eps: Rational) {
-    return this.sub(r).abs().toNumber() <= eps.toNumber();
-  }
-  abs() {
-    return new Rational(Math.abs(this.n), this.d);
-  }
-  clampMinZero() {
-    return this.gt(Rational.zero()) ? this : Rational.zero();
-  }
-}
+import { Fraction } from "../../models/Fraction.ts";
 
 /**
  * Minigame1ScreenView
  * - Big pizza image on center-left (no orange crust fill)
  * - Buttons on the right with image slice thumbnails next to each option
- * - Back to Menu + Reset, rational arithmetic
+ * - Back to Menu + Reset Pizza, fraction arithmetic
+ * - Tracks number of pizzas completed
  */
 export class Minigame1ScreenView implements View {
   private readonly group: Konva.Group = new Konva.Group({ visible: true });
@@ -80,12 +29,41 @@ export class Minigame1ScreenView implements View {
   private readonly PIZZA_SRC = "/whole-pizza.png"; // served from /public
 
   // Game state
-  private current: Rational = new Rational(1, 1);
-  private readonly epsilon = new Rational(1, 1000);
+  private current: Fraction = new Fraction(0, 1);
+  private readonly epsilon = new Fraction(1, 1000);
+
+  // Fraction helpers
+  private fractionZero(): Fraction {
+    return new Fraction(0, 1);
+  }
+
+  private fractionOne(): Fraction {
+    return new Fraction(1, 1);
+  }
+
+  private isGreaterThan(a: Fraction, b: Fraction): boolean {
+    return a.numerator * b.denominator > b.numerator * a.denominator;
+  }
+
+  private isCloseTo(a: Fraction, b: Fraction, epsilon: Fraction): boolean {
+    return Math.abs(a.toDecimal() - b.toDecimal()) <= epsilon.toDecimal();
+  }
+
+  private clampMinZero(x: Fraction): Fraction {
+    if (this.isGreaterThan(x, this.fractionZero())) {
+      return x;
+    }
+    return this.fractionZero();
+  }
 
   // UI refs
   private sumText!: Konva.Text;
   private statusText!: Konva.Text;
+
+  // Pizza completion tracking
+  private pizzasCompleted = 0;
+  private pizzasCompletedText!: Konva.Text;
+
   private readonly onBack?: () => void;
 
   constructor(onBack?: () => void) {
@@ -102,10 +80,13 @@ export class Minigame1ScreenView implements View {
         this.drawPizzaBaseWithImage();
         this.drawHUD();
         this.drawButtons([
-          new Rational(1, 4),
-          new Rational(1, 8),
-          new Rational(1, 2),
-          new Rational(1, 3),
+          new Fraction(1, 4),
+          new Fraction(1, 8),
+          new Fraction(1, 2),
+          new Fraction(1, 3),
+          new Fraction(1, 6),
+          new Fraction(1, 12),
+          new Fraction(1, 24),
         ]);
         this.group.getLayer()?.draw();
       },
@@ -124,6 +105,20 @@ export class Minigame1ScreenView implements View {
   hide(): void {
     this.group.visible(false);
     this.group.getLayer()?.draw();
+  }
+
+  private handleBack() {
+    // Reset pizza state
+    this.resetGame();
+
+    // Reset pizzas completed counter
+    this.pizzasCompleted = 0;
+    if (this.pizzasCompletedText) {
+      this.pizzasCompletedText.text(`Pizzas completed: ${this.pizzasCompleted}`);
+    }
+
+    // Invoke callback to actually go back to the menu
+    this.onBack?.();
   }
 
   // ---------------- Assets ----------------
@@ -190,7 +185,7 @@ export class Minigame1ScreenView implements View {
       w: 180,
       h: 44,
       label: "Back to Menu",
-      onClick: () => this.onBack?.(),
+      onClick: () => this.handleBack(),
     });
 
     // Right column anchor
@@ -252,7 +247,7 @@ export class Minigame1ScreenView implements View {
       height: 44,
       align: "center",
       verticalAlign: "middle",
-      text: "Reset",
+      text: "Reset Pizza",
       fontSize: 22,
       fontFamily: "Arial",
       fill: "#0f172a",
@@ -272,10 +267,55 @@ export class Minigame1ScreenView implements View {
     });
     resetBtn.on("click", () => this.resetGame());
 
-    this.uiGroup.add(backBtn, title, this.sumText, this.statusText, resetBtn);
+    // Pizzas completed counter above main pizza
+    const counterWidth = 260;
+    const counterY = this.pizzaCenter.y - this.pizzaRadius - 40;
+    const iconSize = 32;
+
+    // Small pizza image icon to the left of the text
+    let pizzaIcon: Konva.Image | Konva.Circle;
+    if (this.pizzaHTMLImage) {
+      pizzaIcon = new Konva.Image({
+        image: this.pizzaHTMLImage,
+        x: this.pizzaCenter.x - counterWidth / 2,
+        y: counterY - iconSize / 2,
+        width: iconSize,
+        height: iconSize,
+      });
+    } else {
+      pizzaIcon = new Konva.Circle({
+        x: this.pizzaCenter.x - counterWidth / 2 + iconSize / 2,
+        y: counterY,
+        radius: iconSize / 2,
+        fill: "#fde68a",
+        stroke: "#b91c1c",
+        strokeWidth: 2,
+      });
+    }
+
+    this.pizzasCompletedText = new Konva.Text({
+      x: this.pizzaCenter.x - counterWidth / 2 + iconSize + 8,
+      y: counterY - 10,
+      width: counterWidth - iconSize - 8,
+      text: `Pizzas completed: ${this.pizzasCompleted}`,
+      fontSize: 18,
+      fontFamily: "Arial",
+      fill: "#0f172a",
+      align: "left",
+    });
+
+    this.uiGroup.add(
+      backBtn,
+      title,
+      this.sumText,
+      this.statusText,
+      pizzaIcon,
+      this.pizzasCompletedText,
+      resetBtn,
+    );
   }
 
-  private drawButtons(fracs: Rational[]) {
+  private drawButtons(fracs: Fraction[]) {
     // Right column (under reset), centered
     const colCenterX = this.width * 0.68;
     const w = 280;
@@ -287,7 +327,6 @@ export class Minigame1ScreenView implements View {
     fracs.forEach((r, i) => {
       const y = startY + i * (h + gap);
 
-      // Button
       const btn = this.makeButton({
         x: startX,
         y,
@@ -310,7 +349,7 @@ export class Minigame1ScreenView implements View {
   }
 
   private makeSliceThumbnail(
-    r: Rational,
+    r: Fraction,
     pos: { x: number; y: number },
     radius: number,
   ): Konva.Group {
@@ -318,7 +357,7 @@ export class Minigame1ScreenView implements View {
 
     // Clip a small wedge from the pizza image
     const start = -Math.PI / 2;
-    const end = start + r.toNumber() * Math.PI * 2;
+    const end = start + r.toDecimal() * Math.PI * 2;
 
     g.clipFunc((ctx) => {
       ctx.beginPath();
@@ -360,36 +399,41 @@ export class Minigame1ScreenView implements View {
     h: number;
     label: string;
     onClick: () => void;
-  }) {
+  }): Konva.Group {
     const g = new Konva.Group({ x: opts.x, y: opts.y });
+
     const rect = new Konva.Rect({
-      width: opts.w,
-      height: opts.h,
-      cornerRadius: 12,
-      fill: "#ffffff",
-      stroke: "#94a3b8",
-      strokeWidth: 2,
-      shadowColor: "black",
-      shadowOpacity: 0.08,
-      shadowBlur: 8,
-      shadowOffset: { x: 0, y: 2 },
-    });
-    const text = new Konva.Text({
       x: 0,
       y: 0,
       width: opts.w,
       height: opts.h,
-      align: "center",
-      verticalAlign: "middle",
+      cornerRadius: 14,
+      fill: "#ffffff",
+      stroke: "#cbd5f5",
+      strokeWidth: 2,
+      shadowColor: "black",
+      shadowOpacity: 0.08,
+      shadowBlur: 10,
+      shadowOffset: { x: 0, y: 3 },
+    });
+
+    const label = new Konva.Text({
+      x: 0,
+      y: 0,
+      width: opts.w,
+      height: opts.h,
       text: opts.label,
       fontSize: 22,
       fontFamily: "Arial",
       fill: "#0f172a",
+      align: "center",
+      verticalAlign: "middle",
     });
-    g.add(rect, text);
+
+    g.add(rect, label);
 
     g.on("mouseenter", () => {
-      rect.fill("#f1f5f9");
+      rect.fill("#eff6ff");
       const stage = g.getStage();
       if (stage) stage.container().style.cursor = "pointer";
       this.group.getLayer()?.batchDraw();
@@ -407,7 +451,7 @@ export class Minigame1ScreenView implements View {
 
   // ---------------- Game logic ----------------
   private resetGame() {
-    this.current = Rational.zero();
+    this.current = this.fractionZero();
     this.sumText.text(`Current: 0/1`);
     this.statusText.text("Click a fraction to add a slice");
 
@@ -418,9 +462,11 @@ export class Minigame1ScreenView implements View {
     this.group.getLayer()?.draw();
   }
 
-  private tryAdd(r: Rational) {
+  private tryAdd(r: Fraction) {
     const next = this.current.add(r);
-    if (next.gt(Rational.one().add(this.epsilon))) {
+
+    // Prevent going over a full pizza (1 + epsilon)
+    if (this.isGreaterThan(next, this.fractionOne().add(this.epsilon))) {
       this.statusText.text("That would overflow the pizza. Try a smaller slice.");
       this.group.getLayer()?.batchDraw();
       return;
@@ -430,23 +476,67 @@ export class Minigame1ScreenView implements View {
     this.current = next;
     this.sumText.text(`Current: ${this.current.toString()}`);
 
-    if (this.current.closeTo(Rational.one(), this.epsilon)) {
-      this.current = Rational.one();
+    // Check if we're effectively at 1 (within epsilon)
+    if (this.isCloseTo(this.current, this.fractionOne(), this.epsilon)) {
+      this.current = this.fractionOne();
       this.sumText.text("Current: 1/1");
       this.statusText.text("Perfect! Pizza completed!");
+
+      // Increment pizzas completed counter and update HUD
+      this.pizzasCompleted += 1;
+      this.pizzasCompletedText.text(`Pizzas completed: ${this.pizzasCompleted}`);
+
+      // Brief green glow + auto reset for next pizza
+      this.flashPizzaSuccess();
     } else {
-      const remaining = Rational.one().sub(this.current).clampMinZero();
+      const remainingRaw = this.fractionOne().subtract(this.current);
+      const remaining = this.clampMinZero(remainingRaw);
       this.statusText.text(`Added ${r.toString()}. Remaining: ${remaining.toString()}`);
     }
 
     this.group.getLayer()?.batchDraw();
   }
 
-  private addImageSlice(r: Rational) {
+  private flashPizzaSuccess() {
+    // Create a green "glow" ring around the big pizza
+    const glow = new Konva.Circle({
+      x: this.pizzaCenter.x,
+      y: this.pizzaCenter.y,
+      radius: this.pizzaRadius + 24,
+      stroke: "#22c55e",
+      strokeWidth: 14,
+      shadowColor: "#22c55e",
+      shadowBlur: 32,
+      shadowOpacity: 0.9,
+      opacity: 0.9,
+      listening: false,
+    });
+
+    this.pizzaGroup.add(glow);
+    this.group.getLayer()?.batchDraw();
+
+    // Fade the glow out over 0.5s
+    const tween = new Konva.Tween({
+      node: glow,
+      duration: 0.5,
+      opacity: 0,
+      onFinish: () => {
+        glow.destroy();
+      },
+    });
+    tween.play();
+
+    // After 0.5s, start a fresh pizza automatically
+    window.setTimeout(() => {
+      this.resetGame();
+    }, 500);
+  }
+
+  private addImageSlice(r: Fraction) {
     if (!this.pizzaHTMLImage) return;
 
-    const filled = this.current.toNumber();
-    const add = r.toNumber();
+    const filled = this.current.toDecimal();
+    const add = r.toDecimal();
     const start = -Math.PI / 2 + filled * Math.PI * 2;
     const end = start + add * Math.PI * 2;
 
