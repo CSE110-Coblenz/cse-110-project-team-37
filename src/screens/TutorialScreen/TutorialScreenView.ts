@@ -13,9 +13,11 @@ export class TutorialScreenView implements View {
   private readonly btnRect: Konva.Rect;
   private readonly btnText: Konva.Text;
 
-  private onReturn?: () => void;
-
-  constructor(stageWidth: number, stageHeight: number) {
+  constructor(
+	stageWidth: number,
+	stageHeight: number,
+	onReturn: () => void,
+) {
     this.root = new Konva.Group({ visible: false });
 
     // Game Over
@@ -75,16 +77,7 @@ export class TutorialScreenView implements View {
     this.root.add(this.text);
     this.root.add(this.buttonGroup);
 
-    this.buttonGroup.on("click tap", () => {
-      this.onReturn?.();
-    });
-  }
-
-  /**
-   * Allow controller to supply the click handler
-   */
-  setOnReturn(cb: () => void) {
-    this.onReturn = cb;
+    this.buttonGroup.on("click tap", onReturn);
   }
 
   /**

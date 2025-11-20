@@ -6,7 +6,7 @@ import { TutorialScreenView } from "./TutorialScreenView.ts";
 import type { ScreenSwitcher } from "../../types.ts";
 
 /**
- * TutorialScreenController - Coordinates game logic between Model and View
+ * TutorialScreenController - Coordinates game logic for View
  */
 export class TutorialScreenController extends ScreenController {
   private readonly view: TutorialScreenView;
@@ -16,11 +16,15 @@ export class TutorialScreenController extends ScreenController {
     super();
     this.screenSwitcher = screenSwitcher;
 
-    this.view = new TutorialScreenView(STAGE_WIDTH, STAGE_HEIGHT);
+    this.view = new TutorialScreenView(
+		STAGE_WIDTH,
+		STAGE_HEIGHT,
+		() => this.handleReturn(),
+	);
+  }
 
-    this.view.setOnReturn(() => {
-      this.screenSwitcher.switchToScreen({ type: "menu" });
-    });
+  private handleReturn(): void {
+	this.screenSwitcher.switchToScreen({ type: "menu" });
   }
 
   override show(): void {
