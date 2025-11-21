@@ -24,7 +24,8 @@ export type Screen =
   | { type: "pause" }
   | { type: "end" }
   | { type: "equation_help" }
-  | { type: "minigame1" };
+  | { type: "minigame1" }
+  | { type: "minigame2" };
 
 export abstract class ScreenController {
   abstract getView(): View;

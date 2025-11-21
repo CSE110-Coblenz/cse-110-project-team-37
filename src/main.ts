@@ -5,6 +5,7 @@ import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts"
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
+import { SpaceRescueController } from "./screens/Minigame2Screen/SpaceRescueController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
 
@@ -31,6 +32,7 @@ class App implements ScreenSwitcher {
   private readonly minigame1Controller: Minigame1ScreenController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
+  private readonly minigame2Controller: SpaceRescueController;
 
   private gameScreenController: QuestionScreenController;
 
@@ -61,6 +63,7 @@ class App implements ScreenSwitcher {
     this.minigame1Controller = new Minigame1ScreenController(this);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
+    this.minigame2Controller = new SpaceRescueController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -71,6 +74,7 @@ class App implements ScreenSwitcher {
     this.layer.add(this.minigame1Controller.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
+    this.layer.add(this.minigame2Controller.getView().getGroup());
 
     // start on main menu
     this.mainMenuController.show();
@@ -78,6 +82,7 @@ class App implements ScreenSwitcher {
     this.boardScreenControoler.hide();
     this.minigame1Controller.hide();
     this.endScreenController.hide();
+    this.minigame2Controller.hide();
     this.current = "menu";
 
     // Draw the layer (render everything to the canvas)
@@ -187,6 +192,9 @@ class App implements ScreenSwitcher {
         break;
       case "minigame1":
         this.minigame1Controller.show();
+        break;
+      case "minigame2":
+        this.minigame2Controller.show();
         break;
       case "end":
         this.endScreenController.show();
