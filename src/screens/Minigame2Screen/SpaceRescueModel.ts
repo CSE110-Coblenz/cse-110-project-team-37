@@ -7,16 +7,16 @@ const ASTEROID_COUNT = 5;
 
 export class SpaceRescueModel {
   // Array of fractions displayed on the asteroids
-  public readonly asteroids: Fraction[];
+  public asteroids: Fraction[];
 
   // The correct sequence the player must click
-  private readonly targetOrder: Fraction[];
+  private targetOrder: Fraction[];
 
   // Tracks the index of the next fraction the player should click
   private currentTargetIndex: number = 0;
 
   // The required order (e.g., 'ascending' or 'descending')
-  public readonly sortOrder: "ascending" | "descending";
+  public sortOrder: "ascending" | "descending";
 
   constructor() {
     // Randomly choose the sorting order for the round
@@ -25,6 +25,18 @@ export class SpaceRescueModel {
     // Generate the fractions and set up the order
     this.asteroids = this.generateRandomFractions(ASTEROID_COUNT);
     this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder);
+
+    this.reset();
+  }
+
+  public reset(): void {
+    // 1. Randomly choose the sorting order for the round
+    // Need to use `this.` if you want the sort order to be stored on the model instance
+    this.sortOrder = Math.random() > 0.5 ? "ascending" : "descending"; // 2. Generate new fractions and set up the order
+
+    this.asteroids = this.generateRandomFractions(ASTEROID_COUNT);
+    this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder); // 3. Reset the progress
+    this.currentTargetIndex = 0;
   }
 
   private generateRandomFractions(count: number): Fraction[] {

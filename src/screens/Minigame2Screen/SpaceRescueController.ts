@@ -34,16 +34,33 @@ export class SpaceRescueController extends ScreenController {
     // initialize the view, passing the click handler
     this.view = new SpaceRescueView(this.model, (fraction) => this.handleFractionClick(fraction));
 
-    this.view.showIntroDialogue(() => this.startGame());
+    // this.view.showIntroDialogue(() => this.startGame());
 
-    this.view.show();
+    this.view.setTimerEndHandler(() => this.handleTimeExpired());
+
+    // this.view.show();
+  }
+
+  private handleTimeExpired() {
+    if (!this.model.isRoundComplete()) {
+      this.gameStarted = false;
+
+      // 🛑 Pass only ONE handler (the 'Return to Menu' logic)
+      this.view.showFailurePopup(() => {
+        this.view.hideEndPopup();
+        this.hide();
+        this.screenSwitcher.switchToScreen({ type: "menu" });
+      });
+      // REMOVE the extra handler function
+    }
   }
 
   private startGame(): void {
     this.view.hideIntroDialogue(); // Close the pop-up
     this.gameStarted = true; // Unpause the game state
 
-    this.view.createAsteroidsForGame(this.model);
+    this.view.startTimer();
+
     // Now update the visuals to render the asteroids and the active prompt
     this.view.updateVisuals(this.model);
   }
@@ -62,15 +79,18 @@ export class SpaceRescueController extends ScreenController {
 
       // if all have been clicked
       if (this.model.isRoundComplete()) {
+        this.view.stopTimer();
         // display message letting user know that the level has been beat
-        this.view.displayMessage("Path Cleared! Bonus earned.", 3000);
-        this.screenSwitcher.switchToScreen({ type: "game", difficulty: "easy" });
+        this.view.showSuccessPopup(() => {
+          this.view.hideEndPopup();
+          this.hide();
+          // What happens when user presses “Return to Game”
+          this.screenSwitcher.switchToScreen({ type: "menu" });
+        });
       }
     } else {
       // if clicked on the wrong asteroid, let user know
       this.view.displayMessage("Incorrect order! Asteroid hit.", 2500);
-      // For a simple implementation, you might reset the screen or lose a life.
-      this.screenSwitcher.switchToScreen({ type: "menu" });
     }
   }
 
@@ -79,7 +99,19 @@ export class SpaceRescueController extends ScreenController {
     return this.view;
   }
 
+  // Inside SpaceRescueController.ts
+
   public show(): void {
+    // 1. Reset Model state (New fractions, new order)
+    this.model.reset();
+
+    // 2. ⭐ CALL clearAndSetupNewRound HERE: Clears old visuals and creates new asteroids
+    this.view.clearAndSetupNewRound(this.model, (fraction) => this.handleFractionClick(fraction));
+
+    // 3. Start the game flow by showing the intro dialogue
+    this.view.showIntroDialogue(() => this.startGame());
+
+    // 4. Finally, make the main group visible
     this.view.show();
   }
 
