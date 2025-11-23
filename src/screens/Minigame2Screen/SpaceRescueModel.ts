@@ -1,20 +1,24 @@
 import { Fraction } from "../../models/Fraction";
 
-// Define the number of asteroids (fractions) for a single rescue path
+// define the number of asteroids (fractions) for a single rescue path
 const ASTEROID_COUNT = 5;
 
 export class SpaceRescueModel {
   // array of fractions displayed on the asteroids
-  public asteroids!: Fraction[];
+  public asteroids: Fraction[] = [];
 
   // sequence in which the fractions should be clicked
-  private targetOrder!: Fraction[];
+  private targetOrder: Fraction[] = [];
 
   // correct index of which asteroid should be clicked
   private currentTargetIndex: number = 0;
 
   // defining what order the asteroids should be clicked
-  public sortOrder!: "ascending" | "descending";
+  public sortOrder: "ascending" | "descending" = "ascending";
+
+  // strike system
+  private strikes: number = 0;
+  private readonly maxStrikes: number = 3;
 
   // the constructor is defined to do the same as the reset function below
   constructor() {
@@ -34,6 +38,8 @@ export class SpaceRescueModel {
 
     // reseting the progress so game can be played again
     this.currentTargetIndex = 0;
+
+    this.resetStrikes();
   }
 
   /**
@@ -82,7 +88,7 @@ export class SpaceRescueModel {
    * @param order which order should they be sorted in
    * @returns sorted list of fractions
    */
-  private sortFractions(fractions: Fraction[], order: "ascending" | "descending"): Fraction[] {
+  public sortFractions(fractions: Fraction[], order: "ascending" | "descending"): Fraction[] {
     // sorting depending on order
     const sorted = [...fractions].sort((a, b) => {
       const valA = a.toDecimal();
@@ -130,5 +136,38 @@ export class SpaceRescueModel {
    */
   public getNextTargetIndex(): number {
     return this.currentTargetIndex;
+  }
+
+  // methods for functioning strike system
+  /**
+   * adds a strike if clicked on the wrong fraction
+   * @returns updated strike number
+   */
+  public addStrike(): number {
+    this.strikes++;
+    return this.strikes;
+  }
+
+  /**
+   * retrieves how many strikes the user currently has
+   * @returns how many strikes the user currently has
+   */
+  public getStrikes(): number {
+    return this.strikes;
+  }
+
+  /**
+   * resets strikes to 0
+   */
+  public resetStrikes(): void {
+    this.strikes = 0;
+  }
+
+  /**
+   * determines if the user is out of strikes or not
+   * @returns true if out of strikes, false otherwise
+   */
+  public isOutOfStrikes(): boolean {
+    return this.strikes >= this.maxStrikes;
   }
 }

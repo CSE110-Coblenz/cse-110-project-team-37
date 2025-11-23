@@ -81,27 +81,40 @@ export class SpaceRescueController extends ScreenController {
    */
   private handleFractionClick(clickedFraction: Fraction): void {
     if (!this.gameStarted) return;
-    // given the fraction in the parameter, we will check if it is correct
+
+    // checking if the clicked fraction is correct
     const isCorrect = this.model.checkClick(clickedFraction);
 
-    // if so, update the visual (gray out asteroid)
+    // if correct, we want to update the visuals
     if (isCorrect) {
       this.view.updateVisuals(this.model);
 
-      // if all have been clicked
+      // if correct and game is over, handle correctly by ending the game
       if (this.model.isRoundComplete()) {
         this.view.stopTimer();
-        // display message letting user know that the level has been beat
         this.view.showSuccessPopup(() => {
           this.view.hideEndPopup();
           this.hide();
-          // What happens when user presses “Return to Game”
           this.screenSwitcher.switchToScreen({ type: "menu" });
         });
       }
     } else {
-      // if clicked on the wrong asteroid, let user know
-      this.view.displayMessage("Incorrect order!", 400);
+      // wrong click case, we want to add a strike
+      const strikes = this.model.addStrike();
+      const remaining = 3 - strikes;
+
+      // show message with remaining lives
+      this.view.displayMessage(`Incorrect! Strikes left: ${remaining}`, 400);
+
+      // if player is out of strikes → fail immediately
+      if (this.model.isOutOfStrikes()) {
+        this.view.stopTimer();
+        this.view.showFailurePopup(() => {
+          this.view.hideEndPopup();
+          this.hide();
+          this.screenSwitcher.switchToScreen({ type: "menu" });
+        });
+      }
     }
   }
 

@@ -25,6 +25,7 @@ export class BackgroundRenderer {
       listening: false,
     });
 
+    // adding background to the group
     group.add(background);
 
     // --- STARS ---
@@ -35,15 +36,25 @@ export class BackgroundRenderer {
   }
 
   /**
-   * Generate random stars
+   * generate random start
+   * @param count the number of stars we will create
+   * @param height the height of the background
+   * @param width the width of the background
+   * @returns an array of circles that represents stars
    */
   private static createStars(count: number, width: number, height: number): Konva.Circle[] {
+    // creating list of stars
     const stars: Konva.Circle[] = [];
 
+    // creating each start iteratively
     for (let i = 0; i < count; i++) {
-      const size = Math.random() * 2 + 1; // 1px–3px
+      // star will be between 1px and 3px
+      const size = Math.random() * 2 + 1;
+
+      // opacity is also random (adds depth as some stars are brighter than others)
       const opacity = Math.random() * 0.7 + 0.3;
 
+      // defining the star
       const star = new Konva.Circle({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -53,9 +64,11 @@ export class BackgroundRenderer {
         listening: false,
       });
 
+      // adding to list
       stars.push(star);
     }
 
+    // return
     return stars;
   }
 }

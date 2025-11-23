@@ -101,7 +101,7 @@ export class SpaceRescueView implements View {
       // initialize time renderer (this wraps the ship into a container)
       this.timerRenderer = new ShipTimerRenderer({
         timerShip: this.timerShip,
-        duration: 15,
+        duration: 25,
       });
 
       // add the whole timer container to game elements
@@ -207,7 +207,7 @@ export class SpaceRescueView implements View {
     // using renderer to design popup
     this.endPopupGroup = EndPopupRenderer.createPopup({
       title: "Mission Failed!",
-      message: "The ship ran out of time before you cleared the asteroids.",
+      message: "Better luck next time! Keep fighting pilot.",
       onReturn,
       theme: "failure",
     });
