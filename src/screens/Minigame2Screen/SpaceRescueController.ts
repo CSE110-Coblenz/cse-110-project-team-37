@@ -11,7 +11,9 @@ import type { Fraction } from "../../models/Fraction.ts";
 // we will need the screenswitcher
 import type { ScreenSwitcher } from "../../types.ts";
 
-// class that represents the controller
+/**
+ * class for the controller
+ */
 export class SpaceRescueController extends ScreenController {
   // by nature of MVC, we will need the model and the view in order to get them to interact
   private readonly model: SpaceRescueModel;
@@ -20,6 +22,7 @@ export class SpaceRescueController extends ScreenController {
   // need the screenswitcher so that we can define interactions between various scenes
   private readonly screenSwitcher: ScreenSwitcher;
 
+  // boolean determining if the game has been started
   private gameStarted: boolean = false;
 
   // defining our constructor, given a screen switcher object
@@ -34,39 +37,47 @@ export class SpaceRescueController extends ScreenController {
     // initialize the view, passing the click handler
     this.view = new SpaceRescueView(this.model, (fraction) => this.handleFractionClick(fraction));
 
-    // this.view.showIntroDialogue(() => this.startGame());
-
+    // defining timer handler
     this.view.setTimerEndHandler(() => this.handleTimeExpired());
-
-    // this.view.show();
   }
 
+  /**
+   * defining what happens when the timer expires
+   */
   private handleTimeExpired() {
+    // checking if the game has been completed
     if (!this.model.isRoundComplete()) {
       this.gameStarted = false;
 
-      // 🛑 Pass only ONE handler (the 'Return to Menu' logic)
+      // show the failure popup
       this.view.showFailurePopup(() => {
         this.view.hideEndPopup();
         this.hide();
         this.screenSwitcher.switchToScreen({ type: "menu" });
       });
-      // REMOVE the extra handler function
     }
   }
 
+  /**
+   * starting the game (after clicking start game in intro popup)
+   */
   private startGame(): void {
-    this.view.hideIntroDialogue(); // Close the pop-up
-    this.gameStarted = true; // Unpause the game state
+    // close the popup
+    this.view.hideIntroDialogue();
 
+    // setting boolean value to be true
+    this.gameStarted = true;
+
+    // starting the timer
     this.view.startTimer();
 
-    // Now update the visuals to render the asteroids and the active prompt
+    // updating the visuals on the screen
     this.view.updateVisuals(this.model);
   }
 
   /**
-   * Handles a click on any asteroid.
+   * handles a click on any asteroid.
+   * @param clickedFraction the fraction that is being clicked
    */
   private handleFractionClick(clickedFraction: Fraction): void {
     if (!this.gameStarted) return;
@@ -99,22 +110,22 @@ export class SpaceRescueController extends ScreenController {
     return this.view;
   }
 
-  // Inside SpaceRescueController.ts
-
+  // defining show
   public show(): void {
-    // 1. Reset Model state (New fractions, new order)
+    // reset model
     this.model.reset();
 
-    // 2. ⭐ CALL clearAndSetupNewRound HERE: Clears old visuals and creates new asteroids
+    // cleaning up visuals
     this.view.clearAndSetupNewRound(this.model, (fraction) => this.handleFractionClick(fraction));
 
-    // 3. Start the game flow by showing the intro dialogue
+    // show the intro popup
     this.view.showIntroDialogue(() => this.startGame());
 
-    // 4. Finally, make the main group visible
+    // make the view visible
     this.view.show();
   }
 
+  // hide the view
   public hide(): void {
     this.view.hide();
   }

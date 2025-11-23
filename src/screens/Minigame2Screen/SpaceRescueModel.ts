@@ -1,62 +1,101 @@
-// src/screens/MinigameScreen/SpaceRescueModel.ts
 import { Fraction } from "../../models/Fraction";
-// Assuming you have a standard Fraction model and a DiceService for randomness
 
 // Define the number of asteroids (fractions) for a single rescue path
 const ASTEROID_COUNT = 5;
 
 export class SpaceRescueModel {
-  // Array of fractions displayed on the asteroids
+  // array of fractions displayed on the asteroids
   public asteroids: Fraction[];
 
-  // The correct sequence the player must click
+  // sequence in which the fractions should be clicked
   private targetOrder: Fraction[];
 
-  // Tracks the index of the next fraction the player should click
+  // correct index of which asteroid should be clicked
   private currentTargetIndex: number = 0;
 
-  // The required order (e.g., 'ascending' or 'descending')
+  // defining what order the asteroids should be clicked
   public sortOrder: "ascending" | "descending";
 
   constructor() {
-    // Randomly choose the sorting order for the round
+    // randomly choose whether the fractions will have to be clicked in ascending order or descending
     this.sortOrder = Math.random() > 0.5 ? "ascending" : "descending";
 
-    // Generate the fractions and set up the order
+    // generating random fractions and sorting
     this.asteroids = this.generateRandomFractions(ASTEROID_COUNT);
     this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder);
 
     this.reset();
   }
 
+  /**
+   * reseting the model to restart the game
+   */
   public reset(): void {
-    // 1. Randomly choose the sorting order for the round
-    // Need to use `this.` if you want the sort order to be stored on the model instance
-    this.sortOrder = Math.random() > 0.5 ? "ascending" : "descending"; // 2. Generate new fractions and set up the order
+    // choosing new order
+    this.sortOrder = Math.random() > 0.5 ? "ascending" : "descending";
 
+    // creating new fractions
     this.asteroids = this.generateRandomFractions(ASTEROID_COUNT);
-    this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder); // 3. Reset the progress
+    this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder);
+
+    // reseting the progress so game can be played again
     this.currentTargetIndex = 0;
   }
 
+  /**
+   * generating a list of random fractions
+   * @param count the number of fractions (asteroids) we want
+   * @returns list of fraction objects
+   */
   private generateRandomFractions(count: number): Fraction[] {
-    const fractions: Fraction[] = [];
-    // NOTE: In a real app, you'd use your QuestionService to generate these for variety.
-    // For simplicity, we create fixed ones here:
-    for (let i = 0; i < count; i++) {
-      // Example: Create random fractions for diversity
-      fractions.push(
-        new Fraction(
-          Math.floor(Math.random() * 8) + 1,
-          Math.floor(Math.random() * 8) + 2,
-        ).simplify(),
+    // storing UNIQUE fractions in a list
+    const uniqueFractions: Fraction[] = [];
+
+    // giving us 50 attempts to create a random unique fraction
+    let attempts = 0;
+    const MAX_ATTEMPTS = 50;
+
+    // looping until we have count number of unique fractions
+    while (uniqueFractions.length < count && attempts < MAX_ATTEMPTS) {
+      attempts++;
+
+      // numerator (N): 1 to 18
+      const N = Math.floor(Math.random() * 18) + 1;
+      // denominator (D): 2 to 9
+      const D = Math.floor(Math.random() * 8) + 2;
+
+      // we don't want fractions bigger than 2
+      if (N / D > 2) {
+        // skip if too large
+        continue;
+      }
+
+      // create new unique fraction
+      const newFraction = new Fraction(N, D).simplify();
+
+      // checking if duplicate
+      const isDuplicate = uniqueFractions.some((existingFraction) =>
+        existingFraction.equals(newFraction),
       );
+
+      // is unique, push it
+      if (!isDuplicate) {
+        uniqueFractions.push(newFraction);
+      }
     }
-    return fractions;
+
+    // return unique fractions
+    return uniqueFractions;
   }
 
+  /**
+   * sorting fractions to create an order in which they should be clicked
+   * @param fractions list of randomized fractions
+   * @param order which order should they be sorted in
+   * @returns sorted list of fractions
+   */
   private sortFractions(fractions: Fraction[], order: "ascending" | "descending"): Fraction[] {
-    // Create a copy and sort based on decimal value
+    // sorting depending on order
     const sorted = [...fractions].sort((a, b) => {
       const valA = a.toDecimal();
       const valB = b.toDecimal();
@@ -66,13 +105,14 @@ export class SpaceRescueModel {
   }
 
   /**
-   * Checks if the clicked fraction is the next correct one in the sequence.
+   * checks if the clicked fraction is the next correct one in the sequence.
+   * @param clickedFraction the fraction that is being clicked. will check if it is the correct one
    */
   public checkClick(clickedFraction: Fraction): boolean {
-    // The expected fraction for the current step
+    // taking the expected fraction
     const expectedFraction = this.targetOrder[this.currentTargetIndex];
 
-    // Use the Fraction model's equals method (which simplifies before comparing)
+    //check if parameter is equal to the expected
     if (clickedFraction.equals(expectedFraction)) {
       this.currentTargetIndex++;
       return true;
@@ -80,14 +120,26 @@ export class SpaceRescueModel {
     return false;
   }
 
+  /**
+   * returns the order in which fractions should be clicked
+   * @returns list of sorted fractions
+   */
   public getTargetOrder(): Fraction[] {
     return this.targetOrder; // Safely exposes the private array
   }
 
+  /**
+   * checks if we have gone through all fractions in the list
+   * @returns boolean determining if all asteroids have been clicked
+   */
   public isRoundComplete(): boolean {
     return this.currentTargetIndex >= this.targetOrder.length;
   }
 
+  /**
+   * determines the index of the next asteroid that should be clicked
+   * @returns index
+   */
   public getNextTargetIndex(): number {
     return this.currentTargetIndex;
   }
