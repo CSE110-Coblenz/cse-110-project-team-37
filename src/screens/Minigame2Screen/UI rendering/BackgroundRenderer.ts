@@ -10,15 +10,52 @@ import { STAGE_HEIGHT, STAGE_WIDTH } from "../../../constants";
 export class BackgroundRenderer {
   /**
    * creates background of game
-   * @returns rectangle shape that wil becomes the background
+   * @returns Konva.Group containing the background AND stars
    */
-  public static createBackground(): Konva.Rect {
-    return new Konva.Rect({
+  public static createBackground(): Konva.Group {
+    const group = new Konva.Group();
+
+    // --- BACKGROUND RECT ---
+    const background = new Konva.Rect({
       x: 0,
       y: 0,
       width: STAGE_WIDTH,
       height: STAGE_HEIGHT,
       fill: "#0A0A20",
+      listening: false,
     });
+
+    group.add(background);
+
+    // --- STARS ---
+    const stars = BackgroundRenderer.createStars(200, STAGE_WIDTH, STAGE_HEIGHT);
+    stars.forEach((s) => group.add(s));
+
+    return group;
+  }
+
+  /**
+   * Generate random stars
+   */
+  private static createStars(count: number, width: number, height: number): Konva.Circle[] {
+    const stars: Konva.Circle[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const size = Math.random() * 2 + 1; // 1px–3px
+      const opacity = Math.random() * 0.7 + 0.3;
+
+      const star = new Konva.Circle({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: size,
+        fill: "white",
+        opacity,
+        listening: false,
+      });
+
+      stars.push(star);
+    }
+
+    return stars;
   }
 }

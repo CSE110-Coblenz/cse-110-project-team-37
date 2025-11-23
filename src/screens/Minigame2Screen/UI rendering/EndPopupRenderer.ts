@@ -84,6 +84,7 @@ export class EndPopupRenderer {
       y: 20,
       text: title,
       fontSize: 30,
+      fontFamily: "Courier New",
       fill: c.title,
       align: "center",
     });
@@ -98,6 +99,7 @@ export class EndPopupRenderer {
       width: W - 40,
       text: message,
       fontSize: 20,
+      fontFamily: "Courier New",
       fill: "white",
       align: "center",
     });

@@ -21,6 +21,7 @@ export class MessageRenderer {
       x: STAGE_WIDTH / 2,
       y: STAGE_HEIGHT / 2,
       fontSize: 48,
+      fontFamily: "Orbitron",
       fill: "#FFD700",
       fontStyle: "bold",
       align: "center",
@@ -38,7 +39,7 @@ export class MessageRenderer {
    * @param message the text content to display.
    * @param duration the time in milliseconds to display the message.
    */
-  public displayMessage(message: string, duration: number = 1000): void {
+  public displayMessage(message: string, duration: number): void {
     // clearing any timer
     if (this.timerId !== undefined) {
       clearTimeout(this.timerId);

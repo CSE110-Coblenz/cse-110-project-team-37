@@ -42,7 +42,7 @@ export class SpaceRescueView implements View {
   // --- MUTABLE VARIABLES ---
   // a map to hold references to the Konva Groups for each asteroid. the map structure allows us
   // to easily handle the updateVisuals() function
-  private fractionNodes: Map<Fraction, Konva.Group> = new Map();
+  private fractionNodes: Map<string, Konva.Group> = new Map();
 
   // image for asteroid
   private asteroidImage: Konva.Image | null = null;
@@ -94,17 +94,20 @@ export class SpaceRescueView implements View {
     });
 
     // loading spaceship image
+    // loading spaceship image
     Konva.Image.fromURL("/spaceship.png", (image) => {
       this.timerShip = image;
 
-      // adding to game elements
-      this.gameElementsGroup.add(this.timerShip);
-
-      // initializing time renderer as spaceship works as like a progress bar determining time
+      // initialize time renderer (this wraps the ship into a container)
       this.timerRenderer = new ShipTimerRenderer({
         timerShip: this.timerShip,
-        duration: 12,
+        duration: 15,
       });
+
+      // add the whole timer container to game elements
+      this.gameElementsGroup.add(this.timerRenderer.getNode());
+
+      this.group.getLayer()?.draw();
     });
   }
 
@@ -255,7 +258,7 @@ export class SpaceRescueView implements View {
    * @param message message to print
    * @param duration how long message will be printed
    */
-  public displayMessage(message: string, duration: number = 1000): void {
+  public displayMessage(message: string, duration: number): void {
     this.messageRenderer.displayMessage(message, duration);
   }
 
@@ -268,20 +271,27 @@ export class SpaceRescueView implements View {
    * @param onFractionClick what happens when an asteroid is clicked
    */
   public clearAndSetupNewRound(model: SpaceRescueModel, onFractionClick: OnFractionClick): void {
-    // destroy current asteriods
+    // destroy existing asteroid Konva nodes
     this.fractionNodes.forEach((nodeGroup) => nodeGroup.destroy());
     this.fractionNodes.clear();
 
-    // recreate new asteroids
-    this.createAsteroids(model, onFractionClick);
+    // recreate using the renderer (string keys)
+    const newNodes = AsteroidRenderer.createAsteroids({
+      fractions: model.asteroids,
+      asteroidImage: this.asteroidImage!,
+      onFractionClick,
+      parentGroup: this.gameElementsGroup,
+    });
 
-    // reset the timer
+    this.fractionNodes = newNodes;
+
+    // reset timer visuals
     this.timerRenderer?.reset();
 
-    // hide game elements
+    // hide game elements until popup is dismissed
     this.gameElementsGroup.visible(false);
 
-    // redraw the layer
+    // redraw
     this.group.getLayer()?.draw();
   }
 
@@ -295,19 +305,22 @@ export class SpaceRescueView implements View {
   public updateVisuals(model: SpaceRescueModel): void {
     const orderText =
       model.sortOrder === "ascending" ? "SMALLEST to LARGEST" : "LARGEST to SMALLEST";
+
     this.promptText.text(
       `Click the asteroids in order: ${orderText} (Next: #${model.getNextTargetIndex() + 1})`,
     );
-    // center the text
     this.promptText.offsetX(this.promptText.width() / 2);
 
-    // visual feedback when correct asteroid is clicked
-    this.fractionNodes.forEach((nodeGroup, fraction) => {
-      if (model.getTargetOrder().indexOf(fraction) < model.getNextTargetIndex()) {
-        nodeGroup.opacity(0.3);
-      } else {
-        nodeGroup.opacity(1.0);
-      }
+    // pre-compute sorted target order as string keys for fast lookup
+    const targetKeys = model.getTargetOrder().map((f) => f.toString());
+    const nextIndex = model.getNextTargetIndex();
+
+    // apply opacity to each asteroid depending on progress
+    this.fractionNodes.forEach((nodeGroup, fractionKey) => {
+      const fractionPosition = targetKeys.indexOf(fractionKey);
+      const alreadyCleared = fractionPosition > -1 && fractionPosition < nextIndex;
+
+      nodeGroup.opacity(alreadyCleared ? 0.3 : 1.0);
     });
 
     this.group.getLayer()?.draw();

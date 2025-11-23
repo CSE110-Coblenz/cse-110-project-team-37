@@ -14,25 +14,53 @@ type ShipTimerOptions = {
  * handles the visual ship animation (timer) and triggers the onFinish handler.
  */
 export class ShipTimerRenderer {
-  // spaceship image
+  // --- MEMBERS ---
+  private readonly container: Konva.Group;
   private readonly timerShip: Konva.Image;
-
-  // animation
+  private readonly duration: number;
   private timerTween: Konva.Tween | null = null;
 
-  // duration of animation (game)
-  private readonly duration: number;
+  private readonly track: Konva.Rect;
 
-  // defines the member variables given options and defines starting position of the image
   constructor(options: ShipTimerOptions) {
     this.timerShip = options.timerShip;
     this.duration = options.duration;
 
-    // initial position of the spaceship
+    // --- holds ship and progress bar ---
+    this.container = new Konva.Group({
+      x: 0,
+      y: 20,
+    });
+
+    // resize ship inside container
+    this.timerShip.width(60);
+    this.timerShip.height(30);
     this.timerShip.x(0);
-    this.timerShip.width(120);
-    this.timerShip.height(60);
-    this.timerShip.y(20);
+    this.timerShip.y(-15);
+
+    // --- track bar ---
+    this.track = new Konva.Rect({
+      x: 0,
+      y: this.timerShip.height() / 2 - 3, // centered vertically
+      width: STAGE_WIDTH - 40, // padding on sides
+      height: 6,
+      fill: "#555",
+      cornerRadius: 3,
+      opacity: 0.4,
+    });
+
+    // add to container
+    this.container.add(this.track);
+    this.container.add(this.timerShip);
+
+    // move container into the same layer as the ship (the ship is already added by the View)
+    // We remove the ship from the gameElementGroup and replace it with the container.
+    const layer = this.timerShip.getLayer();
+    if (layer) {
+      const parent = this.timerShip.getParent();
+      if (parent) parent.add(this.container);
+      this.timerShip.moveTo(this.container);
+    }
   }
 
   /**
@@ -40,13 +68,13 @@ export class ShipTimerRenderer {
    * @param onExpire handler that determines what happens when the timer expires
    */
   private setupTimerTween(onExpire: () => void): void {
-    // destroy any possible existing animation to prevent bugs
     this.timerTween?.destroy();
 
-    // defining new animation
+    const targetX = this.track.width() - this.timerShip.width();
+
     this.timerTween = new Konva.Tween({
-      node: this.timerShip,
-      x: STAGE_WIDTH - 150,
+      node: this.container,
+      x: targetX,
       duration: this.duration,
       onFinish: () => onExpire(),
     });
@@ -54,36 +82,36 @@ export class ShipTimerRenderer {
 
   /**
    * starting the timer
-   * @param onExpire defining what happens when timer expires
    */
   public start(onExpire: () => void): void {
     if (!this.timerTween) {
-      // setup the animation
       this.setupTimerTween(onExpire);
     }
-    // play the animation
     this.timerTween?.play();
   }
 
   /**
-   * stopping the timer if needed
+   * stopping the timer
    */
   public stop(): void {
     this.timerTween?.pause();
   }
 
   /**
-   *  reseting position of the ship and destroying the animation, in case we trigger it again
+   * resetting container + ship
    */
   public reset(): void {
     this.stop();
-    this.timerShip.x(0);
+    this.container.x(0);
     this.timerTween?.destroy();
     this.timerTween = null;
-    this.timerShip.getLayer()?.batchDraw();
+    this.container.getLayer()?.batchDraw();
   }
 
-  public getNode(): Konva.Image {
-    return this.timerShip;
+  /**
+   * returns the container (not the ship alone)
+   */
+  public getNode(): Konva.Group {
+    return this.container;
   }
 }

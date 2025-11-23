@@ -1,22 +1,27 @@
-// THIS FILE RENDERS THE TEXT THAT DISPLAYS ON THE SCREEN
+// THIS FILE RENDERS THE MAIN PROMPT TEXT SHOWN AT THE TOP OF THE SCREEN
 import Konva from "konva";
 
-// importing dimensions
 import { STAGE_WIDTH } from "../../../constants";
 
+/**
+ * Renders the prompt/instruction text shown during gameplay.
+ * SRP: This class creates a single styled text node.
+ */
 export class PromptRenderer {
   /**
-   * function that creates a new text block
+   * Creates the prompt text node.
+   * @returns Konva.Text configured for centered top display.
    */
   public static create(): Konva.Text {
-    const prompt = new Konva.Text({
+    return new Konva.Text({
       x: STAGE_WIDTH / 2,
       y: 50,
+      width: STAGE_WIDTH,
+      align: "center",
       fontSize: 32,
+      fontFamily: "Courier New",
       fill: "white",
+      listening: false,
     });
-    // cenerting
-    prompt.offsetX(prompt.width() / 2);
-    return prompt;
   }
 }

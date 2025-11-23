@@ -17,7 +17,7 @@ export class IntroPopupRenderer {
   public static createPopup(onStart: () => void): Konva.Group {
     // use the same dimensions for popup
     const W = 600;
-    const H = 250;
+    const H = 300;
     const X = STAGE_WIDTH / 2 - W / 2;
     const Y = STAGE_HEIGHT / 2 - H / 2;
 
@@ -45,6 +45,7 @@ export class IntroPopupRenderer {
       y: 20,
       text: "MISSION: ASTEROID CLEARANCE",
       fontSize: 28,
+      fontFamily: "Courier New",
       fill: "#FFD700",
       align: "center",
     });
@@ -54,9 +55,10 @@ export class IntroPopupRenderer {
     const instructionText = new Konva.Text({
       x: W / 2,
       y: 80,
-      text: "Mission control here! Your ship can’t move because a squad of fussy asteroids is hogging the space lanes. They claim they’ll let you pass only if you click them in the proper order. Humor them, clear the path, and save the mission before they start charging toll fees!",
+      text: "Mission control here! Your ship can’t move because a squad of fussy asteroids is hogging the space lanes. They claim they’ll let you pass only if you click them in the proper order. Humor them, clear the path, and save the mission before the time runs out!",
       width: W - 40,
       fontSize: 20,
+      fontFamily: "Courier New",
       fill: "white",
       align: "center",
     });

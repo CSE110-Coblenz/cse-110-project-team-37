@@ -1,10 +1,9 @@
 // THIS FILE WILL RENDER THE ASTEROID GENERATION
 import Konva from "konva";
 
-// we will need the Fraction model
 import type { Fraction } from "../../../models/Fraction";
 
-// creating a type for the renderer that stores all necessary information for the renderer to create the visuals
+// type that is used to render the asteroids. every member variable will be needed in the creation
 type AsteroidCreateOptions = {
   fractions: Fraction[];
   asteroidImage: Konva.Image;
@@ -17,39 +16,36 @@ type AsteroidCreateOptions = {
  */
 export class AsteroidRenderer {
   /**
-   * creates the asteroids and returns a map of fractions
-   * that correspond to certain asteroids
-   * @param options this corresponds to the type defined above. all member variables will
-   * be necessary to carry out visual rendering
-   * @returns map of fractions that corresponds to the asteroids
+   * create all asteroid nodes and return a map based on fraction keys
+   * @param options the type that will give us the necessary information to carry out rendering
+   * @returns a map of fractions (asteroids)
    */
-  static createAsteroids(options: AsteroidCreateOptions): Map<Fraction, Konva.Group> {
-    // extracting member variables of our Options class (passed through parameter)
+  static createAsteroids(options: AsteroidCreateOptions): Map<string, Konva.Group> {
+    // extracting member variables
     const { fractions, asteroidImage, onFractionClick, parentGroup } = options;
 
-    // initializing map that will store asteroids (Fractions)
-    const fractionNodes = new Map<Fraction, Konva.Group>();
+    // map of nodes, where each entry is a fraction (as a string)
+    const nodes = new Map<string, Konva.Group>();
 
-    // defining dimensions we want to use
-    // we will use the values of the parent group. if null, just use standard screen resolution
-    // (1920 x 1080)
-    const STAGE_WIDTH = parentGroup.getStage()?.width() ?? 1920;
-    const STAGE_HEIGHT = parentGroup.getStage()?.height() ?? 1080;
-
-    // defining center of the screen and predetermining size of asteroid
-    const center = STAGE_WIDTH / 2;
+    // defining our dimensions
+    const stageWidth = parentGroup.getStage()?.width() ?? 1920;
+    const stageHeight = parentGroup.getStage()?.height() ?? 1080;
+    const centerX = stageWidth / 2;
     const ASTEROID_SIZE = 250;
 
-    // now, for each fraction in list of fractions fed in parameter, create a specific asteroid linked to that fraction
+    // iterating through each of the fractions (asteroids)
     fractions.forEach((fraction, index) => {
-      // trying to simulate 'random positioning'
-      const x = center + (Math.random() - 0.5) * 1200;
-      const y = STAGE_HEIGHT / 5.5 + index * 160;
+      // defining our key
+      const key = fraction.toString();
 
-      // creating a new group that holds the asteroids
-      const asteroidGroup = new Konva.Group({ x, y });
+      // random positional layout
+      const x = centerX + (Math.random() - 0.5) * 1200;
+      const y = stageHeight / 5.5 + index * 160;
 
-      // clone asteroid image
+      // group containing rock + label
+      const group = new Konva.Group({ x, y });
+
+      // clone the asteroid image safely
       const rock = asteroidImage.clone({
         width: ASTEROID_SIZE,
         height: ASTEROID_SIZE,
@@ -57,93 +53,88 @@ export class AsteroidRenderer {
         offsetY: ASTEROID_SIZE / 2,
       }) as Konva.Image;
 
-      // fraction that goes inside the asteroid
+      // fraction label
       const label = new Konva.Text({
-        text: fraction.toString(),
+        text: key,
         fontSize: 32,
         fill: "black",
         y: -10,
       });
       label.offsetX(label.width() / 2);
 
-      // adding the rock with the text inside it to the group
-      asteroidGroup.add(rock, label);
+      // adding asteroid to the group
+      group.add(rock, label);
 
-      // adding a click handler
-      asteroidGroup.on("click", () => {
-        AsteroidRenderer.runClickAnimation(asteroidGroup);
+      // click handler: animation + callback
+      group.on("click tap", () => {
+        AsteroidRenderer.runClickAnimation(group);
         onFractionClick(fraction);
       });
 
-      // hover animation (scales up)
-      asteroidGroup.on("mouseenter", () => {
-        document.body.style.cursor = "pointer";
-        new Konva.Tween({
-          node: asteroidGroup,
-          scaleX: 1.12,
-          scaleY: 1.12,
-          duration: 0.15,
-        }).play();
+      // hover animations — cursor only applied to stage container
+      group.on("mouseenter", () => {
+        const container = group.getStage()?.container();
+        if (container) container.style.cursor = "pointer";
+
+        AsteroidRenderer.scaleTween(group, 1.12).play();
       });
 
-      // when hover ends, go back to normal
-      asteroidGroup.on("mouseleave", () => {
-        document.body.style.cursor = "default";
-        new Konva.Tween({
-          node: asteroidGroup,
-          scaleX: 1,
-          scaleY: 1,
-          duration: 0.15,
-        }).play();
+      group.on("mouseleave", () => {
+        const container = group.getStage()?.container();
+        if (container) container.style.cursor = "default";
+
+        AsteroidRenderer.scaleTween(group, 1).play();
       });
 
-      // add to render tree
-      parentGroup.add(asteroidGroup);
-
-      // store reference
-      fractionNodes.set(fraction, asteroidGroup);
-
-      // animations
-      AsteroidRenderer.addDriftAnimation(asteroidGroup);
+      // add animations
+      AsteroidRenderer.addDriftAnimation(group);
       AsteroidRenderer.addRotationAnimation(rock);
+
+      // adding the asteroids to the group
+      parentGroup.add(group);
+      nodes.set(key, group);
     });
 
-    // return the map
-    return fractionNodes;
+    // returning the map
+    return nodes;
   }
 
+  // -------------------------------------------------
+  //   Animation Utilities
+  // -------------------------------------------------
   /**
-   * click animation (pop-up then shrink back).
-   * @param group animation will be played on this group specifically
+   * scaling an asteroid property
+   * @param node asteroid
+   * @param scale how big we are going to scale
+   * @returns new animation
    */
+  private static scaleTween(node: Konva.Node, scale: number): Konva.Tween {
+    return new Konva.Tween({
+      node,
+      scaleX: scale,
+      scaleY: scale,
+      duration: 0.15,
+    });
+  }
+
+  /** simple click "pop" animation */
   static runClickAnimation(group: Konva.Group) {
     new Konva.Tween({
       node: group,
       scaleX: 1.15,
       scaleY: 1.15,
       duration: 0.12,
-      // once click is done, go back to normal
       onFinish: () => {
-        new Konva.Tween({
-          node: group,
-          scaleX: 1,
-          scaleY: 1,
-          duration: 0.12,
-        }).play();
+        AsteroidRenderer.scaleTween(group, 1).play();
       },
     }).play();
   }
 
-  /**
-   * drifting animation. looks like asteroid is floating
-   * @param group animation will be played on this group specfically
-   */
+  /** gentle drift motion for floating effect */
   static addDriftAnimation(group: Konva.Group) {
-    // defining drify constants
     const driftX = (Math.random() - 0.5) * 50;
     const driftY = (Math.random() - 0.5) * 50;
 
-    // creating the animation
     new Konva.Tween({
       node: group,
       x: group.x() + driftX,
@@ -154,11 +145,7 @@ export class AsteroidRenderer {
     }).play();
   }
 
-  /**
-   * rotation to add depth to the drift
-   * @param rock the animation will be given to each asteroid individually
-   * that way each rock looks like they're turning in different directions
-   */
+  /** rotation animation — unique per rock */
   static addRotationAnimation(rock: Konva.Image) {
     new Konva.Tween({
       node: rock,

@@ -101,7 +101,7 @@ export class SpaceRescueController extends ScreenController {
       }
     } else {
       // if clicked on the wrong asteroid, let user know
-      this.view.displayMessage("Incorrect order! Asteroid hit.", 2500);
+      this.view.displayMessage("Incorrect order!", 400);
     }
   }
 

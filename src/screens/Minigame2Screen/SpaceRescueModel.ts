@@ -5,25 +5,19 @@ const ASTEROID_COUNT = 5;
 
 export class SpaceRescueModel {
   // array of fractions displayed on the asteroids
-  public asteroids: Fraction[];
+  public asteroids!: Fraction[];
 
   // sequence in which the fractions should be clicked
-  private targetOrder: Fraction[];
+  private targetOrder!: Fraction[];
 
   // correct index of which asteroid should be clicked
   private currentTargetIndex: number = 0;
 
   // defining what order the asteroids should be clicked
-  public sortOrder: "ascending" | "descending";
+  public sortOrder!: "ascending" | "descending";
 
+  // the constructor is defined to do the same as the reset function below
   constructor() {
-    // randomly choose whether the fractions will have to be clicked in ascending order or descending
-    this.sortOrder = Math.random() > 0.5 ? "ascending" : "descending";
-
-    // generating random fractions and sorting
-    this.asteroids = this.generateRandomFractions(ASTEROID_COUNT);
-    this.targetOrder = this.sortFractions(this.asteroids, this.sortOrder);
-
     this.reset();
   }
 
@@ -51,14 +45,8 @@ export class SpaceRescueModel {
     // storing UNIQUE fractions in a list
     const uniqueFractions: Fraction[] = [];
 
-    // giving us 50 attempts to create a random unique fraction
-    let attempts = 0;
-    const MAX_ATTEMPTS = 50;
-
     // looping until we have count number of unique fractions
-    while (uniqueFractions.length < count && attempts < MAX_ATTEMPTS) {
-      attempts++;
-
+    while (uniqueFractions.length < count) {
       // numerator (N): 1 to 18
       const N = Math.floor(Math.random() * 18) + 1;
       // denominator (D): 2 to 9
