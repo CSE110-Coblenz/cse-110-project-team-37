@@ -1,9 +1,9 @@
 import Konva from "konva";
 
-import type { View } from "../../types.ts";
 import { Fraction } from "../../models/Fraction.ts";
-
 import { ButtonFactory } from "../../util/ButtonFactory.ts";
+
+import type { View } from "../../types.ts";
 
 
 type ViewCallbacks = {

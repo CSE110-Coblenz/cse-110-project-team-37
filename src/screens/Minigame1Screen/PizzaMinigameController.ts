@@ -1,9 +1,11 @@
-import { ScreenController } from "../../types.ts";
-import type { ScreenSwitcher } from "../../types.ts";
-
 import { Fraction } from "../../models/Fraction.ts";
+
 import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
 import { PizzaMinigameView } from "./PizzaMinigameView.ts";
+
+import { ScreenController } from "../../types.ts";
+
+import type { ScreenSwitcher } from "../../types.ts";
 
 export class PizzaMinigameController extends ScreenController {
   private readonly view: PizzaMinigameView;
