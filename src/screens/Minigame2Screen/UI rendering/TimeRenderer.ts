@@ -18,9 +18,12 @@ export class ShipTimerRenderer {
   private readonly container: Konva.Group;
   private readonly timerShip: Konva.Image;
   private readonly duration: number;
+
+  // animation
   private timerTween: Konva.Tween | null = null;
 
-  private readonly track: Konva.Rect;
+  // progress bar
+  private readonly progress: Konva.Rect;
 
   constructor(options: ShipTimerOptions) {
     this.timerShip = options.timerShip;
@@ -38,11 +41,11 @@ export class ShipTimerRenderer {
     this.timerShip.x(0);
     this.timerShip.y(-15);
 
-    // --- track bar ---
-    this.track = new Konva.Rect({
+    // --- progress bar ---
+    this.progress = new Konva.Rect({
       x: 0,
-      y: this.timerShip.height() / 2 - 3, // centered vertically
-      width: STAGE_WIDTH - 40, // padding on sides
+      y: this.timerShip.height() / 2 - 3,
+      width: STAGE_WIDTH - 40,
       height: 6,
       fill: "#555",
       cornerRadius: 3,
@@ -50,11 +53,10 @@ export class ShipTimerRenderer {
     });
 
     // add to container
-    this.container.add(this.track);
+    this.container.add(this.progress);
     this.container.add(this.timerShip);
 
     // move container into the same layer as the ship (the ship is already added by the View)
-    // We remove the ship from the gameElementGroup and replace it with the container.
     const layer = this.timerShip.getLayer();
     if (layer) {
       const parent = this.timerShip.getParent();
@@ -70,7 +72,7 @@ export class ShipTimerRenderer {
   private setupTimerTween(onExpire: () => void): void {
     this.timerTween?.destroy();
 
-    const targetX = this.track.width() - this.timerShip.width();
+    const targetX = this.progress.width() - this.timerShip.width();
 
     this.timerTween = new Konva.Tween({
       node: this.container,

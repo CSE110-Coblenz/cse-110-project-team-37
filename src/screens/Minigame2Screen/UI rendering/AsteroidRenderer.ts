@@ -1,6 +1,8 @@
 // THIS FILE WILL RENDER THE ASTEROID GENERATION
 import Konva from "konva";
 
+import { STAGE_HEIGHT, STAGE_WIDTH } from "../../../constants";
+
 import type { Fraction } from "../../../models/Fraction";
 
 // type that is used to render the asteroids. every member variable will be needed in the creation
@@ -28,8 +30,8 @@ export class AsteroidRenderer {
     const nodes = new Map<string, Konva.Group>();
 
     // defining our dimensions
-    const stageWidth = parentGroup.getStage()?.width() ?? 1920;
-    const stageHeight = parentGroup.getStage()?.height() ?? 1080;
+    const stageWidth = STAGE_WIDTH;
+    const stageHeight = STAGE_HEIGHT;
     const centerX = stageWidth / 2;
     const ASTEROID_SIZE = 250;
 
