@@ -15,6 +15,10 @@ export type View = {
  * - "menu": Main menu screen
  * - "game": Gameplay screen
  * - "help": Tutorial Help screen
+ * - "pause": Pause screen
+ * - "end": Game over screen
+ * - "equation_help": Help with minigame
+ * - "tutorial": Beginning tutorial
  */
 export type Screen =
   | { type: "menu" }
@@ -26,6 +30,8 @@ export type Screen =
   | { type: "equation_help" }
   | { type: "minigame1" }
   | { type: "minigame2" };
+  | { type: "tutorial" }
+  | { type: "minigame1" };
 
 export abstract class ScreenController {
   abstract getView(): View;
