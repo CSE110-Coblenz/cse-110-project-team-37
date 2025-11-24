@@ -1,6 +1,11 @@
 import Konva from "konva";
 
 /**
+ * Timer modes: 'countup' counts from initialTime upwards, 'countdown' counts from initialTime down to 0
+ */
+export type TimerMode = "countup" | "countdown";
+
+/**
  * Configuration options for creating a timer
  */
 export type TimerConfig = {
@@ -8,8 +13,11 @@ export type TimerConfig = {
   x: number;
   y: number;
 
-  // defalts to 0
+  // defaults to 0
   initialTime?: number;
+
+  // Timer mode: 'countup' (default) or 'countdown'
+  mode?: TimerMode;
 
   /** Font size for the timer text (optional, defaults to 24) */
   // defaults to 24
@@ -32,6 +40,9 @@ export type TimerConfig = {
 
   // Callback function called when timer stops
   onStop?: (finalTime: number) => void;
+
+  // Callback function called when countdown reaches 0 (countdown mode only)
+  onCountdownComplete?: () => void;
 };
 
 /**
@@ -43,7 +54,7 @@ export class Timer {
   private readonly background: Konva.Rect;
   private readonly timeText: Konva.Text;
 
-  private elapsedSeconds: number = 0;
+  private currentTime: number = 0;
   private isRunning: boolean = false;
   private intervalId: number | null = null;
 
@@ -53,6 +64,7 @@ export class Timer {
     // Set defaults for optional config values
     this.config = {
       initialTime: 0,
+      mode: "countup",
       fontSize: 24,
       textColor: "white",
       backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -60,10 +72,11 @@ export class Timer {
       borderRadius: 5,
       onTick: () => {},
       onStop: () => {},
+      onCountdownComplete: () => {},
       ...config,
     };
 
-    this.elapsedSeconds = this.config.initialTime;
+    this.currentTime = this.config.initialTime;
 
     // Create the visual components
     this.group = new Konva.Group({
@@ -85,7 +98,7 @@ export class Timer {
     this.timeText = new Konva.Text({
       x: this.config.padding,
       y: this.config.padding,
-      text: this.formatTime(this.elapsedSeconds),
+      text: this.formatTime(this.currentTime),
       fontSize: this.config.fontSize,
       fontFamily: "Arial",
       fill: this.config.textColor,
@@ -121,7 +134,7 @@ export class Timer {
    * Updates the displayed time
    */
   private updateDisplay(): void {
-    this.timeText.text(this.formatTime(this.elapsedSeconds));
+    this.timeText.text(this.formatTime(this.currentTime));
     this.updateBackgroundSize();
     this.group.getLayer()?.batchDraw();
   }
@@ -130,9 +143,24 @@ export class Timer {
    * Tick function called every second when timer is running
    */
   private tick(): void {
-    this.elapsedSeconds++;
-    this.updateDisplay();
-    this.config.onTick(this.elapsedSeconds);
+    if (this.config.mode === "countdown") {
+      this.currentTime--;
+      this.updateDisplay();
+      this.config.onTick(this.currentTime);
+
+      // Check if countdown has reached 0
+      if (this.currentTime <= 0) {
+        this.currentTime = 0;
+        this.updateDisplay();
+        this.pause();
+        this.config.onCountdownComplete();
+      }
+    } else {
+      // Countup mode
+      this.currentTime++;
+      this.updateDisplay();
+      this.config.onTick(this.currentTime);
+    }
   }
 
   /**
@@ -180,7 +208,7 @@ export class Timer {
    */
   public stop(): void {
     this.pause();
-    this.config.onStop(this.elapsedSeconds);
+    this.config.onStop(this.currentTime);
   }
 
   /**
@@ -188,12 +216,31 @@ export class Timer {
    * If you want to reset and stop, call stop() first
    */
   public reset(): void {
-    this.elapsedSeconds = this.config.initialTime;
+    this.currentTime = this.config.initialTime;
     this.updateDisplay();
   }
 
+  /**
+   * Gets the current time value
+   * For countup mode: time elapsed since start
+   * For countdown mode: time remaining
+   */
+  public getCurrentTime(): number {
+    return this.currentTime;
+  }
+
+  /**
+   * @deprecated Use getCurrentTime() instead for clearer intent
+   */
   public getElapsedTime(): number {
-    return this.elapsedSeconds;
+    return this.currentTime;
+  }
+
+  /**
+   * Gets the timer mode
+   */
+  public getMode(): TimerMode {
+    return this.config.mode;
   }
 
   public getIsRunning(): boolean {
@@ -230,17 +277,32 @@ export class Timer {
  *
  * Usage:
  * ```typescript
- * const timer = useTimer({
+ * // Countup timer (default)
+ * const countupTimer = useTimer({
  *   x: 100,
  *   y: 50,
+ *   initialTime: 0,
+ *   mode: 'countup', // optional, this is the default
  *   onTick: (seconds) => console.log(`Elapsed: ${seconds}s`),
  * });
  *
- * // Add to your view
- * this.viewGroup.add(timer.getGroup());
+ * // Countdown timer
+ * const countdownTimer = useTimer({
+ *   x: 100,
+ *   y: 100,
+ *   initialTime: 60, // Start from 60 seconds
+ *   mode: 'countdown',
+ *   onTick: (seconds) => console.log(`Time remaining: ${seconds}s`),
+ *   onCountdownComplete: () => console.log('Time\'s up!'),
+ * });
  *
- * // Control the timer
- * timer.start();
+ * // Add to your view
+ * this.viewGroup.add(countupTimer.getGroup());
+ * this.viewGroup.add(countdownTimer.getGroup());
+ *
+ * // Control the timers
+ * countupTimer.start();
+ * countdownTimer.start();
  * timer.pause();
  * timer.resume();
  * ```
