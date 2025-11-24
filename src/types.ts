@@ -29,7 +29,7 @@ export type Screen =
   | { type: "end" }
   | { type: "equation_help" }
   | { type: "minigame1" }
-  | { type: "minigame2" };
+  | { type: "minigame2" }
   | { type: "tutorial" }
   | { type: "minigame1" };
 
