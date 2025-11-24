@@ -140,7 +140,7 @@ export class QuestionScreenView implements View {
     //takes in array of answer choices
     choices.forEach((choice, i) => {
       if (this.answerTexts[i]) {
-        this.answerTexts[i].text(`${choice.numerator}/${choice.denominator}`); //updates accordingly
+        this.answerTexts[i].text(choice.toString()); //updates accordingly
         this.answerTexts[i].offsetX(this.answerTexts[i].width() / 2);
       }
     });

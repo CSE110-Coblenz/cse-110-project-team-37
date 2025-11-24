@@ -33,6 +33,7 @@ class App implements ScreenSwitcher {
   private readonly equationHelpScreenController: EquationHelpScreenController;
 
   private gameScreenController: QuestionScreenController;
+  private storedGameController: QuestionScreenController | null = null;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
@@ -175,15 +176,23 @@ class App implements ScreenSwitcher {
         this.pauseScreenController.show();
         break;
       case "game":
-        // Get the configuration for the selected difficulty
-        const config = this.getDifficultyConfig(screen.difficulty);
-        this.gameScreenController.getView().getGroup().remove();
-        // creates a new controller with the correct difficulty config
-        this.gameScreenController = new QuestionScreenController(this, config);
-        // add the new view to the layer
-        this.layer.add(this.gameScreenController.getView().getGroup());
-        // start the question (updates view and shows the screen)
-        this.gameScreenController.startQuestion();
+        // Check if we're returning from help and should restore previous state
+        if (this.storedGameController) {
+          // Restore the stored game controller
+          this.gameScreenController = this.storedGameController;
+          this.storedGameController = null;
+          this.gameScreenController.show();
+        } else {
+          // Get the configuration for the selected difficulty
+          const config = this.getDifficultyConfig(screen.difficulty);
+          this.gameScreenController.getView().getGroup().remove();
+          // creates a new controller with the correct difficulty config
+          this.gameScreenController = new QuestionScreenController(this, config);
+          // add the new view to the layer
+          this.layer.add(this.gameScreenController.getView().getGroup());
+          // start the question (updates view and shows the screen)
+          this.gameScreenController.startQuestion();
+        }
         break;
       case "minigame1":
         this.minigame1Controller.show();
@@ -192,7 +201,10 @@ class App implements ScreenSwitcher {
         this.endScreenController.show();
         break;
       case "equation_help":
+        // Store the current game controller to preserve the question
+        this.storedGameController = this.gameScreenController;
         this.equationHelpScreenController.show();
+        break;
     }
 
     this.current = screen.type;
