@@ -3,6 +3,9 @@ import Konva from "konva";
 import type { View } from "../../types.ts";
 import { Fraction } from "../../models/Fraction.ts";
 
+import { ButtonFactory } from "../../util/ButtonFactory.ts";
+
+
 type ViewCallbacks = {
   onBack: () => void;
   onReset: () => void;
@@ -245,14 +248,11 @@ export class PizzaMinigameView implements View {
   // ---------------- HUD ----------------
   private drawHUD() {
     // Back button (top-left)
-    const backBtn = this.makeButton({
-      x: 24,
-      y: 24,
-      w: 180,
-      h: 44,
-      label: "Back to Menu",
-      onClick: () => this.onBack(),
-    });
+    const backBtn = ButtonFactory.construct()
+      .pos(24 + 180 / 2, 24 + 44 / 2)
+      .text("Back to Menu")
+      .onClick(() => this.onBack())
+      .build();
 
     // Right column anchor
     const colCenterX = this.width * 0.68;
@@ -293,45 +293,12 @@ export class PizzaMinigameView implements View {
       align: "center",
     });
 
-    const resetBtn = new Konva.Group({ x: colCenterX - 130, y: 190 });
-    const resetRect = new Konva.Rect({
-      width: 260,
-      height: 44,
-      cornerRadius: 12,
-      fill: "#ffffff",
-      stroke: "#94a3b8",
-      strokeWidth: 2,
-      shadowColor: "black",
-      shadowOpacity: 0.08,
-      shadowBlur: 8,
-      shadowOffset: { x: 0, y: 2 },
-    });
-    const resetTxt = new Konva.Text({
-      x: 0,
-      y: 0,
-      width: 260,
-      height: 44,
-      align: "center",
-      verticalAlign: "middle",
-      text: "Reset Pizza",
-      fontSize: 22,
-      fontFamily: "Arial",
-      fill: "#0f172a",
-    });
-    resetBtn.add(resetRect, resetTxt);
-    resetBtn.on("mouseenter", () => {
-      resetRect.fill("#f1f5f9");
-      const stage = resetBtn.getStage();
-      if (stage) stage.container().style.cursor = "pointer";
-      this.group.getLayer()?.batchDraw();
-    });
-    resetBtn.on("mouseleave", () => {
-      resetRect.fill("#ffffff");
-      const stage = resetBtn.getStage();
-      if (stage) stage.container().style.cursor = "default";
-      this.group.getLayer()?.batchDraw();
-    });
-    resetBtn.on("click", () => this.onReset());
+    // Reset button using ButtonFactory
+    const resetBtn = ButtonFactory.construct()
+      .pos(colCenterX, 190 + 44 / 2)
+      .text("Reset Pizza")
+      .onClick(() => this.onReset())
+      .build();
 
     // Pizzas completed counter above main pizza
     const counterWidth = 260;
@@ -393,14 +360,11 @@ export class PizzaMinigameView implements View {
     fracs.forEach((r, i) => {
       const y = startY + i * (h + gap);
 
-      const btn = this.makeButton({
-        x: startX,
-        y,
-        w,
-        h,
-        label: r.toString(),
-        onClick: () => this.onSliceClick(r),
-      });
+      const btn = ButtonFactory.construct()
+        .pos(startX + w / 2, y + h / 2) // ButtonFactory positions by center
+        .text(r.toString())
+        .onClick(() => this.onSliceClick(r))
+        .build();
 
       // Image slice thumbnail to the LEFT of the button
       const thumbRadius = 28;
@@ -457,62 +421,6 @@ export class PizzaMinigameView implements View {
     return g;
   }
 
-  private makeButton(opts: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    label: string;
-    onClick: () => void;
-  }): Konva.Group {
-    const g = new Konva.Group({ x: opts.x, y: opts.y });
-
-    const rect = new Konva.Rect({
-      width: opts.w,
-      height: opts.h,
-      cornerRadius: 14,
-      fill: "#ffffff",
-      stroke: "#94a3b8",
-      strokeWidth: 2,
-      shadowColor: "black",
-      shadowOpacity: 0.06,
-      shadowBlur: 8,
-      shadowOffset: { x: 0, y: 2 },
-    });
-
-    const label = new Konva.Text({
-      x: 0,
-      y: 0,
-      width: opts.w,
-      height: opts.h,
-      text: opts.label,
-      fontSize: 22,
-      fontFamily: "Arial",
-      fill: "#0f172a",
-      align: "center",
-      verticalAlign: "middle",
-    });
-
-    g.add(rect, label);
-
-    g.on("mouseenter", () => {
-      rect.fill("#f1f5f9");
-      const stage = g.getStage();
-      if (stage) stage.container().style.cursor = "pointer";
-      this.group.getLayer()?.batchDraw();
-    });
-
-    g.on("mouseleave", () => {
-      rect.fill("#ffffff");
-      const stage = g.getStage();
-      if (stage) stage.container().style.cursor = "default";
-      this.group.getLayer()?.batchDraw();
-    });
-
-    g.on("click touchstart", opts.onClick);
-
-    return g;
-  }
 }
 
 export default PizzaMinigameView;
