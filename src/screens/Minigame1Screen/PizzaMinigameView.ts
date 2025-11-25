@@ -1,0 +1,424 @@
+import Konva from "konva";
+
+import { ButtonFactory } from "../../util/ButtonFactory.ts";
+
+import type { Fraction } from "../../models/Fraction.ts";
+import type { View } from "../../types.ts";
+
+type ViewCallbacks = {
+  onBack: () => void;
+  onReset: () => void;
+  onSliceClick: (fraction: Fraction) => void;
+  onReady?: () => void; // called after texture + UI are ready
+  fractionOptions: Fraction[];
+};
+
+/**
+ * Minigame1ScreenView (pure View)
+ * - Knows how to draw pizza, buttons, HUD
+ * - Delegates all game logic to the Controller/Model
+ */
+export class PizzaMinigameView implements View {
+  private readonly group: Konva.Group = new Konva.Group({ visible: true });
+  private readonly pizzaGroup: Konva.Group = new Konva.Group();
+  private readonly uiGroup: Konva.Group = new Konva.Group();
+
+  private readonly width = window.innerWidth;
+  private readonly height = window.innerHeight;
+
+  // Big pizza position/size
+  private readonly pizzaCenter = { x: this.width * 0.32, y: this.height * 0.58 };
+  private readonly pizzaRadius = Math.min(480, Math.min(this.width, this.height) * 0.45);
+
+  // Image assets
+  private pizzaHTMLImage: HTMLImageElement | null = null;
+  private basePizzaImageNode: Konva.Image | null = null;
+  private readonly PIZZA_SRC = "/whole-pizza.png"; // served from /public
+
+  // UI refs
+  private sumText!: Konva.Text;
+  private statusText!: Konva.Text;
+  private pizzasCompletedText!: Konva.Text;
+
+  // Callbacks + data from controller
+  private readonly onBack: () => void;
+  private readonly onReset: () => void;
+  private readonly onSliceClick: (fraction: Fraction) => void;
+  private readonly onReady?: () => void;
+  private readonly fractionOptions: Fraction[];
+
+  constructor(callbacks: ViewCallbacks) {
+    this.onBack = callbacks.onBack;
+    this.onReset = callbacks.onReset;
+    this.onSliceClick = callbacks.onSliceClick;
+    this.onReady = callbacks.onReady;
+    this.fractionOptions = callbacks.fractionOptions;
+
+    // Order: background (root) -> pizzaGroup -> uiGroup
+    this.group.add(this.pizzaGroup);
+    this.group.add(this.uiGroup);
+
+    this.drawBackground();
+
+    this.loadPizzaTexture().then(
+      () => {
+        this.drawPizzaBaseWithImage();
+        this.drawHUD();
+        this.drawButtons(this.fractionOptions);
+
+        // Signal controller that the view is ready
+        this.onReady?.();
+
+        this.group.getLayer()?.draw();
+      },
+      () => console.error("Failed to load pizza texture"),
+    );
+  }
+
+  // View interface
+  getGroup(): Konva.Group {
+    return this.group;
+  }
+
+  show(): void {
+    this.group.visible(true);
+    this.group.getLayer()?.draw();
+  }
+
+  hide(): void {
+    this.group.visible(false);
+    this.group.getLayer()?.draw();
+  }
+
+  // ---------------- Public methods for Controller ----------------
+
+  public setCurrentFractionText(fraction: Fraction): void {
+    if (!this.sumText) return;
+    this.sumText.text(`Current: ${fraction.toString()}`);
+    this.group.getLayer()?.batchDraw();
+  }
+
+  public setStatusText(message: string): void {
+    if (!this.statusText) return;
+    this.statusText.text(message);
+    this.group.getLayer()?.batchDraw();
+  }
+
+  public updatePizzasCompleted(count: number): void {
+    if (!this.pizzasCompletedText) return;
+    this.pizzasCompletedText.text(`Pizzas completed: ${count}`);
+    this.group.getLayer()?.batchDraw();
+  }
+
+  public clearSlices(): void {
+    this.pizzaGroup
+      .getChildren((n) => n.getAttr("data-wedge") === true)
+      .forEach((n) => n.destroy());
+    this.group.getLayer()?.batchDraw();
+  }
+
+  /**
+   * Draw one new slice using only Fractions for angles:
+   * `previous` = total before adding, `slice` = new piece.
+   */
+  public addSliceVisual(previous: Fraction, slice: Fraction): void {
+    if (!this.pizzaHTMLImage) return;
+
+    const filled = previous.toDecimal();
+    const add = slice.toDecimal();
+
+    const start = -Math.PI / 2 + filled * Math.PI * 2;
+    const end = start + add * Math.PI * 2;
+
+    const d = this.pizzaRadius * 2 - 36;
+    const g = new Konva.Group({
+      x: this.pizzaCenter.x - d / 2,
+      y: this.pizzaCenter.y - d / 2,
+    });
+
+    g.clipFunc((ctx) => {
+      ctx.beginPath();
+      ctx.moveTo(d / 2, d / 2);
+      ctx.arc(d / 2, d / 2, d / 2, start, end, false);
+      ctx.closePath();
+    });
+
+    g.add(
+      new Konva.Image({
+        image: this.pizzaHTMLImage,
+        x: 0,
+        y: 0,
+        width: d,
+        height: d,
+      }),
+    );
+    g.setAttr("data-wedge", true);
+    this.pizzaGroup.add(g);
+    this.group.getLayer()?.batchDraw();
+  }
+
+  /**
+   * Visual success feedback; controller decides when to reset the game.
+   */
+  public flashPizzaSuccess(): void {
+    const glow = new Konva.Circle({
+      x: this.pizzaCenter.x,
+      y: this.pizzaCenter.y,
+      radius: this.pizzaRadius + 24,
+      stroke: "#22c55e",
+      strokeWidth: 14,
+      shadowColor: "#22c55e",
+      shadowBlur: 32,
+      shadowOpacity: 0.9,
+      opacity: 0.9,
+      listening: false,
+    });
+
+    this.pizzaGroup.add(glow);
+    this.group.getLayer()?.batchDraw();
+
+    const tween = new Konva.Tween({
+      node: glow,
+      duration: 0.5,
+      opacity: 0,
+      onFinish: () => {
+        glow.destroy();
+        this.group.getLayer()?.batchDraw();
+      },
+    });
+    tween.play();
+  }
+
+  // ---------------- Assets ----------------
+  private async loadPizzaTexture(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        this.pizzaHTMLImage = img;
+        resolve();
+      };
+      img.onerror = (e) => reject(e);
+      img.src = this.PIZZA_SRC;
+    });
+  }
+
+  private drawBackground() {
+    const bg = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: this.width,
+      height: this.height,
+      fill: "#f8fafc",
+    });
+    this.group.add(bg);
+    bg.moveToBottom();
+  }
+
+  private drawPizzaBaseWithImage() {
+    if (!this.pizzaHTMLImage) return;
+
+    // Subtle plate only
+    const plate = new Konva.Circle({
+      x: this.pizzaCenter.x,
+      y: this.pizzaCenter.y,
+      radius: this.pizzaRadius + 18,
+      fill: "#e5e7eb",
+      opacity: 0.3,
+    });
+
+    const d = this.pizzaRadius * 2 - 36; // inner diameter
+    const x = this.pizzaCenter.x - d / 2;
+    const y = this.pizzaCenter.y - d / 2;
+
+    // Dimmed base pizza image so added slices pop
+    this.basePizzaImageNode = new Konva.Image({
+      image: this.pizzaHTMLImage,
+      x,
+      y,
+      width: d,
+      height: d,
+      opacity: 0.25,
+    });
+
+    this.pizzaGroup.add(plate, this.basePizzaImageNode);
+  }
+
+  // ---------------- HUD ----------------
+  private drawHUD() {
+    // Back button (top-left)
+    const backBtn = ButtonFactory.construct()
+      .pos(24 + 180 / 2, 24 + 44 / 2)
+      .text("Back to Menu")
+      .onClick(() => this.onBack())
+      .build();
+
+    // Right column anchor
+    const colCenterX = this.width * 0.68;
+    const colW = 420;
+    const colX = colCenterX - colW / 2;
+
+    const title = new Konva.Text({
+      x: colX,
+      y: 80,
+      width: colW,
+      text: "Make a whole pizza",
+      fontSize: 34,
+      fontStyle: "bold",
+      fontFamily: "Arial",
+      fill: "#0f172a",
+      align: "center",
+    });
+
+    this.sumText = new Konva.Text({
+      x: colX,
+      y: 130,
+      width: colW,
+      text: `Current: 0/1`,
+      fontSize: 22,
+      fontFamily: "Arial",
+      fill: "#0f172a",
+      align: "center",
+    });
+
+    this.statusText = new Konva.Text({
+      x: colX,
+      y: 160,
+      width: colW,
+      text: "Click a fraction to add a slice",
+      fontSize: 18,
+      fontFamily: "Arial",
+      fill: "#334155",
+      align: "center",
+    });
+
+    // Reset button using ButtonFactory
+    const resetBtn = ButtonFactory.construct()
+      .pos(colCenterX, 190 + 44 / 2)
+      .text("Reset Pizza")
+      .onClick(() => this.onReset())
+      .build();
+
+    // Pizzas completed counter above main pizza
+    const counterWidth = 260;
+    const counterY = this.pizzaCenter.y - this.pizzaRadius - 40;
+    const iconSize = 32;
+
+    // Small pizza image icon to the left of the text
+    let pizzaIcon: Konva.Image | Konva.Circle;
+    if (this.pizzaHTMLImage) {
+      pizzaIcon = new Konva.Image({
+        image: this.pizzaHTMLImage,
+        x: this.pizzaCenter.x - counterWidth / 2,
+        y: counterY - iconSize / 2,
+        width: iconSize,
+        height: iconSize,
+      });
+    } else {
+      pizzaIcon = new Konva.Circle({
+        x: this.pizzaCenter.x - counterWidth / 2 + iconSize / 2,
+        y: counterY,
+        radius: iconSize / 2,
+        fill: "#fde68a",
+        stroke: "#b91c1c",
+        strokeWidth: 2,
+      });
+    }
+
+    this.pizzasCompletedText = new Konva.Text({
+      x: this.pizzaCenter.x - counterWidth / 2 + iconSize + 8,
+      y: counterY - 10,
+      width: counterWidth - iconSize - 8,
+      text: `Pizzas completed: 0`,
+      fontSize: 18,
+      fontFamily: "Arial",
+      fill: "#0f172a",
+      align: "left",
+    });
+
+    this.uiGroup.add(
+      backBtn,
+      title,
+      this.sumText,
+      this.statusText,
+      pizzaIcon,
+      this.pizzasCompletedText,
+      resetBtn,
+    );
+  }
+
+  private drawButtons(fracs: Fraction[]) {
+    // Right column (under reset), centered
+    const colCenterX = this.width * 0.68;
+    const w = 280;
+    const h = 56;
+    const gap = 16;
+    const startX = colCenterX - w / 2;
+    const startY = 250;
+
+    fracs.forEach((r, i) => {
+      const y = startY + i * (h + gap);
+
+      const btn = ButtonFactory.construct()
+        .pos(startX + w / 2, y + h / 2) // ButtonFactory positions by center
+        .text(r.toString())
+        .onClick(() => this.onSliceClick(r))
+        .build();
+
+      // Image slice thumbnail to the LEFT of the button
+      const thumbRadius = 28;
+      const thumb = this.makeSliceThumbnail(
+        r,
+        { x: startX - (thumbRadius * 2 + 18), y: y + (h - thumbRadius * 2) / 2 },
+        thumbRadius,
+      );
+
+      this.uiGroup.add(thumb, btn);
+    });
+  }
+
+  private makeSliceThumbnail(
+    r: Fraction,
+    pos: { x: number; y: number },
+    radius: number,
+  ): Konva.Group {
+    const g = new Konva.Group({ x: pos.x, y: pos.y, width: radius * 2, height: radius * 2 });
+
+    const start = -Math.PI / 2;
+    const end = start + r.toDecimal() * Math.PI * 2;
+
+    g.clipFunc((ctx) => {
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.arc(radius, radius, radius, start, end, false);
+      ctx.closePath();
+    });
+
+    if (this.pizzaHTMLImage) {
+      const img = new Konva.Image({
+        image: this.pizzaHTMLImage,
+        x: 0,
+        y: 0,
+        width: radius * 2,
+        height: radius * 2,
+      });
+      g.add(img);
+    } else {
+      // Fallback if image not ready
+      g.add(
+        new Konva.Circle({
+          x: radius,
+          y: radius,
+          radius,
+          fill: "#fde68a",
+          stroke: "#b91c1c",
+          strokeWidth: 2,
+        }),
+      );
+    }
+
+    return g;
+  }
+}
+
+export default PizzaMinigameView;

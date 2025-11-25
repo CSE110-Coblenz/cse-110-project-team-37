@@ -6,6 +6,7 @@ import { ScreenController } from "../../types.ts";
 
 import { MainMenuScreenView } from "./MainMenuScreenView.ts";
 
+import type { Difficulty, GameState } from "../../models/GameState.ts";
 import type { ScreenSwitcher } from "../../types.ts";
 
 /**
@@ -14,15 +15,16 @@ import type { ScreenSwitcher } from "../../types.ts";
 export class MainMenuScreenController extends ScreenController {
   private readonly view: MainMenuScreenView;
   private readonly screenSwitcher: ScreenSwitcher;
-  private difficulty: string = "EASY";
+  private readonly gameState: GameState;
 
-  constructor(screenSwitcher: ScreenSwitcher) {
+  constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
     this.screenSwitcher = screenSwitcher;
+    this.gameState = gameState;
     this.view = new MainMenuScreenView(
       () => this.handleStartClick(),
       () => this.handleHelpClick(),
-      (level: string) => this.handleDifficultySelect(level),
+      (level: string) => this.handleDifficultySelect(level as Difficulty),
       () => this.handleMinigameClick(), // NEW
     );
   }
@@ -32,7 +34,7 @@ export class MainMenuScreenController extends ScreenController {
    */
   private handleStartClick(): void {
     // once start is pressed, switch to game screen
-    this.screenSwitcher.switchToScreen({ type: "game", difficulty: this.difficulty });
+    this.screenSwitcher.switchToScreen({ type: "board" });
   }
 
   private handleHelpClick(): void {
@@ -42,16 +44,16 @@ export class MainMenuScreenController extends ScreenController {
 
   private handleMinigameClick(): void {
     // switch to the minigame screen
-    this.screenSwitcher.switchToScreen({ type: "minigame1" });
+    this.screenSwitcher.switchToScreen({ type: "minigame2" });
   }
 
-  private handleDifficultySelect(level: string): void {
-    this.difficulty = level;
+  private handleDifficultySelect(level: Difficulty): void {
+    this.gameState.setDifficulty(level);
     this.view.updateDifficultyDisplay(level);
   }
 
-  public getDifficulty(): string {
-    return this.difficulty;
+  public getDifficulty(): Difficulty {
+    return this.gameState.getDifficulty();
   }
 
   /**
