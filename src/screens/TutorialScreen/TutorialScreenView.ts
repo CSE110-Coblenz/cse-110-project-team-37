@@ -1,12 +1,12 @@
 import Konva from "konva";
-
-import { FONT_FAMILY } from "../../constants.ts";
-
+import { FONT_FAMILY, TypingSpeedms } from "../../constants.ts";
 import type { View } from "../../types.ts";
 
-/**
- * TutorialScreenView - Renders the game UI using Konva
- */
+type TutorialCallbacks = {
+  onClose: () => void;
+  onAdvance: () => void;
+};
+
 export class TutorialScreenView implements View {
   private readonly root: Konva.Group;
   private readonly title: Konva.Text;
@@ -15,10 +15,13 @@ export class TutorialScreenView implements View {
   private readonly btnRect: Konva.Rect;
   private readonly btnText: Konva.Text;
 
-  constructor(stageWidth: number, stageHeight: number, onReturn: () => void) {
+  private fullText = "";
+  private currentCharIndex = 0;
+  private typingTimerId: number | null = null;
+
+  constructor(stageWidth: number, stageHeight: number, callbacks: TutorialCallbacks) {
     this.root = new Konva.Group({ visible: false });
 
-    // Game Over
     this.title = new Konva.Text({
       text: "HOW TO PLAY",
       fontFamily: FONT_FAMILY,
@@ -30,14 +33,8 @@ export class TutorialScreenView implements View {
       y: stageHeight / 2 - 200,
     });
 
-    // Tutorial instructions
     this.text = new Konva.Text({
-      text:
-        "Hello Player!\n\n" +
-        "Welcome to Fraction Mania!" +
-        " Your mission is to navigate through the paths, and pass the obstacles.\n\n" +
-        "At each point you will be tasked with a minigame, complete it to progress.\n\n" +
-        "Reach the finish, or be trapped forever!\n\n",
+      text: "",
       fontSize: 20,
       fontFamily: FONT_FAMILY,
       align: "center",
@@ -46,7 +43,6 @@ export class TutorialScreenView implements View {
       y: stageHeight / 2 - 50,
     });
 
-    // Close button
     const btnWidth = 260;
     const btnHeight = 48;
     const btnX = 10;
@@ -72,9 +68,7 @@ export class TutorialScreenView implements View {
       align: "center",
     });
 
-    this.buttonGroup = new Konva.Group({
-      listening: true,
-    });
+    this.buttonGroup = new Konva.Group({ listening: true });
     this.buttonGroup.add(this.btnRect);
     this.buttonGroup.add(this.btnText);
 
@@ -82,24 +76,64 @@ export class TutorialScreenView implements View {
     this.root.add(this.text);
     this.root.add(this.buttonGroup);
 
-    this.buttonGroup.on("click tap", onReturn);
+    this.buttonGroup.on("click tap", callbacks.onClose);
+
+    this.root.on("click tap", (evt) => {
+      if (evt.target === this.btnRect || evt.target === this.btnText) return;
+      callbacks.onAdvance();
+    });
   }
 
-  /**
-   * Show the screen
-   */
   show(): void {
     this.root.visible(true);
   }
 
-  /**
-   * Hide the screen
-   */
   hide(): void {
     this.root.visible(false);
+    this.stopTyping();
   }
 
   getGroup(): Konva.Group {
     return this.root;
+  }
+
+  startTyping(line: string): void {
+    this.stopTyping();
+
+    this.fullText = line;
+    this.currentCharIndex = 0;
+    this.text.text("");
+
+    const speedMs = TypingSpeedms;
+
+    this.typingTimerId = window.setInterval(() => {
+      if (this.currentCharIndex >= this.fullText.length) {
+        this.stopTyping();
+        return;
+      }
+
+      this.currentCharIndex++;
+      this.text.text(this.fullText.slice(0, this.currentCharIndex));
+      this.root.getLayer()?.batchDraw();
+    }, speedMs);
+  }
+
+  finishTyping(): void {
+    if (this.typingTimerId !== null) {
+      this.stopTyping();
+      this.text.text(this.fullText);
+      this.root.getLayer()?.batchDraw();
+    }
+  }
+
+  isTyping(): boolean {
+    return this.typingTimerId !== null;
+  }
+
+  private stopTyping(): void {
+    if (this.typingTimerId !== null) {
+      window.clearInterval(this.typingTimerId);
+      this.typingTimerId = null;
+    }
   }
 }
