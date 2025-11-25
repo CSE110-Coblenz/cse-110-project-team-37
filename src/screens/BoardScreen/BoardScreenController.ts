@@ -34,15 +34,20 @@ export class BoardScreenController extends ScreenController {
 
   private handleDiceClick(): void {
     const player: Player = this.model.getPlayer();
-    if (player.getCurrentTile().getType().type == "normal") {
-      player.move();
-    } else if (player.getCurrentTile().getType().type == "end")  {
-      this.screenSwitcher.switchToScreen({ type: "end"});
-    } else {
-      this.screenSwitcher.switchToScreen({ type: "game", difficulty: "Easy" });
-      player.move();
-    }
+    player.move();
     this.view.updatePlayerPos(this.model.getPlayer());
+
+    setTimeout(() => {
+      const tileType = player.getCurrentTile().getType().type;
+
+      if (tileType === "end") {
+        this.screenSwitcher.switchToScreen({ type: "end" });
+      } else if (tileType === "minigame1") {
+        this.screenSwitcher.switchToScreen({ type: "minigame1" });
+      } else if (tileType === "minigame2") {
+        this.screenSwitcher.switchToScreen({ type: "game" });
+      }
+    }, 500);
   }
 
   getView(): BoardScreenView {

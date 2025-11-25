@@ -87,9 +87,11 @@ export class Minigame1ScreenView implements View {
   private sumText!: Konva.Text;
   private statusText!: Konva.Text;
   private readonly onBack?: () => void;
+  private readonly onComplete?: () => void;
 
-  constructor(onBack?: () => void) {
+  constructor(onBack?: () => void, onComplete?: () => void) {
     this.onBack = onBack;
+    this.onComplete = onComplete;
 
     // Order: background (root) -> pizzaGroup -> uiGroup
     this.group.add(this.pizzaGroup);
@@ -434,6 +436,10 @@ export class Minigame1ScreenView implements View {
       this.current = Rational.one();
       this.sumText.text("Current: 1/1");
       this.statusText.text("Perfect! Pizza completed!");
+      setTimeout(() => {
+        this.resetGame();
+        this.onComplete?.();
+      }, 1000);
     } else {
       const remaining = Rational.one().sub(this.current).clampMinZero();
       this.statusText.text(`Added ${r.toString()}. Remaining: ${remaining.toString()}`);

@@ -38,7 +38,16 @@ export class BoardRenderer {
    * @param tile - players current tile
    */
   public updatePlayer(tile: Tile) {
-    this.renderedPlayer.position(this.boardLayout.getPosition(tile));
+    const tpos = this.boardLayout.getPosition(tile);
+    const playerTween = new Konva.Tween({
+      node: this.renderedPlayer,
+      duration: 0.2,
+      x: tpos?.x,
+      y: tpos?.y,
+      easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+    });
+
+    playerTween.play();
     this.centerCameraOnPlayer(tile, null);
   }
 
@@ -128,8 +137,14 @@ export class BoardRenderer {
       case "end":
         this.drawEndTile(tile, dx, dy);
         break;
-      case "minigame":
-        this.drawMinigameTile(tile, dx, dy);
+      case "minigame1":
+        this.drawMinigameTile(tile, dx, dy, "orange");
+        break;
+      case "minigame2":
+        this.drawMinigameTile(tile, dx, dy, "red");
+        break;
+      case "minigame3":
+        this.drawMinigameTile(tile, dx, dy, "green");
         break;
       default:
         this.drawNormalTile(tile, dx, dy);
@@ -162,14 +177,14 @@ export class BoardRenderer {
    * @param tile - associated tile to render
    * @param dx, dy - origin of render
    */
-  private drawMinigameTile(tile: Tile, dx: number, dy: number): void {
+  private drawMinigameTile(tile: Tile, dx: number, dy: number, color?: string): void {
     const tileElement = new Konva.Group();
     const elementBox = new Konva.Rect({
       x: this.width / 2 - this.tileSize / 2 + dx,
       y: this.height / 2 - this.tileSize / 2 + dy,
       width: this.tileSize,
       height: this.tileSize,
-      fill: "grey",
+      fill: color ?? "grey",
       cornerRadius: 2,
       stroke: "black",
       strokeWidth: this.strokeWidth,

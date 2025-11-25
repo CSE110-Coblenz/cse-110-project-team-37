@@ -15,7 +15,12 @@ export class Minigame1ScreenController extends ScreenController {
     // Pass the back-to-menu handler into the View:
     this.view = new Minigame1ScreenView(() => {
       this.screenSwitcher.switchToScreen({ type: "menu" });
-    });
+    },
+    () => this.onPizzaComplete());
+  }
+
+  onPizzaComplete(): void {
+      this.screenSwitcher.switchToScreen({ type: "board" });
   }
 
   getView(): Minigame1ScreenView {
