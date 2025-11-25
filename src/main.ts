@@ -5,7 +5,7 @@ import { BoardScreenController } from "./screens/BoardScreen/BoardScreenControll
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
-import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
+import { PizzaMinigameController } from "./screens/Minigame1Screen/PizzaMinigameController.ts";
 import { SpaceRescueController } from "./screens/Minigame2Screen/SpaceRescueController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
@@ -33,7 +33,7 @@ class App implements ScreenSwitcher {
   private readonly mainMenuController: MainMenuScreenController;
   private readonly boardScreenControoler: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
-  private readonly minigame1Controller: Minigame1ScreenController;
+  private readonly pizzaMinigameController: PizzaMinigameController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
   private readonly minigame2Controller: SpaceRescueController;
@@ -73,7 +73,7 @@ class App implements ScreenSwitcher {
       this,
       this.getDifficultyConfig("Easy"),
     );
-    this.minigame1Controller = new Minigame1ScreenController(this);
+    this.pizzaMinigameController = new PizzaMinigameController(this);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
     this.minigame2Controller = new SpaceRescueController(this);
@@ -85,7 +85,7 @@ class App implements ScreenSwitcher {
     this.layer.add(this.boardScreenControoler.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
-    this.layer.add(this.minigame1Controller.getView().getGroup());
+    this.layer.add(this.pizzaMinigameController.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
     this.layer.add(this.minigame2Controller.getView().getGroup());
@@ -95,7 +95,7 @@ class App implements ScreenSwitcher {
     this.mainMenuController.show();
     this.pauseScreenController.hide();
     this.boardScreenControoler.hide();
-    this.minigame1Controller.hide();
+    this.pizzaMinigameController.hide();
     this.endScreenController.hide();
     this.minigame2Controller.hide();
     this.current = "menu";
@@ -182,7 +182,7 @@ class App implements ScreenSwitcher {
     this.boardScreenControoler.hide();
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
-    this.minigame1Controller.hide();
+    this.pizzaMinigameController.hide();
     this.endScreenController.hide();
 
     // Show the requested screen based on the screen type
@@ -216,7 +216,7 @@ class App implements ScreenSwitcher {
         }
         break;
       case "minigame1":
-        this.minigame1Controller.show();
+        this.pizzaMinigameController.show();
         break;
       case "minigame2":
         this.minigame2Controller.show();
