@@ -19,7 +19,7 @@ export class Player {
 
   /*
    * Returns current tile.
-   */ 
+   */
   public getCurrentTile(): Tile {
     return this.currentTile;
   }

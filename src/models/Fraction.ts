@@ -79,6 +79,14 @@ export class Fraction {
    * Convert fraction to string representation
    */
   public toString(): string {
+    if (this.denominator === 1) {
+      return `${this.numerator}`;
+    }
+
+    if (this.numerator === 0) {
+      return "0";
+    }
+
     return `${this.numerator}/${this.denominator}`;
   }
 
