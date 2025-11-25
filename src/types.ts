@@ -24,7 +24,6 @@ export type Screen =
   | { type: "menu" }
   | { type: "board" }
   | { type: "game"; difficulty: string }
-  | { type: "help" }
   | { type: "pause" }
   | { type: "end" }
   | { type: "equation_help" }
