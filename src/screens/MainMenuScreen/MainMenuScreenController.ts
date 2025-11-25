@@ -39,12 +39,12 @@ export class MainMenuScreenController extends ScreenController {
 
   private handleHelpClick(): void {
     // once help is clicked, send user to learn more
-    this.screenSwitcher.switchToScreen({ type: "help" });
+    this.screenSwitcher.switchToScreen({ type: "tutorial" });
   }
 
   private handleMinigameClick(): void {
     // switch to the minigame screen
-    this.screenSwitcher.switchToScreen({ type: "minigame1" });
+    this.screenSwitcher.switchToScreen({ type: "minigame2" });
   }
 
   private handleDifficultySelect(level: Difficulty): void {

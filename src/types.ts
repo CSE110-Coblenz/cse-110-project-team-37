@@ -28,6 +28,9 @@ export type Screen =
   | { type: "pause" }
   | { type: "end" }
   | { type: "equation_help" }
+  | { type: "minigame1" }
+  | { type: "minigame2" }
+  | { type: "tutorial" }
   | { type: "minigame1" };
 
 export abstract class ScreenController {

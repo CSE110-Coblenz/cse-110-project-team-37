@@ -145,7 +145,10 @@ export class QuestionService {
       }
     }
 
-    return { expression, result };
+    // Replace symbols for display
+    const displayExpression = expression.replace(/\s\*\s/g, " × ").replace(/\s\/\s/g, " ÷ ");
+
+    return { expression: displayExpression, result };
   }
 
   /**
