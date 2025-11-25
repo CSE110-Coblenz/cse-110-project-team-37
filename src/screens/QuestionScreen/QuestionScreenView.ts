@@ -7,9 +7,17 @@ import type { View } from "../../types.ts";
 
 export class QuestionScreenView implements View {
   private readonly group: Konva.Group;
+  private readonly backdrop: Konva.Rect;
+  private readonly popupContainer: Konva.Group;
   private expressionText: Konva.Text | undefined;
   private readonly answerButtons: Konva.Group[] = [];
   private readonly answerTexts: Konva.Text[] = [];
+
+  // popup dimensions
+  private readonly POPUP_WIDTH = STAGE_WIDTH * 0.7;
+  private readonly POPUP_HEIGHT = STAGE_HEIGHT * 0.6;
+  private readonly POPUP_X = (STAGE_WIDTH - this.POPUP_WIDTH) / 2;
+  private readonly POPUP_Y = (STAGE_HEIGHT - this.POPUP_HEIGHT) / 2;
 
   /**
    * constructs new QuestionScreenView
@@ -18,30 +26,91 @@ export class QuestionScreenView implements View {
     // initializes the main group (hidden by default)
     this.group = new Konva.Group({ visible: false });
 
-    // creates view components
+    // calls createBackdrop function to dim the board behimd the popup
+    this.backdrop = this.createBackdrop();
+
+    // create container for the popup
+    this.popupContainer = this.createPopupContainer();
+
+    // adds backdrop and popup to main group
+    this.group.add(this.backdrop);
+    this.group.add(this.popupContainer);
+
+    // adds view components to question popup
     this.createExpressionBox();
     this.createAnswerButtons(onAnswerClick);
     this.createHelpButton(onHelpClick);
   }
 
   /**
+   * creates the backdrop overlay that dims the board behind the popup
+   */
+  private createBackdrop(): Konva.Rect {
+    const backdrop = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: STAGE_WIDTH,
+      height: STAGE_HEIGHT,
+      fill: "black",
+      opacity: 0.5, // semi-transparent to dim the board
+      listening: true, // block clicks to board behind popup
+    });
+    return backdrop;
+  }
+
+  /**
+   * creates the main container for the question popup
+   */
+  private createPopupContainer(): Konva.Group {
+    const container = new Konva.Group({
+      x: this.POPUP_X,
+      y: this.POPUP_Y,
+    });
+
+    // create background for question popup
+    const popupBackground = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: this.POPUP_WIDTH,
+      height: this.POPUP_HEIGHT,
+      fill: "white",
+      stroke: "black",
+      strokeWidth: 3,
+      cornerRadius: 10,
+      shadowColor: "black",
+      shadowBlur: 20,
+      shadowOpacity: 0.5,
+      shadowOffset: { x: 0, y: 5 },
+    });
+
+    container.add(popupBackground);
+    return container;
+  }
+
+  /**
    * creates display box for the question
    */
   private createExpressionBox(): void {
+    const boxWidth = this.POPUP_WIDTH * 0.5;
+    const boxHeight = 120;
+    const boxX = (this.POPUP_WIDTH - boxWidth) / 2;
+    const boxY = this.POPUP_HEIGHT * 0.15;
+
     const box = new Konva.Rect({
-      x: STAGE_WIDTH / 2 - 200,
-      y: STAGE_HEIGHT / 5 - 50,
-      width: 400,
-      height: 150,
+      x: boxX,
+      y: boxY,
+      width: boxWidth,
+      height: boxHeight,
       fill: "white",
       stroke: "black",
       strokeWidth: 2,
+      cornerRadius: 10,
     });
-    this.group.add(box);
+    this.popupContainer.add(box);
 
     this.expressionText = new Konva.Text({
-      x: STAGE_WIDTH / 2,
-      y: STAGE_HEIGHT / 5,
+      x: this.POPUP_WIDTH / 2,
+      y: boxY + boxHeight / 2,
       fontSize: 32,
       fontFamily: "Arial",
       fill: "black",
@@ -49,7 +118,8 @@ export class QuestionScreenView implements View {
     });
 
     this.expressionText.offsetX(this.expressionText.width() / 2);
-    this.group.add(this.expressionText);
+    this.expressionText.offsetY(this.expressionText.height() / 2);
+    this.popupContainer.add(this.expressionText);
   }
 
   /**
@@ -57,13 +127,14 @@ export class QuestionScreenView implements View {
    * triggers the onAnswerClick callback when clicked
    */
   private createAnswerButtons(onAnswerClick: (index: number) => void): void {
-    const buttonWidth = 150;
-    const buttonHeight = 100;
-    const spacing = 20;
+    const buttonWidth = this.POPUP_WIDTH * 0.18;
+    const buttonHeight = 80;
+    const spacing = this.POPUP_WIDTH * 0.02;
 
-    // calculate starting X position to center all buttons
-    const startX = (STAGE_WIDTH - (4 * buttonWidth + 3 * spacing)) / 2;
-    const yPos = (STAGE_HEIGHT * 3) / 5;
+    // calculate starting X position to center all buttons within popup
+    const totalWidth = 4 * buttonWidth + 3 * spacing;
+    const startX = (this.POPUP_WIDTH - totalWidth) / 2;
+    const yPos = this.POPUP_HEIGHT * 0.55;
 
     for (let i = 0; i < 4; i++) {
       const buttonGroup = new Konva.Group();
@@ -76,12 +147,13 @@ export class QuestionScreenView implements View {
         fill: "white",
         stroke: "black",
         strokeWidth: 2,
+        cornerRadius: 10,
       });
       buttonGroup.add(button);
 
       const answerText = new Konva.Text({
         x: startX + i * (buttonWidth + spacing) + buttonWidth / 2,
-        y: yPos + buttonHeight / 2 - 10,
+        y: yPos + buttonHeight / 2,
         text: "?/?",
         fontSize: 24,
         fontFamily: "Arial",
@@ -89,6 +161,7 @@ export class QuestionScreenView implements View {
         align: "center",
       });
       answerText.offsetX(answerText.width() / 2);
+      answerText.offsetY(answerText.height() / 2);
       buttonGroup.add(answerText);
       this.answerTexts.push(answerText);
 
@@ -97,49 +170,49 @@ export class QuestionScreenView implements View {
 
       // store button group for later reference (feedback flashing)
       this.answerButtons.push(buttonGroup);
-      this.group.add(buttonGroup);
+      this.popupContainer.add(buttonGroup);
     }
   }
 
   // creating a help button so that users can get a refresher as to how to solve certain equations
   // meant to teach users process, not give answers away
   private createHelpButton(onHelpClick: () => void): void {
-    // determining dimensions for help button
     const HELP_BUTTON_WIDTH = 150;
-    const HELP_BUTTON_HEIGHT = 70;
+    const HELP_BUTTON_HEIGHT = 60;
     const helpButtonGroup = new Konva.Group();
 
-    // desigining the button
+    // position button at bottom center of popup
+    const buttonX = (this.POPUP_WIDTH - HELP_BUTTON_WIDTH) / 2;
+    const buttonY = this.POPUP_HEIGHT * 0.85;
+
     const helpButton = new Konva.Rect({
-      x: STAGE_WIDTH / 2 + HELP_BUTTON_WIDTH / 2,
-      y: (STAGE_HEIGHT * 4) / 5,
+      x: buttonX,
+      y: buttonY,
       width: HELP_BUTTON_WIDTH,
       height: HELP_BUTTON_HEIGHT,
       fill: "#EEE",
       stroke: "black",
-      cornerRadius: 5,
+      strokeWidth: 2,
+      cornerRadius: 10,
     });
 
-    helpButton.offsetX(HELP_BUTTON_WIDTH);
-
-    // text that goes inside the button
     const helpText = new Konva.Text({
-      x: STAGE_WIDTH / 2,
-      y: (STAGE_HEIGHT * 4) / 5 + HELP_BUTTON_HEIGHT / 4,
+      x: buttonX + HELP_BUTTON_WIDTH / 2,
+      y: buttonY + HELP_BUTTON_HEIGHT / 2,
       text: "HELP",
-      fontSize: 36,
+      fontSize: 28,
       fill: "black",
       align: "center",
     });
     helpText.offsetX(helpText.width() / 2);
+    helpText.offsetY(helpText.height() / 2);
 
-    // adding button to the group
     helpButtonGroup.add(helpButton, helpText);
 
     // attaching handler
     helpButtonGroup.on("click", onHelpClick);
 
-    this.group.add(helpButtonGroup);
+    this.popupContainer.add(helpButtonGroup);
   }
 
   /**
@@ -148,8 +221,9 @@ export class QuestionScreenView implements View {
   updateExpression(expression: string): void {
     if (this.expressionText) {
       this.expressionText.text(expression);
-      // Re-center the text after updating (width may have changed)
+      // re-center the text after updating in case width changed
       this.expressionText.offsetX(this.expressionText.width() / 2);
+      this.expressionText.offsetY(this.expressionText.height() / 2);
     }
   }
 
@@ -161,6 +235,7 @@ export class QuestionScreenView implements View {
       if (this.answerTexts[i]) {
         this.answerTexts[i].text(`${choice.numerator}/${choice.denominator}`);
         this.answerTexts[i].offsetX(this.answerTexts[i].width() / 2);
+        this.answerTexts[i].offsetY(this.answerTexts[i].height() / 2);
       }
     });
   }
