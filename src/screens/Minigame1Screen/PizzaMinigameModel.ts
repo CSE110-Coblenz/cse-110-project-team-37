@@ -68,7 +68,6 @@ export class PizzaMinigameModel {
     const one = new Fraction(1, 1);
     const completed = next.equals(one);
 
-
     if (completed) {
       this.pizzasCompleted += 1;
     }

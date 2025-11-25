@@ -1,10 +1,9 @@
 import Konva from "konva";
 
-import { Fraction } from "../../models/Fraction.ts";
 import { ButtonFactory } from "../../util/ButtonFactory.ts";
 
+import type { Fraction } from "../../models/Fraction.ts";
 import type { View } from "../../types.ts";
-
 
 type ViewCallbacks = {
   onBack: () => void;
@@ -420,7 +419,6 @@ export class PizzaMinigameView implements View {
 
     return g;
   }
-
 }
 
 export default PizzaMinigameView;
