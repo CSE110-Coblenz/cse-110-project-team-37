@@ -60,9 +60,10 @@ class App implements ScreenSwitcher {
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
     this.boardScreenControoler = new BoardScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
+    // Initialize with current difficulty from GameState (will be recreated when switching to game screen)
     this.gameScreenController = new QuestionScreenController(
       this,
-      this.getDifficultyConfig("Easy"),
+      this.getDifficultyConfig(this.gameState.getDifficulty()),
     );
     this.minigame1Controller = new Minigame1ScreenController(this);
     this.endScreenController = new EndScreenController(this);
@@ -181,14 +182,16 @@ class App implements ScreenSwitcher {
         this.pauseScreenController.show();
         break;
       case "game":
-        // Get the configuration for the selected difficulty
+        // Get the configuration for the current difficulty from GameState
+        // This ensures we always use the latest difficulty setting without
+        // needing to pass it through the Screen type
         const config = this.getDifficultyConfig(this.gameState.getDifficulty());
         this.gameScreenController.getView().getGroup().remove();
-        // creates a new controller with the correct difficulty config
+        // Create a new controller with the correct difficulty config from GameState
         this.gameScreenController = new QuestionScreenController(this, config);
-        // add the new view to the layer
+        // Add the new view to the layer
         this.layer.add(this.gameScreenController.getView().getGroup());
-        // start the question (updates view and shows the screen)
+        // Start the question (updates view and shows the screen)
         this.gameScreenController.startQuestion();
         break;
       case "minigame1":

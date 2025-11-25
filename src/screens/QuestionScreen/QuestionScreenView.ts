@@ -11,16 +11,22 @@ export class QuestionScreenView implements View {
   private readonly answerButtons: Konva.Group[] = [];
   private readonly answerTexts: Konva.Text[] = [];
 
+  /**
+   * constructs new QuestionScreenView
+   */
   constructor(onAnswerClick: (index: number) => void, onHelpClick: () => void) {
+    // initializes the main group (hidden by default)
     this.group = new Konva.Group({ visible: false });
 
+    // creates view components
     this.createExpressionBox();
     this.createAnswerButtons(onAnswerClick);
-
     this.createHelpButton(onHelpClick);
   }
 
-  //creates a white box for the expression
+  /**
+   * creates display box for the question
+   */
   private createExpressionBox(): void {
     const box = new Konva.Rect({
       x: STAGE_WIDTH / 2 - 200,
@@ -33,7 +39,6 @@ export class QuestionScreenView implements View {
     });
     this.group.add(box);
 
-    //placeholder, this will be changed by generate question
     this.expressionText = new Konva.Text({
       x: STAGE_WIDTH / 2,
       y: STAGE_HEIGHT / 5,
@@ -47,10 +52,16 @@ export class QuestionScreenView implements View {
     this.group.add(this.expressionText);
   }
 
+  /**
+   * creates four answer choice buttons, each button displays a fraction and
+   * triggers the onAnswerClick callback when clicked
+   */
   private createAnswerButtons(onAnswerClick: (index: number) => void): void {
     const buttonWidth = 150;
     const buttonHeight = 100;
     const spacing = 20;
+
+    // calculate starting X position to center all buttons
     const startX = (STAGE_WIDTH - (4 * buttonWidth + 3 * spacing)) / 2;
     const yPos = (STAGE_HEIGHT * 3) / 5;
 
@@ -68,7 +79,6 @@ export class QuestionScreenView implements View {
       });
       buttonGroup.add(button);
 
-      // Placeholder text for answer
       const answerText = new Konva.Text({
         x: startX + i * (buttonWidth + spacing) + buttonWidth / 2,
         y: yPos + buttonHeight / 2 - 10,
@@ -82,9 +92,11 @@ export class QuestionScreenView implements View {
       buttonGroup.add(answerText);
       this.answerTexts.push(answerText);
 
-      buttonGroup.on("click", () => onAnswerClick(i)); // creates a handlder for each OnAnswerClick(i)
+      // attach click handler that calls the callback with this button's index
+      buttonGroup.on("click", () => onAnswerClick(i));
 
-      this.answerButtons.push(buttonGroup); //adds buttons to empty array defined at top
+      // store button group for later reference (feedback flashing)
+      this.answerButtons.push(buttonGroup);
       this.group.add(buttonGroup);
     }
   }
@@ -113,7 +125,7 @@ export class QuestionScreenView implements View {
     // text that goes inside the button
     const helpText = new Konva.Text({
       x: STAGE_WIDTH / 2,
-      y: (STAGE_HEIGHT * 4) / 5 + HELP_BUTTON_HEIGHT / 4, // Vertically centered
+      y: (STAGE_HEIGHT * 4) / 5 + HELP_BUTTON_HEIGHT / 4,
       text: "HELP",
       fontSize: 36,
       fill: "black",
@@ -130,50 +142,70 @@ export class QuestionScreenView implements View {
     this.group.add(helpButtonGroup);
   }
 
+  /**
+   * updates the displayed question
+   */
   updateExpression(expression: string): void {
-    //parameters for updateExpression function
-    this.expressionText?.text(expression); //makes expression text
-    this.expressionText?.offsetX(this.expressionText.width() / 2);
+    if (this.expressionText) {
+      this.expressionText.text(expression);
+      // Re-center the text after updating (width may have changed)
+      this.expressionText.offsetX(this.expressionText.width() / 2);
+    }
   }
 
+  /**
+   * updates the answer choices
+   */
   updateAnswerChoices(choices: Fraction[]): void {
-    //takes in array of answer choices
     choices.forEach((choice, i) => {
       if (this.answerTexts[i]) {
-        this.answerTexts[i].text(`${choice.numerator}/${choice.denominator}`); //updates accordingly
+        this.answerTexts[i].text(`${choice.numerator}/${choice.denominator}`);
         this.answerTexts[i].offsetX(this.answerTexts[i].width() / 2);
       }
     });
   }
 
+  /**
+   * flashes the answer choice green for correct answers or red for incorrect
+   */
   flashFeedback(isCorrect: boolean, buttonIndex: number): void {
-    const button = this.answerButtons[buttonIndex]; //get button that was pressed
-    const rect = button.findOne("Rect") as Konva.Rect; //finds konva rectangle inside the button
+    const button = this.answerButtons[buttonIndex];
+    const rect = button.findOne("Rect") as Konva.Rect;
 
     if (rect) {
-      //only proceed if rectangle exists
-
-      const originalFill = rect.fill(); //save original color
+      // save the original color
+      const originalFill = rect.fill();
+      // change to green or red
       rect.fill(isCorrect ? "lightgreen" : "lightcoral");
-      rect.getLayer()?.draw(); //re-renders the rectangle in correct/incorrect color(if it exists, which it should)
+      rect.getLayer()?.draw();
 
+      // restore original color after 500ms
       setTimeout(() => {
         rect.fill(originalFill);
         rect.getLayer()?.draw();
-      }, 500); //after 500ms changes back to original color
+      }, 500);
     }
   }
 
+  /**
+   * makes question screen visible, required by the View interface
+   */
   show(): void {
     this.group.visible(true);
     this.group.getLayer()?.draw();
   }
 
+  /**
+   * hides the question screen, required by the View interface
+   */
   hide(): void {
     this.group.visible(false);
     this.group.getLayer()?.draw();
   }
 
+  /**
+   * returns the konva group containing all view elements, equired by the View interface
+   */
   getGroup(): Konva.Group {
     return this.group;
   }
