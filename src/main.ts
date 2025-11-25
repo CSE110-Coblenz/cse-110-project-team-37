@@ -6,8 +6,10 @@ import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts"
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
 import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScreenController.ts";
 import { Minigame1ScreenController } from "./screens/Minigame1Screen/Minigame1ScreenController.ts";
+import { SpaceRescueController } from "./screens/Minigame2Screen/SpaceRescueController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
+import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScreenController.ts";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
@@ -34,11 +36,15 @@ class App implements ScreenSwitcher {
   private readonly minigame1Controller: Minigame1ScreenController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
+  private readonly minigame2Controller: SpaceRescueController;
+  private readonly tutorialScreenController: TutorialScreenController;
 
   private gameScreenController: QuestionScreenController;
+  private storedGameController: QuestionScreenController | null = null;
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
+  private readonly currentDifficulty: string = "Easy";
 
   constructor(container: string) {
     // Initialize Konva stage (the main canvas)
@@ -47,6 +53,9 @@ class App implements ScreenSwitcher {
       width: window.innerWidth,
       height: window.innerHeight,
     });
+
+    // Initiailize difficulty
+    this.currentDifficulty = "Easy";
 
     // Create a layer (screens will be added to this layer)
     this.layer = new Konva.Layer();
@@ -59,7 +68,7 @@ class App implements ScreenSwitcher {
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
     this.boardScreenControoler = new BoardScreenController(this);
-    this.pauseScreenController = new PauseScreenController(this);
+    this.pauseScreenController = new PauseScreenController(this, this.currentDifficulty);
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
@@ -67,6 +76,8 @@ class App implements ScreenSwitcher {
     this.minigame1Controller = new Minigame1ScreenController(this);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
+    this.minigame2Controller = new SpaceRescueController(this);
+    this.tutorialScreenController = new TutorialScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -77,6 +88,8 @@ class App implements ScreenSwitcher {
     this.layer.add(this.minigame1Controller.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
+    this.layer.add(this.minigame2Controller.getView().getGroup());
+    this.layer.add(this.tutorialScreenController.getView().getGroup());
 
     // start on main menu
     this.mainMenuController.show();
@@ -84,6 +97,7 @@ class App implements ScreenSwitcher {
     this.boardScreenControoler.hide();
     this.minigame1Controller.hide();
     this.endScreenController.hide();
+    this.minigame2Controller.hide();
     this.current = "menu";
 
     // Draw the layer (render everything to the canvas)
@@ -151,6 +165,8 @@ class App implements ScreenSwitcher {
     }
   }
 
+  // TODO: figure out how we decide when game ends, link endScreen to this event
+
   /**
    * Switch to a different screen
    *
@@ -194,11 +210,20 @@ class App implements ScreenSwitcher {
       case "minigame1":
         this.minigame1Controller.show();
         break;
+      case "minigame2":
+        this.minigame2Controller.show();
+        break;
       case "end":
         this.endScreenController.show();
         break;
       case "equation_help":
+        // Store the current game controller to preserve the question
+        this.storedGameController = this.gameScreenController;
         this.equationHelpScreenController.show();
+        break;
+      case "tutorial":
+        this.tutorialScreenController.show();
+        break;
     }
 
     this.current = screen.type;
