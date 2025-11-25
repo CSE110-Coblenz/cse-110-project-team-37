@@ -44,7 +44,7 @@ export class MainMenuScreenController extends ScreenController {
 
   private handleMinigameClick(): void {
     // switch to the minigame screen
-    this.screenSwitcher.switchToScreen({ type: "minigame1" });
+    this.screenSwitcher.switchToScreen({ type: "minigame2" });
   }
 
   private handleDifficultySelect(level: Difficulty): void {
