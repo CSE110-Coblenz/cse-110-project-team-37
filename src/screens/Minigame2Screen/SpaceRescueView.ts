@@ -161,6 +161,10 @@ export class SpaceRescueView implements View {
       y: 60,
       initialTime: duration,
       mode: "countdown",
+      fontSize: 26,
+      borderRadius: 0,
+      padding: 0,
+      backgroundColor: "#0A0A20",
       onTick: (timeLeft) => {
         // calculate percentage for the ship
         const timeElapsed = duration - timeLeft;
