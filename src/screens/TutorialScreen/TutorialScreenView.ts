@@ -1,5 +1,7 @@
 import Konva from "konva";
+
 import { FONT_FAMILY, TypingSpeedms } from "../../constants.ts";
+
 import type { View } from "../../types.ts";
 
 type TutorialCallbacks = {

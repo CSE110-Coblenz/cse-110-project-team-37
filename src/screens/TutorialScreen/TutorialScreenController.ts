@@ -1,9 +1,8 @@
 import { STAGE_HEIGHT, STAGE_WIDTH } from "../../constants.ts";
 import { ScreenController } from "../../types.ts";
 
-import { TutorialScreenView } from "./TutorialScreenView.ts";
-
 import { TutorialModel } from "./TutorialScreenModel.ts";
+import { TutorialScreenView } from "./TutorialScreenView.ts";
 
 import type { ScreenSwitcher } from "../../types.ts";
 
