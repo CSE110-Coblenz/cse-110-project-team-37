@@ -1,5 +1,4 @@
 import Konva from "konva";
-
 import { DiceService } from "../services/DiceService.ts";
 
 export type DiceRendererOptions = {
@@ -39,6 +38,7 @@ export class DiceRenderer {
 
     this.pips = [];
     const pipRadius = size * 0.08;
+    const offset = size * 0.22;
 
     const makePip = (px: number, py: number): Konva.Circle => {
       return new Konva.Circle({
@@ -50,9 +50,6 @@ export class DiceRenderer {
       });
     };
 
-    const offset = size * 0.22;
-
-    // Group center = (0,0)
     const center = makePip(0, 0);
     const topLeft = makePip(-offset, -offset);
     const topRight = makePip(offset, -offset);
@@ -67,21 +64,15 @@ export class DiceRenderer {
     this.pips.forEach((pip) => this.group.add(pip));
 
     parent.add(this.group);
-
-    // Initialize to 1
     this.setFace(1);
   }
 
-  /**
-   * Get the Konva group
-   */
-  getGroup(): Konva.Group {
+  /** Safe accessor for the group */
+  getGroup = (): Konva.Group => {
     return this.group;
-  }
+  };
 
-  /**
-   * Roll the dice with animation and return the rolled value
-   */
+  /** Roll the dice with animation and return the rolled value */
   roll = (sides = 6): number => {
     const value = DiceService.rollDice(sides);
 
@@ -106,9 +97,7 @@ export class DiceRenderer {
     return value;
   };
 
-  /**
-   * Show a specific face value (1–6)
-   */
+  /** Show a specific face value (1–6) */
   setFace = (value: number): void => {
     this.pips.forEach((pip) => pip.visible(false));
 
@@ -148,8 +137,6 @@ export class DiceRenderer {
         bottomLeft.visible(true);
         bottomRight.visible(true);
         break;
-      default:
-        center.visible(true);
     }
 
     this.group.getLayer()?.batchDraw();
