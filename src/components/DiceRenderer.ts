@@ -1,4 +1,5 @@
 import Konva from "konva";
+
 import { DiceService } from "../services/DiceService.ts";
 
 export type DiceRendererOptions = {
@@ -136,6 +137,9 @@ export class DiceRenderer {
         midRight.visible(true);
         bottomLeft.visible(true);
         bottomRight.visible(true);
+        break;
+      default:
+        center.visible(true);
         break;
     }
 
