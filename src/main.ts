@@ -166,8 +166,6 @@ class App implements ScreenSwitcher {
     }
   }
 
-  // TODO: figure out how we decide when game ends, link endScreen to this event
-
   /**
    * Switch to a different screen
    *
