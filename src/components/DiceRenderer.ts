@@ -1,3 +1,5 @@
+/* eslint-disable ts/unbound-method */
+
 import Konva from "konva";
 
 import { DiceService } from "../services/DiceService.ts";
