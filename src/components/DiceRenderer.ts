@@ -70,12 +70,16 @@ export class DiceRenderer {
     this.setFace(1);
   }
 
-  /** Safe accessor for the group */
+  /**
+   * Get Konva group
+   */
   getGroup = (): Konva.Group => {
     return this.group;
   };
 
-  /** Roll the dice with animation and return the rolled value */
+  /**
+   * Roll the dice with animation and return the rolled value
+   */
   roll = (sides = 6): number => {
     const value = DiceService.rollDice(sides);
 
@@ -100,7 +104,9 @@ export class DiceRenderer {
     return value;
   };
 
-  /** Show a specific face value (1–6) */
+  /**
+   * Show a specific face value (1–6)
+   */
   setFace = (value: number): void => {
     this.pips.forEach((pip) => pip.visible(false));
 
