@@ -57,6 +57,7 @@ export class EndScreenView implements View {
     this.buttonGroup = new Konva.Group({
       listening: true,
     });
+
     this.buttonGroup.add(this.btnRect);
     this.buttonGroup.add(this.btnText);
 
