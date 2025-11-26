@@ -3,6 +3,7 @@
 //------------------------------------------
 import Konva from "konva";
 
+// importing  Yixuan's timer component
 import { useTimer } from "../../components/Timer.ts";
 
 // --- RENDERER IMPORTS ---
@@ -55,7 +56,6 @@ export class SpaceRescueView implements View {
   // group that is meant to be visible for the end popup
   private endPopupGroup: Konva.Group | null = null;
 
-  // instance of ShipTimerRenderer, which manages the ship image and its Konva Tween
   // the view delegates all timing/ship animation commands
   private timerRenderer!: ShipTimerRenderer;
 
@@ -340,7 +340,7 @@ export class SpaceRescueView implements View {
   }
 
   // ------------------------------------------
-  //  Core View Management (Remains)
+  //  Core View Management
   // ------------------------------------------
   /**
    * function that updates visual feedback

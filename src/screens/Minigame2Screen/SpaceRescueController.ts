@@ -32,7 +32,7 @@ export class SpaceRescueController extends ScreenController {
   // defining a sound that will be played when clicking an asteroid (idea from lab)
   private readonly laserSound: HTMLAudioElement;
 
-  // defining our constructor, given a screen switcher object
+  // defining our constructor, given a screen switcher object and a game state object
   constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
 
