@@ -1,4 +1,3 @@
-import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
@@ -36,15 +35,21 @@ export class BoardScreenController extends ScreenController {
   }
 
   private async handleDiceClick(): Promise<void> {
+    this.view.hideButtons();
+
     this.model.roll();
-    this.model.switchPhase();
+    this.model.setPhase("move");
+
+    this.view.updateRollState(this.model.getRoll());
+    await this.view.animateDiceJiggle(40);
     this.view.updateRollState(this.model.getRoll());
     this.view.updatePhaseState(this.model.getPhase());
   }
 
   private async handleMoveClick(): Promise<void> {
+    this.view.hideButtons();
+
     const player: Player = this.model.getPlayer();
-    const cTile: Tile = player.getCurrentTile();
 
     while (this.model.getRoll() > 0) {
       player.move();
@@ -52,25 +57,32 @@ export class BoardScreenController extends ScreenController {
       this.view.updateRollState(this.model.getRoll());
       await this.view.updatePlayerPos(this.model.getPlayer());
     } 
+    
+    const cTile: Tile = player.getCurrentTile();
 
     switch(cTile.getType().type) {
       case "end":
         this.screenSwitcher.switchToScreen({type: "end"});
         break;
       case "minigame1":
+        await this.view.updateBoardFade(0.0, 0.8);
         this.screenSwitcher.switchToScreen({type: "minigame1"});
         break;
       case "minigame2":
+        await this.view.updateBoardFade(0.0, 0.8);
         this.screenSwitcher.switchToScreen({type: "minigame2"});
         break;
       case "minigame3":
+        await this.view.updateBoardFade(0.0, 0.8);
         this.screenSwitcher.switchToScreen({type: "game"});
         break;
       default:
         break;
     }
+    
+    this.view.updateBoardFade(1.0, 0.0);
 
-    this.model.switchPhase();
+    this.model.setPhase("roll");
 
     this.view.updateRollState(this.model.getRoll());
     this.view.updatePhaseState(this.model.getPhase());

@@ -8,6 +8,8 @@ import type { View } from "../../types.ts";
 import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
 import type { Tile } from "./containers/Tile.ts";
+import { SleeperService } from "../../services/SleeperSerive.ts";
+import { DiceService } from "../../services/DiceService.ts";
 
 export class BoardScreenView implements View {
   private readonly width = window.innerWidth;
@@ -121,7 +123,7 @@ export class BoardScreenView implements View {
   }
 
   public updateRollState(pendingRoll: number) {
-    this.pendingRollTextGroup?.setText("" + pendingRoll);
+    this.pendingRollTextGroup?.setText(pendingRoll.toString());
     pendingRoll == 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
   }
 
@@ -149,6 +151,34 @@ export class BoardScreenView implements View {
   public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
     return this.boardRenderer.updateCameraZoom(tile, factor, duration);
   } 
+
+  /*
+   * Fade the board
+   */
+  public updateBoardFade(factor: number, duration: number): Promise<void> {
+    return this.boardRenderer.fadeBoard(factor, duration);
+  } 
+
+  /*
+   * Hides buttons to avoid unnecessary user input.
+   */
+  public hideButtons() {
+    this.diceButtonGroup?.hide();
+    this.moveButtonGroup?.hide();
+  }
+  /*
+   * Quick animation for dice rolling.
+   */
+  public animateDiceJiggle(duration: number): Promise<void> {
+    return new Promise(async (resolve) => {
+      for (let i = 0; i < 16; i++) {
+        const random = DiceService.rollDice(6);
+        this.pendingRollTextGroup?.text(random.toString());
+        await SleeperService.sleep(duration);
+      }
+      resolve();
+    });
+  }
 
   /*
    * Show the screens

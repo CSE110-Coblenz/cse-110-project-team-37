@@ -29,12 +29,8 @@ export class BoardScreenModel {
   /*
    * Changes current state
    */
-  switchPhase() {
-    if (this.phase === "roll") {
-      this.phase = "move";
-    } else {
-      this.phase = "roll";
-    }
+  setPhase(phase: BoardPhase) {
+    this.phase = phase;
   }
 
   /*

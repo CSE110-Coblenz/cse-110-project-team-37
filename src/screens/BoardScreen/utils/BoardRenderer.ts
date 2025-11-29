@@ -104,10 +104,9 @@ export class BoardRenderer {
    * @param duration - time of a zoom action.
    */
   public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
+    return new Promise((resolve) => {
     const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
     this.group.offset(playerPos);
-
-    return new Promise((resolve) => {
     const zoomOutTween = new Konva.Tween({
       node: this.group,
       duration: duration,
@@ -120,6 +119,21 @@ export class BoardRenderer {
     });
     zoomOutTween.play();
     this.group.offset({x: 0, y: 0});
+    })
+  }
+
+  public fadeBoard(factor: number, duration: number): Promise<void> {
+    return new Promise((resolve) => {
+    const fadeTweem = new Konva.Tween({
+      node: this.group,
+      duration: duration,
+      opacity: factor,
+      easing: Konva.Easings.EaseInOut,
+      onFinish: () => {
+        fadeTweem.destroy();
+        resolve()}
+    });
+    fadeTweem.play();
     })
   }
 
