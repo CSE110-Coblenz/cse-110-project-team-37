@@ -1,8 +1,10 @@
+import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
 import { BoardScreenView } from "./BoardScreenView.ts";
 import { Player } from "./containers/Player.ts";
+import type { Tile } from "./containers/Tile.ts";
 
 export class BoardScreenController extends ScreenController {
   private readonly model: BoardScreenModel;
@@ -42,6 +44,7 @@ export class BoardScreenController extends ScreenController {
 
   private async handleMoveClick(): Promise<void> {
     const player: Player = this.model.getPlayer();
+    const cTile: Tile = player.getCurrentTile();
 
     while (this.model.getRoll() > 0) {
       player.move();
@@ -49,8 +52,8 @@ export class BoardScreenController extends ScreenController {
       this.view.updateRollState(this.model.getRoll());
       await this.view.updatePlayerPos(this.model.getPlayer());
     } 
-    
-    switch(player.getCurrentTile().getType().type) {
+
+    switch(cTile.getType().type) {
       case "end":
         this.screenSwitcher.switchToScreen({type: "end"});
         break;
@@ -66,6 +69,7 @@ export class BoardScreenController extends ScreenController {
       default:
         break;
     }
+
     this.model.switchPhase();
 
     this.view.updateRollState(this.model.getRoll());

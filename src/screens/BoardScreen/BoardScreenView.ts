@@ -7,6 +7,7 @@ import { BoardRenderer } from "./utils/BoardRenderer.ts";
 import type { View } from "../../types.ts";
 import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
+import type { Tile } from "./containers/Tile.ts";
 
 export class BoardScreenView implements View {
   private readonly width = window.innerWidth;
@@ -106,15 +107,17 @@ export class BoardScreenView implements View {
 
   private drawPendingRollText(): void {
     this.pendingRollTextGroup = new Konva.Text({
-      x: this.width * 0.5,
+      x: this.width * 0.49,
       y: this.height * 0.8,
-      text: "6",
+      text: "67",
       fontSize: 48,
       fontFamily: "Arial",
       fill: "black",
       align: "center",
     });
     this.viewGroup.add(this.pendingRollTextGroup);
+
+    this.pendingRollTextGroup.hide();
   }
 
   public updateRollState(pendingRoll: number) {
@@ -139,6 +142,13 @@ export class BoardScreenView implements View {
   public updatePlayerPos(player: Player): Promise<void> {
     return this.boardRenderer.updatePlayer(player.currentTile);
   }
+
+  /*
+   * Changes the zoom on board
+   */
+  public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
+    return this.boardRenderer.updateCameraZoom(tile, factor, duration);
+  } 
 
   /*
    * Show the screens

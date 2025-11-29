@@ -17,7 +17,7 @@ export class BoardScreenModel {
    * Constructor for class and board generation.
    */
   constructor() {
-    const boardGen = new BoardGenerator(0.0, 0.05);
+    const boardGen = new BoardGenerator(0.2, 0.05);
 
     this.startingTile = boardGen.generateLineBoard(40);
     this.player = new Player("playboy", this.startingTile);

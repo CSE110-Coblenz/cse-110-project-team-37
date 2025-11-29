@@ -98,6 +98,32 @@ export class BoardRenderer {
   }
 
   /*
+   * Scale board layer to simulat camera zoom.
+   * @param tile - center of zoom focus.
+   * @param factor - zoom factor.
+   * @param duration - time of a zoom action.
+   */
+  public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
+    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+    this.group.offset(playerPos);
+
+    return new Promise((resolve) => {
+    const zoomOutTween = new Konva.Tween({
+      node: this.group,
+      duration: duration,
+      scaleX: factor,
+      scaleY: factor,
+      easing: Konva.Easings.EaseInOut,
+      onFinish: () => {
+        zoomOutTween.destroy();
+        resolve()}
+    });
+    zoomOutTween.play();
+    this.group.offset({x: 0, y: 0});
+    })
+  }
+
+  /*
    * Draws all the Tiles and player on it.
    * @param startTile - origin tile to draw the board from
    */
@@ -220,4 +246,5 @@ export class BoardRenderer {
     tileElement.add(elementBox);
     this.renderedTileMap.set(tile, tileElement);
   }
+
 }
