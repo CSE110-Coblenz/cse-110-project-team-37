@@ -19,7 +19,24 @@ export class BoardGenerator {
     for (let i = n - 1; i >= 1; i--) {
       const isMinigame = Math.random() < this.minigameChance;
 
-      const type: TileType = isMinigame ? { type: "minigame" } : { type: "normal" };
+      let type: TileType = { type: "normal" };
+
+      if (isMinigame) {
+        switch(Math.floor(Math.random() * 3)) {
+          case 1:
+            type = { type: "minigame1" };
+            break;
+          case 2:
+            type = { type: "minigame2" };
+            break;
+          case 3:
+            type = { type: "minigame3" };
+            break;
+          default:
+            type = { type: "minigame3" };
+            break;
+        }
+      }
 
       const successors: TileSuccessors = { north: null, east: null, south: null };
 

@@ -90,6 +90,7 @@ export class PizzaMinigameController extends ScreenController {
       // After glow, start the next pizza
       window.setTimeout(() => {
         this.startNewPizza();
+        this.screenSwitcher.switchToScreen({ type: "board" });
       }, 500);
     } else {
       this.view.setStatusText(`Added ${slice.toString()}.`);

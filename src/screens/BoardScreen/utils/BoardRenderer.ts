@@ -37,9 +37,25 @@ export class BoardRenderer {
    * Updates player position, based on the current tile
    * @param tile - players current tile
    */
-  public updatePlayer(tile: Tile) {
-    this.renderedPlayer.position(this.boardLayout.getPosition(tile));
-    this.centerCameraOnPlayer(tile, null);
+  public updatePlayer(tile: Tile): Promise<void> {
+    return new Promise((resolve) => {
+      const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+
+      const playerTween = new Konva.Tween({
+        node: this.renderedPlayer,
+        duration: 0.4,
+        x: playerPos.x,
+        y: playerPos.y,
+        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+          onFinish: () => {
+          playerTween.destroy();
+          resolve();
+        }
+      });
+
+      playerTween.play();
+      this.centerCameraOnPlayer(tile, null);
+    })
   }
 
   /*
@@ -128,8 +144,14 @@ export class BoardRenderer {
       case "end":
         this.drawEndTile(tile, dx, dy);
         break;
-      case "minigame":
-        this.drawMinigameTile(tile, dx, dy);
+      case "minigame1":
+        this.drawMinigameTile(tile, dx, dy, "#F09090");
+        break;
+      case "minigame2":
+        this.drawMinigameTile(tile, dx, dy, "#90F090");
+        break;
+      case "minigame3":
+        this.drawMinigameTile(tile, dx, dy, "#9090F0");
         break;
       default:
         this.drawNormalTile(tile, dx, dy);
@@ -162,14 +184,14 @@ export class BoardRenderer {
    * @param tile - associated tile to render
    * @param dx, dy - origin of render
    */
-  private drawMinigameTile(tile: Tile, dx: number, dy: number): void {
+  private drawMinigameTile(tile: Tile, dx: number, dy: number, color: string): void {
     const tileElement = new Konva.Group();
     const elementBox = new Konva.Rect({
       x: this.width / 2 - this.tileSize / 2 + dx,
       y: this.height / 2 - this.tileSize / 2 + dy,
       width: this.tileSize,
       height: this.tileSize,
-      fill: "grey",
+      fill: color,
       cornerRadius: 2,
       stroke: "black",
       strokeWidth: this.strokeWidth,

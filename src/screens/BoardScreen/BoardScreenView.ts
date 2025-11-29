@@ -5,7 +5,7 @@ import { ButtonFactory } from "../../util/ButtonFactory.ts";
 import { BoardRenderer } from "./utils/BoardRenderer.ts";
 
 import type { View } from "../../types.ts";
-import type { BoardScreenModel } from "./BoardScreenModel.ts";
+import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
 
 export class BoardScreenView implements View {
@@ -22,8 +22,14 @@ export class BoardScreenView implements View {
   private readonly model: BoardScreenModel;
   private readonly onPauseClick: () => void;
   private readonly onDiceClick: () => void;
+  private readonly onMoveClick: () => void;
 
-  constructor(onPauseClick: () => void, onDiceClick: () => void, model: BoardScreenModel) {
+  private pauseButtonGroup: Konva.Group | null = null;
+  private diceButtonGroup: Konva.Group | null = null;
+  private moveButtonGroup: Konva.Group | null = null;
+  private pendingRollTextGroup: Konva.Text | null = null;
+
+  constructor(onPauseClick: () => void, onDiceClick: () => void, onMoveClick: () => void, model: BoardScreenModel) {
     this.viewGroup = new Konva.Group({ visible: true });
     this.boardGroup = new Konva.Group({ visible: true });
 
@@ -34,6 +40,7 @@ export class BoardScreenView implements View {
     this.model = model;
     this.onPauseClick = onPauseClick;
     this.onDiceClick = onDiceClick;
+    this.onMoveClick = onMoveClick;
 
     // Setup the scene
     this.initializeBoard();
@@ -57,35 +64,80 @@ export class BoardScreenView implements View {
     // UI buttons
     this.drawPauseButton();
     this.drawDiceButton();
+    this.drawMoveButton();
+
+    this.drawPendingRollText();
+
+    this.diceButtonGroup?.show();
   }
 
-  // TODO Create a Button factory to avoid duplicates as this
   private drawPauseButton(): void {
-    const pauseButtonGroup = ButtonFactory.construct()
+    this.pauseButtonGroup = ButtonFactory.construct()
       .pos(this.width * 0.9, this.height * 0.1)
       .text("Pause")
       .onClick(this.onPauseClick)
       .build();
-    this.viewGroup.add(pauseButtonGroup);
+    this.viewGroup.add(this.pauseButtonGroup);
   }
 
-  // TODO Create a Button factory to avoid duplicates as this
   private drawDiceButton(): void {
-    const diceButtonGroup = ButtonFactory.construct()
+    this.diceButtonGroup = ButtonFactory.construct()
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Roll Dice")
       .onClick(this.onDiceClick)
       .build();
-    this.viewGroup.add(diceButtonGroup);
+    this.viewGroup.add(this.diceButtonGroup);
+
+    this.diceButtonGroup.hide();
+  }
+
+  private drawMoveButton(): void {
+    this.moveButtonGroup = ButtonFactory.construct()
+      .pos(this.width * 0.5, this.height * 0.9)
+      .width(200)
+      .text("Move!")
+      .onClick(this.onMoveClick)
+      .build();
+    this.viewGroup.add(this.moveButtonGroup);
+
+    this.moveButtonGroup.hide();
+  }
+
+  private drawPendingRollText(): void {
+    this.pendingRollTextGroup = new Konva.Text({
+      x: this.width * 0.5,
+      y: this.height * 0.8,
+      text: "6",
+      fontSize: 48,
+      fontFamily: "Arial",
+      fill: "black",
+      align: "center",
+    });
+    this.viewGroup.add(this.pendingRollTextGroup);
+  }
+
+  public updateRollState(pendingRoll: number) {
+    this.pendingRollTextGroup?.setText("" + pendingRoll);
+    pendingRoll == 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
+  }
+
+  public updatePhaseState(phase: BoardPhase) {
+    if (phase === "move") {
+      this.diceButtonGroup?.hide();
+      this.moveButtonGroup?.show();
+    } else {
+      this.diceButtonGroup?.show();
+      this.moveButtonGroup?.hide();
+    }
   }
 
   /*
    * Updates the position of a player
    * @param player - player object state
    */
-  public updatePlayerPos(player: Player) {
-    this.boardRenderer.updatePlayer(player.currentTile);
+  public updatePlayerPos(player: Player): Promise<void> {
+    return this.boardRenderer.updatePlayer(player.currentTile);
   }
 
   /*

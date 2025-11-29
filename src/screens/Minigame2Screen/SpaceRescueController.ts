@@ -53,7 +53,7 @@ export class SpaceRescueController extends ScreenController {
       this.view.showFailurePopup(() => {
         this.view.hideEndPopup();
         this.hide();
-        this.screenSwitcher.switchToScreen({ type: "menu" });
+        this.screenSwitcher.switchToScreen({ type: "board" });
       });
     }
   }
@@ -95,7 +95,7 @@ export class SpaceRescueController extends ScreenController {
         this.view.showSuccessPopup(() => {
           this.view.hideEndPopup();
           this.hide();
-          this.screenSwitcher.switchToScreen({ type: "menu" });
+          this.screenSwitcher.switchToScreen({ type: "board" });
         });
       }
     } else {
@@ -112,7 +112,7 @@ export class SpaceRescueController extends ScreenController {
         this.view.showFailurePopup(() => {
           this.view.hideEndPopup();
           this.hide();
-          this.screenSwitcher.switchToScreen({ type: "menu" });
+          this.screenSwitcher.switchToScreen({ type: "board" });
         });
       }
     }

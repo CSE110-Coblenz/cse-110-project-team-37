@@ -23,15 +23,13 @@ export type View = {
 export type Screen =
   | { type: "menu" }
   | { type: "board" }
-  | { type: "game"; difficulty: string }
-  | { type: "game" }
+  | { type: "game"}
   | { type: "pause" }
   | { type: "end" }
   | { type: "equation_help" }
   | { type: "minigame1" }
   | { type: "minigame2" }
-  | { type: "tutorial" }
-  | { type: "minigame1" };
+  | { type: "tutorial" };
 
 export abstract class ScreenController {
   abstract getView(): View;

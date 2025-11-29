@@ -17,6 +17,7 @@ export class BoardScreenController extends ScreenController {
     this.view = new BoardScreenView(
       () => this.handlePauseClick(),
       () => this.handleDiceClick(),
+      () => this.handleMoveClick(),
       this.model,
     );
   }
@@ -32,17 +33,43 @@ export class BoardScreenController extends ScreenController {
     // TODO Pause placeholder
   }
 
-  private handleDiceClick(): void {
+  private async handleDiceClick(): Promise<void> {
+    this.model.roll();
+    this.model.switchPhase();
+    this.view.updateRollState(this.model.getRoll());
+    this.view.updatePhaseState(this.model.getPhase());
+  }
+
+  private async handleMoveClick(): Promise<void> {
     const player: Player = this.model.getPlayer();
-    if (player.getCurrentTile().getType().type === "normal") {
+
+    while (this.model.getRoll() > 0) {
       player.move();
-    } else if (player.getCurrentTile().getType().type === "end") {
-      this.screenSwitcher.switchToScreen({ type: "end" });
-    } else {
-      this.screenSwitcher.switchToScreen({ type: "game" });
-      player.move();
+      this.model.deacrementRoll();
+      this.view.updateRollState(this.model.getRoll());
+      await this.view.updatePlayerPos(this.model.getPlayer());
+    } 
+    
+    switch(player.getCurrentTile().getType().type) {
+      case "end":
+        this.screenSwitcher.switchToScreen({type: "end"});
+        break;
+      case "minigame1":
+        this.screenSwitcher.switchToScreen({type: "minigame1"});
+        break;
+      case "minigame2":
+        this.screenSwitcher.switchToScreen({type: "minigame2"});
+        break;
+      case "minigame3":
+        this.screenSwitcher.switchToScreen({type: "game"});
+        break;
+      default:
+        break;
     }
-    this.view.updatePlayerPos(this.model.getPlayer());
+    this.model.switchPhase();
+
+    this.view.updateRollState(this.model.getRoll());
+    this.view.updatePhaseState(this.model.getPhase());
   }
 
   getView(): BoardScreenView {
