@@ -31,6 +31,7 @@ export class BoardScreenView implements View {
   private diceButtonGroup: Konva.Group | null = null;
   private moveButtonGroup: Konva.Group | null = null;
   private pendingRollTextGroup: Konva.Text | null = null;
+  private bonusRollTextGroup: Konva.Text | null = null;
 
   constructor(onPauseClick: () => void, onDiceClick: () => void, onMoveClick: () => void, model: BoardScreenModel) {
     this.viewGroup = new Konva.Group({ visible: true });
@@ -70,6 +71,7 @@ export class BoardScreenView implements View {
     this.drawMoveButton();
 
     this.drawPendingRollText();
+    this.drawBonusRollText();
 
     this.diceButtonGroup?.show();
   }
@@ -122,9 +124,26 @@ export class BoardScreenView implements View {
     this.pendingRollTextGroup.hide();
   }
 
-  public updateRollState(pendingRoll: number) {
+  private drawBonusRollText(): void {
+    this.bonusRollTextGroup = new Konva.Text({
+      x: this.width * 0.51,
+      y: this.height * 0.8,
+      text: "67",
+      fontSize: 48,
+      fontFamily: "Arial",
+      fill: "green",
+      align: "center",
+    });
+    this.viewGroup.add(this.bonusRollTextGroup);
+
+    this.bonusRollTextGroup.hide();
+  }
+
+  public updateRollState(pendingRoll: number, bonusRoll: number) {
     this.pendingRollTextGroup?.setText(pendingRoll.toString());
+    this.bonusRollTextGroup?.setText("+" + bonusRoll);
     pendingRoll == 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
+    bonusRoll == 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show();
   }
 
   public updatePhaseState(phase: BoardPhase) {

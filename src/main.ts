@@ -67,16 +67,17 @@ class App implements ScreenSwitcher {
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
-    this.boardScreenControoler = new BoardScreenController(this);
+    this.boardScreenControoler = new BoardScreenController(this, this.gameState);
     this.pauseScreenController = new PauseScreenController(this, this.currentDifficulty);
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
+      this.gameState
     );
-    this.pizzaMinigameController = new PizzaMinigameController(this);
+    this.pizzaMinigameController = new PizzaMinigameController(this, this.gameState);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
-    this.minigame2Controller = new SpaceRescueController(this);
+    this.minigame2Controller = new SpaceRescueController(this, this.gameState);
     this.tutorialScreenController = new TutorialScreenController(this);
 
     // Add all screen groups to the layer
@@ -206,11 +207,14 @@ class App implements ScreenSwitcher {
           this.storedGameController = null;
           this.gameScreenController.show();
         } else {
+
+          // TODO Really big mess, better to clean it up and move configuration part to gameState/controller
+          
           // Get the configuration for the selected difficulty
           const config = this.getDifficultyConfig(this.gameState.getDifficulty());
           this.gameScreenController.getView().getGroup().remove();
           // creates a new controller with the correct difficulty config
-          this.gameScreenController = new QuestionScreenController(this, config);
+          this.gameScreenController = new QuestionScreenController(this, config, this.gameState);
           // add the new view to the layer
           this.layer.add(this.gameScreenController.getView().getGroup());
           // start the question (updates view and shows the screen)

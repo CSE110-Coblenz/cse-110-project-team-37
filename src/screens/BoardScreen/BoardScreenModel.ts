@@ -3,21 +3,24 @@ import { BoardGenerator } from "./utils/BoardGenerator";
 
 import type { Tile } from "./containers/Tile";
 import { DiceService } from "../../services/DiceService";
+import type { GameState } from "../../models/GameState";
 
 export type BoardPhase = "roll" | "move";
 
 export class BoardScreenModel {
-  private readonly player: Player;
-  private readonly startingTile: Tile;
+  private readonly gameState: GameState;
 
+  private player: Player;
+  private startingTile: Tile;
   private phase: BoardPhase;
   private pendingRoll: number;
 
   /*
    * Constructor for class and board generation.
    */
-  constructor() {
-    const boardGen = new BoardGenerator(0.2, 0.05);
+  constructor(gameState: GameState) {
+    this.gameState = gameState;
+    const boardGen = new BoardGenerator(0.4, 0.08);
 
     this.startingTile = boardGen.generateLineBoard(40);
     this.player = new Player("playboy", this.startingTile);
@@ -40,7 +43,7 @@ export class BoardScreenModel {
     this.pendingRoll = DiceService.rollDice(6);
   }
 
-  /* 
+  /*
    * Get current pending roll value
    */
   getRoll(): number {
@@ -55,10 +58,14 @@ export class BoardScreenModel {
   }
 
   /*
-   * Deacteses pending roll value by 1
+   * Deacteses roll value by 1
    */
   deacrementRoll() {
-    this.pendingRoll -= 1;
+    if (this.gameState.getBonus() > 0) {
+      this.gameState.addBonus(-1);
+    } else {
+      this.pendingRoll -= 1;
+    }
   }
 
   /*

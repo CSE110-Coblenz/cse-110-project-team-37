@@ -5,20 +5,23 @@ import { QuestionScreenModel } from "./QuestionScreenModel.ts";
 import { QuestionScreenView } from "./QuestionScreenView.ts";
 
 import type { ScreenSwitcher } from "../../types.ts";
+import type { GameState } from "../../models/GameState.ts";
 
 export class QuestionScreenController extends ScreenController {
   private readonly model: QuestionScreenModel;
   private readonly view: QuestionScreenView;
   private readonly questionConfig: QuestionConfig;
   private readonly screenSwitcher: ScreenSwitcher;
+  private readonly gameState: GameState;
 
   // private readonly screenSwitcher: ScreenSwitcher;
 
-  constructor(screenSwitcher: ScreenSwitcher, questionConfig: QuestionConfig) {
+  constructor(screenSwitcher: ScreenSwitcher, questionConfig: QuestionConfig, gameState: GameState) {
     super(); // must use this cause GameScreenController extends ScreenController
     // this.screenSwitcher = screenSwitcher;
     this.questionConfig = questionConfig;
     this.screenSwitcher = screenSwitcher;
+    this.gameState = gameState;
 
     // generate new question and initialize model
     this.model = new QuestionScreenModel(QuestionService.generateQuestion(this.questionConfig));
@@ -37,6 +40,7 @@ export class QuestionScreenController extends ScreenController {
     if (isCorrect) {
       this.model.incrementScore();
       // After feedback, switch to score screen
+      this.gameState.addBonus(2);
       setTimeout(() => {
         // this.model.setQuestion(QuestionService.generateQuestion(this.questionConfig));
         // this.updateView();

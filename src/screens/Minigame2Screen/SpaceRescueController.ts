@@ -10,6 +10,7 @@ import { SpaceRescueView } from "./SpaceRescueView";
 import type { Fraction } from "../../models/Fraction.ts";
 // we will need the screenswitcher
 import type { ScreenSwitcher } from "../../types.ts";
+import type { GameState } from "../../models/GameState.ts";
 
 /**
  * class for the controller
@@ -19,6 +20,8 @@ export class SpaceRescueController extends ScreenController {
   private readonly model: SpaceRescueModel;
   private readonly view: SpaceRescueView;
 
+  // current state of the game
+  private readonly gameState: GameState;
   // need the screenswitcher so that we can define interactions between various scenes
   private readonly screenSwitcher: ScreenSwitcher;
 
@@ -26,8 +29,10 @@ export class SpaceRescueController extends ScreenController {
   private gameStarted: boolean = false;
 
   // defining our constructor, given a screen switcher object
-  constructor(screenSwitcher: ScreenSwitcher) {
+  constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
+    // initialize game state object
+    this.gameState = gameState;
     // initialize screen switcher object
     this.screenSwitcher = screenSwitcher;
 
@@ -95,6 +100,8 @@ export class SpaceRescueController extends ScreenController {
         this.view.showSuccessPopup(() => {
           this.view.hideEndPopup();
           this.hide();
+          // add bonus roll points for success
+          this.gameState.addBonus(4);
           this.screenSwitcher.switchToScreen({ type: "board" });
         });
       }

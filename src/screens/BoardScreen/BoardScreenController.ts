@@ -1,3 +1,4 @@
+import type { GameState } from "../../models/GameState.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
@@ -9,12 +10,15 @@ export class BoardScreenController extends ScreenController {
   private readonly model: BoardScreenModel;
   private readonly view: BoardScreenView;
 
+  private readonly gameState: GameState;
+
   private readonly screenSwitcher: ScreenSwitcher;
 
-  constructor(screenSwitcher: ScreenSwitcher) {
+  constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
     this.screenSwitcher = screenSwitcher;
-    this.model = new BoardScreenModel();
+    this.gameState = gameState;
+    this.model = new BoardScreenModel(gameState);
     this.view = new BoardScreenView(
       () => this.handlePauseClick(),
       () => this.handleDiceClick(),
@@ -40,9 +44,9 @@ export class BoardScreenController extends ScreenController {
     this.model.roll();
     this.model.setPhase("move");
 
-    this.view.updateRollState(this.model.getRoll());
+    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
     await this.view.animateDiceJiggle(40);
-    this.view.updateRollState(this.model.getRoll());
+    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
     this.view.updatePhaseState(this.model.getPhase());
   }
 
@@ -54,7 +58,7 @@ export class BoardScreenController extends ScreenController {
     while (this.model.getRoll() > 0) {
       player.move();
       this.model.deacrementRoll();
-      this.view.updateRollState(this.model.getRoll());
+    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
       await this.view.updatePlayerPos(this.model.getPlayer());
     } 
     
@@ -84,7 +88,7 @@ export class BoardScreenController extends ScreenController {
 
     this.model.setPhase("roll");
 
-    this.view.updateRollState(this.model.getRoll());
+    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
     this.view.updatePhaseState(this.model.getPhase());
   }
 

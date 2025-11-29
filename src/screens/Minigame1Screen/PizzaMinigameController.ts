@@ -5,10 +5,12 @@ import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
 import { PizzaMinigameView } from "./PizzaMinigameView.ts";
 
 import type { ScreenSwitcher } from "../../types.ts";
+import type { GameState } from "../../models/GameState.ts";
 
 export class PizzaMinigameController extends ScreenController {
   private readonly view: PizzaMinigameView;
   private readonly screenSwitcher: ScreenSwitcher;
+  private readonly gameState: GameState;
   private readonly model: PizzaMinigameModel;
 
   // All available slices for the game
@@ -22,9 +24,10 @@ export class PizzaMinigameController extends ScreenController {
     new Fraction(1, 24),
   ];
 
-  constructor(screenSwitcher: ScreenSwitcher) {
+  constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
     this.screenSwitcher = screenSwitcher;
+    this.gameState = gameState;
 
     this.model = new PizzaMinigameModel(this.fractionOptions);
 
@@ -87,6 +90,7 @@ export class PizzaMinigameController extends ScreenController {
       this.view.updatePizzasCompleted(this.model.getPizzasCompleted());
       this.view.flashPizzaSuccess();
 
+      this.gameState.addBonus(3);
       // After glow, start the next pizza
       window.setTimeout(() => {
         this.startNewPizza();
