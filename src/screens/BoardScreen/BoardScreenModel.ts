@@ -11,6 +11,7 @@ export class BoardScreenModel {
   private readonly gameState: GameState;
 
   private player: Player;
+  private monster: Player;
   private startingTile: Tile;
   private phase: BoardPhase;
   private pendingRoll: number;
@@ -24,6 +25,7 @@ export class BoardScreenModel {
 
     this.startingTile = boardGen.generateLineBoard(40);
     this.player = new Player("playboy", this.startingTile);
+    this.monster = new Player("jefry", this.startingTile);
 
     this.phase = "roll";
     this.pendingRoll = 0;
@@ -69,10 +71,17 @@ export class BoardScreenModel {
   }
 
   /*
-   * Returns
+   * Returns player
    */
   getPlayer(): Player {
     return this.player;
+  }
+
+  /*
+   * Returns monster
+   */
+  getMonster(): Player {
+    return this.monster;
   }
 
   /*

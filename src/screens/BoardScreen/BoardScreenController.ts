@@ -1,4 +1,5 @@
 import type { GameState } from "../../models/GameState.ts";
+import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
@@ -48,6 +49,10 @@ export class BoardScreenController extends ScreenController {
     await this.view.animateDiceJiggle(40);
     this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
     this.view.updatePhaseState(this.model.getPhase());
+
+    this.gameState.incrementTurn();
+    await this.handleMonsterActions();
+    await this.checkMonsterCatch();
   }
 
   private async handleMoveClick(): Promise<void> {
@@ -90,6 +95,29 @@ export class BoardScreenController extends ScreenController {
 
     this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
     this.view.updatePhaseState(this.model.getPhase());
+  }
+
+  private handleMonsterActions(): Promise<void> {
+    return new Promise( (response) => {
+      if (this.gameState.getTurnCount() == 2) {
+        this.view.showMonster();
+      }
+      if (this.gameState.getTurnCount() > 2) {
+        this.model.getMonster().move();
+        this.model.getMonster().move();
+        this.model.getMonster().move();
+        this.model.getMonster().move();
+        this.view.updateMonsterPos(this.model.getMonster());
+      }
+      response();
+    })
+  }
+
+  private async checkMonsterCatch(): Promise<void> {
+    if (!this.model.getMonster().isAheadOf(this.model.getPlayer()) && this.gameState.getTurnCount() > 2) {
+      await SleeperService.sleep(1500);
+      this.screenSwitcher.switchToScreen({type: "end"});
+    }
   }
 
   getView(): BoardScreenView {

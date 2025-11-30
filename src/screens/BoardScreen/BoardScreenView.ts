@@ -59,11 +59,13 @@ export class BoardScreenView implements View {
     this.boardGroup.position({ x: -400, y: 0 });
 
     this.boardRenderer.drawPlayer(this.model.getPlayer());
+    this.boardRenderer.drawMonster(this.model.getMonster());
 
     // Connect board render elements to a board group.
     this.boardRenderer.renderedTileMap.forEach((tile) => this.boardGroup.add(tile));
 
     this.boardGroup.add(this.boardRenderer.renderedPlayer);
+    this.boardGroup.add(this.boardRenderer.renderedMonster);
 
     // UI buttons
     this.drawPauseButton();
@@ -74,6 +76,7 @@ export class BoardScreenView implements View {
     this.drawBonusRollText();
 
     this.diceButtonGroup?.show();
+    this.boardRenderer.renderedMonster.hide();
   }
 
   private drawPauseButton(): void {
@@ -164,6 +167,21 @@ export class BoardScreenView implements View {
     return this.boardRenderer.updatePlayer(player.currentTile);
   }
 
+  /*
+   * Updates the position of a monster
+   * @param monster - monster object state
+   */
+  public updateMonsterPos(monster: Player): Promise<void> {
+    return this.boardRenderer.updateMonster(monster.currentTile);
+  }
+
+  /*
+   * Show monster
+   */
+  public showMonster(): void{
+    this.boardRenderer.renderedMonster.show();
+  }
+  
   /*
    * Changes the zoom on board
    */

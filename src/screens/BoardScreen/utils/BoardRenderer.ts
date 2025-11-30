@@ -22,6 +22,7 @@ export class BoardRenderer {
 
   public readonly renderedTileMap = new Map<Tile, Konva.Group>();
   public readonly renderedPlayer = new Konva.Group();
+  public readonly renderedMonster = new Konva.Group();
 
   private cameraTween: Konva.Tween | null = null;
 
@@ -55,6 +56,29 @@ export class BoardRenderer {
 
       playerTween.play();
       this.centerCameraOnPlayer(tile, null);
+    })
+  }
+
+  /*
+   * Updates monster position, based on the current tile
+   * @param tile - monster current tile
+   */
+  public updateMonster(tile: Tile): Promise<void> {
+    return new Promise((resolve) => {
+      const mosnterPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+
+      const monsterTween = new Konva.Tween({
+        node: this.renderedMonster, 
+        duration: 0.8,
+        x: mosnterPos.x,
+        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+          onFinish: () => {
+          monsterTween.destroy();
+          resolve();
+        }
+      });
+
+      monsterTween.play();
     })
   }
 
@@ -166,6 +190,37 @@ export class BoardRenderer {
     });
 
     this.renderedPlayer.add(elementBox);
+  }
+
+  /*
+   * Draws a monster on a board.
+   * @param monster - monster object to be rendered
+   */
+  public drawMonster(monster: Player) {
+    const pos = this.boardLayout.getPosition(monster.currentTile);
+    if (!pos) return;
+
+    const elementBox = new Konva.Rect({
+      x: this.width / 2 + pos.x,
+      y: -this.height / 2,
+      width: -this.width,
+      height: this.height * 2,
+      fill: "black",
+      stroke: "black",
+      strokeWidth: this.strokeWidth,
+    });
+    const elementText = new Konva.Text({
+      x: this.width * 0.25,
+      y: this.height / 2,
+      text: "This is monster",
+      fontSize: 48,
+      fontFamily: "Arial",
+      fill: "white",
+      align: "center",
+    });
+
+    this.renderedMonster.add(elementBox);
+    this.renderedMonster.add(elementText);
   }
 
   /*

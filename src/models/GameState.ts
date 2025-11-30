@@ -4,13 +4,15 @@ export type Difficulty = "Easy" | "Medium" | "Hard";
 export class GameState {
   private difficulty: Difficulty;
   private bonusRoll: number;
+  private turnCounter: number;
 
   /*
    * Constructor for class.
    */
   constructor() {
     this.difficulty = "Easy";
-    this.bonusRoll = 6;
+    this.bonusRoll = 0;
+    this.turnCounter = 0;
   }
 
   /*
@@ -39,5 +41,19 @@ export class GameState {
    */
   public setDifficulty(difficulty: Difficulty): void {
     this.difficulty = difficulty;
+  }
+
+  /*
+   * Get current turn count
+   */
+  public getTurnCount(): number {
+    return this.turnCounter;
+  }
+
+  /*
+   * Advance current turn by 1
+   */
+  public incrementTurn(): void {
+    this.turnCounter += 1;
   }
 }
