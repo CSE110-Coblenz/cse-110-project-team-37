@@ -1,11 +1,8 @@
-
 export class SleeperService {
-
   /**
-   * Sleep for certaian amount of milliseconds. 
+   * Sleep for certaian amount of milliseconds.
    */
-  static sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  };
-
+  static async sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }

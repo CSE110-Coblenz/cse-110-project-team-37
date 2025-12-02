@@ -4,8 +4,8 @@ import { ScreenController } from "../../types.ts";
 import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
 import { PizzaMinigameView } from "./PizzaMinigameView.ts";
 
-import type { ScreenSwitcher } from "../../types.ts";
 import type { GameState } from "../../models/GameState.ts";
+import type { ScreenSwitcher } from "../../types.ts";
 
 export class PizzaMinigameController extends ScreenController {
   private readonly view: PizzaMinigameView;

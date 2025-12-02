@@ -38,7 +38,7 @@ export class BoardRenderer {
    * Updates player position, based on the current tile
    * @param tile - players current tile
    */
-  public updatePlayer(tile: Tile): Promise<void> {
+  public async updatePlayer(tile: Tile): Promise<void> {
     return new Promise((resolve) => {
       const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
@@ -48,38 +48,38 @@ export class BoardRenderer {
         x: playerPos.x,
         y: playerPos.y,
         easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
-          onFinish: () => {
+        onFinish: () => {
           playerTween.destroy();
           resolve();
-        }
+        },
       });
 
       playerTween.play();
       this.centerCameraOnPlayer(tile, null);
-    })
+    });
   }
 
   /*
    * Updates monster position, based on the current tile
    * @param tile - monster current tile
    */
-  public updateMonster(tile: Tile): Promise<void> {
+  public async updateMonster(tile: Tile): Promise<void> {
     return new Promise((resolve) => {
       const mosnterPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
       const monsterTween = new Konva.Tween({
-        node: this.renderedMonster, 
+        node: this.renderedMonster,
         duration: 0.8,
         x: mosnterPos.x,
         easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
-          onFinish: () => {
+        onFinish: () => {
           monsterTween.destroy();
           resolve();
-        }
+        },
       });
 
       monsterTween.play();
-    })
+    });
   }
 
   /*
@@ -127,38 +127,40 @@ export class BoardRenderer {
    * @param factor - zoom factor.
    * @param duration - time of a zoom action.
    */
-  public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
+  public async updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
     return new Promise((resolve) => {
-    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
-    this.group.offset(playerPos);
-    const zoomOutTween = new Konva.Tween({
-      node: this.group,
-      duration: duration,
-      scaleX: factor,
-      scaleY: factor,
-      easing: Konva.Easings.EaseInOut,
-      onFinish: () => {
-        zoomOutTween.destroy();
-        resolve()}
+      const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+      this.group.offset(playerPos);
+      const zoomOutTween = new Konva.Tween({
+        node: this.group,
+        duration,
+        scaleX: factor,
+        scaleY: factor,
+        easing: Konva.Easings.EaseInOut,
+        onFinish: () => {
+          zoomOutTween.destroy();
+          resolve();
+        },
+      });
+      zoomOutTween.play();
+      this.group.offset({ x: 0, y: 0 });
     });
-    zoomOutTween.play();
-    this.group.offset({x: 0, y: 0});
-    })
   }
 
-  public fadeBoard(factor: number, duration: number): Promise<void> {
+  public async fadeBoard(factor: number, duration: number): Promise<void> {
     return new Promise((resolve) => {
-    const fadeTweem = new Konva.Tween({
-      node: this.group,
-      duration: duration,
-      opacity: factor,
-      easing: Konva.Easings.EaseInOut,
-      onFinish: () => {
-        fadeTweem.destroy();
-        resolve()}
+      const fadeTweem = new Konva.Tween({
+        node: this.group,
+        duration,
+        opacity: factor,
+        easing: Konva.Easings.EaseInOut,
+        onFinish: () => {
+          fadeTweem.destroy();
+          resolve();
+        },
+      });
+      fadeTweem.play();
     });
-    fadeTweem.play();
-    })
   }
 
   /*
@@ -315,5 +317,4 @@ export class BoardRenderer {
     tileElement.add(elementBox);
     this.renderedTileMap.set(tile, tileElement);
   }
-
 }

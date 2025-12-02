@@ -22,7 +22,7 @@ export class BoardGenerator {
       let type: TileType = { type: "normal" };
 
       if (isMinigame) {
-        switch(Math.floor(Math.random() * 3)) {
+        switch (Math.floor(Math.random() * 3)) {
           case 1:
             type = { type: "minigame1" };
             break;

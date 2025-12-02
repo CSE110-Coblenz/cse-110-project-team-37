@@ -1,5 +1,7 @@
 import Konva from "konva";
 
+import { DiceService } from "../../services/DiceService.ts";
+import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ButtonFactory } from "../../util/ButtonFactory.ts";
 
 import { BoardRenderer } from "./utils/BoardRenderer.ts";
@@ -8,8 +10,6 @@ import type { View } from "../../types.ts";
 import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
 import type { Tile } from "./containers/Tile.ts";
-import { SleeperService } from "../../services/SleeperSerive.ts";
-import { DiceService } from "../../services/DiceService.ts";
 
 export class BoardScreenView implements View {
   private readonly width = window.innerWidth;
@@ -33,7 +33,12 @@ export class BoardScreenView implements View {
   private pendingRollTextGroup: Konva.Text | null = null;
   private bonusRollTextGroup: Konva.Text | null = null;
 
-  constructor(onPauseClick: () => void, onDiceClick: () => void, onMoveClick: () => void, model: BoardScreenModel) {
+  constructor(
+    onPauseClick: () => void,
+    onDiceClick: () => void,
+    onMoveClick: () => void,
+    model: BoardScreenModel,
+  ) {
     this.viewGroup = new Konva.Group({ visible: true });
     this.boardGroup = new Konva.Group({ visible: true });
 
@@ -144,9 +149,9 @@ export class BoardScreenView implements View {
 
   public updateRollState(pendingRoll: number, bonusRoll: number) {
     this.pendingRollTextGroup?.setText(pendingRoll.toString());
-    this.bonusRollTextGroup?.setText("+" + bonusRoll);
-    pendingRoll == 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
-    bonusRoll == 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show();
+    this.bonusRollTextGroup?.setText(`+${bonusRoll}`);
+    pendingRoll === 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
+    bonusRoll === 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show();
   }
 
   public updatePhaseState(phase: BoardPhase) {
@@ -163,7 +168,7 @@ export class BoardScreenView implements View {
    * Updates the position of a player
    * @param player - player object state
    */
-  public updatePlayerPos(player: Player): Promise<void> {
+  public async updatePlayerPos(player: Player): Promise<void> {
     return this.boardRenderer.updatePlayer(player.currentTile);
   }
 
@@ -171,30 +176,30 @@ export class BoardScreenView implements View {
    * Updates the position of a monster
    * @param monster - monster object state
    */
-  public updateMonsterPos(monster: Player): Promise<void> {
+  public async updateMonsterPos(monster: Player): Promise<void> {
     return this.boardRenderer.updateMonster(monster.currentTile);
   }
 
   /*
    * Show monster
    */
-  public showMonster(): void{
+  public showMonster(): void {
     this.boardRenderer.renderedMonster.show();
   }
-  
+
   /*
    * Changes the zoom on board
    */
-  public updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
+  public async updateCameraZoom(tile: Tile, factor: number, duration: number): Promise<void> {
     return this.boardRenderer.updateCameraZoom(tile, factor, duration);
-  } 
+  }
 
   /*
    * Fade the board
    */
-  public updateBoardFade(factor: number, duration: number): Promise<void> {
+  public async updateBoardFade(factor: number, duration: number): Promise<void> {
     return this.boardRenderer.fadeBoard(factor, duration);
-  } 
+  }
 
   /*
    * Hides buttons to avoid unnecessary user input.
@@ -206,7 +211,7 @@ export class BoardScreenView implements View {
   /*
    * Quick animation for dice rolling.
    */
-  public animateDiceJiggle(duration: number): Promise<void> {
+  public async animateDiceJiggle(duration: number): Promise<void> {
     return new Promise(async (resolve) => {
       for (let i = 0; i < 16; i++) {
         const random = DiceService.rollDice(6);

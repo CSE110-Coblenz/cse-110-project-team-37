@@ -36,14 +36,13 @@ export class Player {
    * @param entity - entity to check for
    */
   public isAheadOf(entity: Player): boolean {
-      let ctile: Tile | null = this.currentTile;
-      while(ctile != null) {
-        if (ctile == entity.currentTile) {
-          return true;
-        }
-        ctile = ctile.nextTile.north ?? ctile.nextTile.east ?? ctile.nextTile.south ?? null;
+    let ctile: Tile | null = this.currentTile;
+    while (ctile != null) {
+      if (ctile === entity.currentTile) {
+        return true;
       }
-      return false;
+      ctile = ctile.nextTile.north ?? ctile.nextTile.east ?? ctile.nextTile.south ?? null;
+    }
+    return false;
   }
-
 }

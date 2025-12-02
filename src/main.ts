@@ -72,7 +72,7 @@ class App implements ScreenSwitcher {
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
-      this.gameState
+      this.gameState,
     );
     this.pizzaMinigameController = new PizzaMinigameController(this, this.gameState);
     this.endScreenController = new EndScreenController(this);
@@ -207,9 +207,8 @@ class App implements ScreenSwitcher {
           this.storedGameController = null;
           this.gameScreenController.show();
         } else {
-
           // TODO Really big mess, better to clean it up and move configuration part to gameState/controller
-          
+
           // Get the configuration for the selected difficulty
           const config = this.getDifficultyConfig(this.gameState.getDifficulty());
           this.gameScreenController.getView().getGroup().remove();

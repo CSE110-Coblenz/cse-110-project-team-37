@@ -8,9 +8,9 @@ import { SpaceRescueView } from "./SpaceRescueView";
 
 // this game requires clicking on fractions in a certain order, so we will need the fraction model we created
 import type { Fraction } from "../../models/Fraction.ts";
+import type { GameState } from "../../models/GameState.ts";
 // we will need the screenswitcher
 import type { ScreenSwitcher } from "../../types.ts";
-import type { GameState } from "../../models/GameState.ts";
 
 /**
  * class for the controller

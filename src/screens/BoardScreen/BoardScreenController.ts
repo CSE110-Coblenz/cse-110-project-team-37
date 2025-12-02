@@ -1,10 +1,11 @@
-import type { GameState } from "../../models/GameState.ts";
 import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
 import { BoardScreenModel } from "./BoardScreenModel.ts";
 import { BoardScreenView } from "./BoardScreenView.ts";
-import { Player } from "./containers/Player.ts";
+
+import type { GameState } from "../../models/GameState.ts";
+import type { Player } from "./containers/Player.ts";
 import type { Tile } from "./containers/Tile.ts";
 
 export class BoardScreenController extends ScreenController {
@@ -22,8 +23,8 @@ export class BoardScreenController extends ScreenController {
     this.model = new BoardScreenModel(gameState);
     this.view = new BoardScreenView(
       () => this.handlePauseClick(),
-      () => this.handleDiceClick(),
-      () => this.handleMoveClick(),
+      async () => this.handleDiceClick(),
+      async () => this.handleMoveClick(),
       this.model,
     );
   }
@@ -63,32 +64,32 @@ export class BoardScreenController extends ScreenController {
     while (this.model.getRoll() > 0) {
       player.move();
       this.model.deacrementRoll();
-    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+      this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
       await this.view.updatePlayerPos(this.model.getPlayer());
-    } 
-    
+    }
+
     const cTile: Tile = player.getCurrentTile();
 
-    switch(cTile.getType().type) {
+    switch (cTile.getType().type) {
       case "end":
-        this.screenSwitcher.switchToScreen({type: "end"});
+        this.screenSwitcher.switchToScreen({ type: "end" });
         break;
       case "minigame1":
         await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({type: "minigame1"});
+        this.screenSwitcher.switchToScreen({ type: "minigame1" });
         break;
       case "minigame2":
         await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({type: "minigame2"});
+        this.screenSwitcher.switchToScreen({ type: "minigame2" });
         break;
       case "minigame3":
         await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({type: "game"});
+        this.screenSwitcher.switchToScreen({ type: "game" });
         break;
       default:
         break;
     }
-    
+
     this.view.updateBoardFade(1.0, 0.0);
 
     this.model.setPhase("roll");
@@ -97,9 +98,9 @@ export class BoardScreenController extends ScreenController {
     this.view.updatePhaseState(this.model.getPhase());
   }
 
-  private handleMonsterActions(): Promise<void> {
-    return new Promise( (response) => {
-      if (this.gameState.getTurnCount() == 2) {
+  private async handleMonsterActions(): Promise<void> {
+    return new Promise((response) => {
+      if (this.gameState.getTurnCount() === 2) {
         this.view.showMonster();
       }
       if (this.gameState.getTurnCount() > 2) {
@@ -110,13 +111,16 @@ export class BoardScreenController extends ScreenController {
         this.view.updateMonsterPos(this.model.getMonster());
       }
       response();
-    })
+    });
   }
 
   private async checkMonsterCatch(): Promise<void> {
-    if (!this.model.getMonster().isAheadOf(this.model.getPlayer()) && this.gameState.getTurnCount() > 2) {
+    if (
+      !this.model.getMonster().isAheadOf(this.model.getPlayer()) &&
+      this.gameState.getTurnCount() > 2
+    ) {
       await SleeperService.sleep(1500);
-      this.screenSwitcher.switchToScreen({type: "end"});
+      this.screenSwitcher.switchToScreen({ type: "end" });
     }
   }
 

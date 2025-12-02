@@ -1,18 +1,19 @@
+import { DiceService } from "../../services/DiceService";
+
 import { Player } from "./containers/Player";
 import { BoardGenerator } from "./utils/BoardGenerator";
 
-import type { Tile } from "./containers/Tile";
-import { DiceService } from "../../services/DiceService";
 import type { GameState } from "../../models/GameState";
+import type { Tile } from "./containers/Tile";
 
 export type BoardPhase = "roll" | "move";
 
 export class BoardScreenModel {
   private readonly gameState: GameState;
 
-  private player: Player;
-  private monster: Player;
-  private startingTile: Tile;
+  private readonly player: Player;
+  private readonly monster: Player;
+  private readonly startingTile: Tile;
   private phase: BoardPhase;
   private pendingRoll: number;
 

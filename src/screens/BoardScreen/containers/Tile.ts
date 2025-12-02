@@ -1,4 +1,9 @@
-export type TileType = { type: "normal" } | { type: "minigame1" } | { type: "minigame2" } | { type: "minigame3" } | { type: "end" };
+export type TileType =
+  | { type: "normal" }
+  | { type: "minigame1" }
+  | { type: "minigame2" }
+  | { type: "minigame3" }
+  | { type: "end" };
 export type TileSuccessors = { north: Tile | null; east: Tile | null; south: Tile | null };
 
 export class Tile {
@@ -19,5 +24,4 @@ export class Tile {
   getType(): TileType {
     return this.type;
   }
-  
 }

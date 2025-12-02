@@ -4,8 +4,8 @@ import { ScreenController } from "../../types.ts";
 import { QuestionScreenModel } from "./QuestionScreenModel.ts";
 import { QuestionScreenView } from "./QuestionScreenView.ts";
 
-import type { ScreenSwitcher } from "../../types.ts";
 import type { GameState } from "../../models/GameState.ts";
+import type { ScreenSwitcher } from "../../types.ts";
 
 export class QuestionScreenController extends ScreenController {
   private readonly model: QuestionScreenModel;
@@ -16,7 +16,11 @@ export class QuestionScreenController extends ScreenController {
 
   // private readonly screenSwitcher: ScreenSwitcher;
 
-  constructor(screenSwitcher: ScreenSwitcher, questionConfig: QuestionConfig, gameState: GameState) {
+  constructor(
+    screenSwitcher: ScreenSwitcher,
+    questionConfig: QuestionConfig,
+    gameState: GameState,
+  ) {
     super(); // must use this cause GameScreenController extends ScreenController
     // this.screenSwitcher = screenSwitcher;
     this.questionConfig = questionConfig;
