@@ -24,8 +24,8 @@ export class BoardScreenView implements View {
 
   private readonly model: BoardScreenModel;
   private readonly onPauseClick: () => void;
-  private readonly onDiceClick: () => void;
-  private readonly onMoveClick: () => void;
+  private readonly onDiceClick: () => Promise<void>;
+  private readonly onMoveClick: () => Promise<void>;
 
   private pauseButtonGroup: Konva.Group | null = null;
   private diceButtonGroup: Konva.Group | null = null;
@@ -35,8 +35,8 @@ export class BoardScreenView implements View {
 
   constructor(
     onPauseClick: () => void,
-    onDiceClick: () => void,
-    onMoveClick: () => void,
+    onDiceClick: () => Promise<void>,
+    onMoveClick: () => Promise<void>,
     model: BoardScreenModel,
   ) {
     this.viewGroup = new Konva.Group({ visible: true });
@@ -98,7 +98,7 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Roll Dice")
-      .onClick(this.onDiceClick)
+      .onClick(() => {void this.onDiceClick})
       .build();
     this.viewGroup.add(this.diceButtonGroup);
 
@@ -110,7 +110,7 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Move!")
-      .onClick(this.onMoveClick)
+      .onClick(() => {void this.onMoveClick})
       .build();
     this.viewGroup.add(this.moveButtonGroup);
 
@@ -150,8 +150,8 @@ export class BoardScreenView implements View {
   public updateRollState(pendingRoll: number, bonusRoll: number) {
     this.pendingRollTextGroup?.setText(pendingRoll.toString());
     this.bonusRollTextGroup?.setText(`+${bonusRoll}`);
-    pendingRoll === 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show();
-    bonusRoll === 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show();
+    void (pendingRoll === 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show());
+    void (bonusRoll === 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show());
   }
 
   public updatePhaseState(phase: BoardPhase) {
@@ -208,18 +208,17 @@ export class BoardScreenView implements View {
     this.diceButtonGroup?.hide();
     this.moveButtonGroup?.hide();
   }
+
   /*
    * Quick animation for dice rolling.
    */
   public async animateDiceJiggle(duration: number): Promise<void> {
-    return new Promise(async (resolve) => {
-      for (let i = 0; i < 16; i++) {
-        const random = DiceService.rollDice(6);
-        this.pendingRollTextGroup?.text(random.toString());
-        await SleeperService.sleep(duration);
-      }
-      resolve();
-    });
+    for (let i = 0; i < 16; i++) {
+      const random = DiceService.rollDice(6);
+      this.pendingRollTextGroup?.text(random.toString());
+      /* eslint-disable-next-line no-await-in-loop */
+      await SleeperService.sleep(duration);
+    }
   }
 
   /*

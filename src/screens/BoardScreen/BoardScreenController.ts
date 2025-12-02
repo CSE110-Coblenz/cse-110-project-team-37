@@ -65,6 +65,8 @@ export class BoardScreenController extends ScreenController {
       player.move();
       this.model.deacrementRoll();
       this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+
+      /* eslint-disable-next-line no-await-in-loop */
       await this.view.updatePlayerPos(this.model.getPlayer());
     }
 
@@ -90,7 +92,7 @@ export class BoardScreenController extends ScreenController {
         break;
     }
 
-    this.view.updateBoardFade(1.0, 0.0);
+    await this.view.updateBoardFade(1.0, 0.0);
 
     this.model.setPhase("roll");
 
@@ -108,7 +110,7 @@ export class BoardScreenController extends ScreenController {
         this.model.getMonster().move();
         this.model.getMonster().move();
         this.model.getMonster().move();
-        this.view.updateMonsterPos(this.model.getMonster());
+        void this.view.updateMonsterPos(this.model.getMonster());
       }
       response();
     });

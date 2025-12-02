@@ -136,7 +136,7 @@ export class BoardRenderer {
         duration,
         scaleX: factor,
         scaleY: factor,
-        easing: Konva.Easings.EaseInOut,
+        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
         onFinish: () => {
           zoomOutTween.destroy();
           resolve();
@@ -153,7 +153,7 @@ export class BoardRenderer {
         node: this.group,
         duration,
         opacity: factor,
-        easing: Konva.Easings.EaseInOut,
+        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
         onFinish: () => {
           fadeTweem.destroy();
           resolve();
