@@ -101,5 +101,4 @@ export class BoardScreenModel {
   getFirstMinigame(): Tile {
     return this.minigameTile;
   }
-  
 }

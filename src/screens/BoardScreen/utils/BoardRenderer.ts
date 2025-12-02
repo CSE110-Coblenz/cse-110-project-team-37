@@ -39,21 +39,21 @@ export class BoardRenderer {
    * @param tile - players current tile
    */
   public async updatePlayer(tile: Tile): Promise<void> {
-      const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
-      const playerTween = new Konva.Tween({
-        node: this.renderedPlayer,
-        duration: 0.4,
-        x: playerPos.x,
-        y: playerPos.y,
-        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
-        onFinish: () => {
-          playerTween.destroy();
-        },
-      });
+    const playerTween = new Konva.Tween({
+      node: this.renderedPlayer,
+      duration: 0.4,
+      x: playerPos.x,
+      y: playerPos.y,
+      easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+      onFinish: () => {
+        playerTween.destroy();
+      },
+    });
 
-      playerTween.play();
-      await this.centerCameraOnPlayer(tile, null);
+    playerTween.play();
+    await this.centerCameraOnPlayer(tile, null);
   }
 
   /*
@@ -83,45 +83,48 @@ export class BoardRenderer {
    * Moves board layer to simulat camera movement.
    * @param tile - players current tile
    */
-  public async centerCameraOnPlayer(tile: Tile, mousePos: { x: number; y: number } | null): Promise<void> {
+  public async centerCameraOnPlayer(
+    tile: Tile,
+    mousePos: { x: number; y: number } | null,
+  ): Promise<void> {
     return new Promise((resolve) => {
-    const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
+      const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
-    let panOffsetX = 0;
-    let panOffsetY = 0;
+      let panOffsetX = 0;
+      let panOffsetY = 0;
 
-    if (mousePos) {
-      const offsetXNorm = (mousePos.x - this.width / 2) / (this.width / 2);
-      const offsetYNorm = (mousePos.y - this.height / 2) / (this.height / 2);
+      if (mousePos) {
+        const offsetXNorm = (mousePos.x - this.width / 2) / (this.width / 2);
+        const offsetYNorm = (mousePos.y - this.height / 2) / (this.height / 2);
 
-      const maxPanOffset = 200;
+        const maxPanOffset = 200;
 
-      panOffsetX = offsetXNorm * maxPanOffset;
-      panOffsetY = offsetYNorm * maxPanOffset;
-    }
-
-    const targetX = -playerPos.x - panOffsetX;
-    const targetY = -playerPos.y - panOffsetY;
-
-    if (this.cameraTween) {
-      this.cameraTween.pause();
-      this.cameraTween = null;
-    }
-
-    this.cameraTween = new Konva.Tween({
-      node: this.group,
-      duration: 0.5,
-      x: targetX,
-      y: targetY,
-      easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
-      onFinish: () => {
-        this.cameraTween?.destroy();
-        resolve();
+        panOffsetX = offsetXNorm * maxPanOffset;
+        panOffsetY = offsetYNorm * maxPanOffset;
       }
-    });
 
-    this.cameraTween.play();
-    })
+      const targetX = -playerPos.x - panOffsetX;
+      const targetY = -playerPos.y - panOffsetY;
+
+      if (this.cameraTween) {
+        this.cameraTween.pause();
+        this.cameraTween = null;
+      }
+
+      this.cameraTween = new Konva.Tween({
+        node: this.group,
+        duration: 0.5,
+        x: targetX,
+        y: targetY,
+        easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+        onFinish: () => {
+          this.cameraTween?.destroy();
+          resolve();
+        },
+      });
+
+      this.cameraTween.play();
+    });
   }
 
   /*

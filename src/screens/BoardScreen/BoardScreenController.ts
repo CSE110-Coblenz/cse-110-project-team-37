@@ -33,7 +33,10 @@ export class BoardScreenController extends ScreenController {
    * Updates the position of a camera
    */
   public async updateCameraPanning(mousePos: { x: number; y: number }) {
-    await this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, mousePos);
+    await this.view.boardRenderer.centerCameraOnPlayer(
+      this.model.getPlayer().currentTile,
+      mousePos,
+    );
   }
 
   private handlePauseClick(): void {
@@ -100,25 +103,29 @@ export class BoardScreenController extends ScreenController {
     this.view.updatePhaseState(this.model.getPhase());
   }
 
-private async handleMonsterActions(): Promise<void> {
-  if (this.gameState.getTurnCount() === 2) {
-    this.view.hideButtons();
-    this.view.showMonster();
-    await Promise.resolve(this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null));
-    await SleeperService.sleep(1500);
-    await Promise.resolve(this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null));
-    this.view.updatePhaseState(this.model.getPhase());
-  }
+  private async handleMonsterActions(): Promise<void> {
+    if (this.gameState.getTurnCount() === 2) {
+      this.view.hideButtons();
+      this.view.showMonster();
+      await Promise.resolve(
+        this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null),
+      );
+      await SleeperService.sleep(1500);
+      await Promise.resolve(
+        this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null),
+      );
+      this.view.updatePhaseState(this.model.getPhase());
+    }
 
-  if (this.gameState.getTurnCount() > 2) {
-    this.model.getMonster().move();
-    this.model.getMonster().move();
-    this.model.getMonster().move();
-    this.model.getMonster().move();
+    if (this.gameState.getTurnCount() > 2) {
+      this.model.getMonster().move();
+      this.model.getMonster().move();
+      this.model.getMonster().move();
+      this.model.getMonster().move();
 
-    await this.view.updateMonsterPos(this.model.getMonster());
+      await this.view.updateMonsterPos(this.model.getMonster());
+    }
   }
-}
 
   private async checkMonsterCatch(): Promise<void> {
     if (
