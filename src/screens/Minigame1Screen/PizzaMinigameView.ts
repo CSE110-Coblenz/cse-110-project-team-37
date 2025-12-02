@@ -40,6 +40,9 @@ export class PizzaMinigameView implements View {
   private statusText!: Konva.Text;
   private pizzasCompletedText!: Konva.Text;
 
+  // track current answer choices
+  private answerChoices: Konva.Group[] = [];
+
   // Callbacks + data from controller
   private readonly onBack: () => void;
   private readonly onReset: () => void;
@@ -168,6 +171,39 @@ export class PizzaMinigameView implements View {
       stroke: "#22c55e",
       strokeWidth: 14,
       shadowColor: "#22c55e",
+      shadowBlur: 32,
+      shadowOpacity: 0.9,
+      opacity: 0.9,
+      listening: false,
+    });
+
+    this.pizzaGroup.add(glow);
+    this.group.getLayer()?.batchDraw();
+
+    const tween = new Konva.Tween({
+      node: glow,
+      duration: 0.5,
+      opacity: 0,
+      onFinish: () => {
+        glow.destroy();
+        this.group.getLayer()?.batchDraw();
+      },
+    });
+    tween.play();
+  }
+
+  /**
+   * copied positive feedback code from above to flash negative feedbakc on wrong answer
+   * probbaly could make this more efficient if necessary
+   */
+  public flashPizzaOverflow(): void {
+    const glow = new Konva.Circle({
+      x: this.pizzaCenter.x,
+      y: this.pizzaCenter.y,
+      radius: this.pizzaRadius + 24,
+      stroke: "#ef4444",
+      strokeWidth: 14,
+      shadowColor: "#ef4444",
       shadowBlur: 32,
       shadowOpacity: 0.9,
       opacity: 0.9,
@@ -365,16 +401,30 @@ export class PizzaMinigameView implements View {
         .onClick(() => this.onSliceClick(r))
         .build();
 
-      // Image slice thumbnail to the LEFT of the button
+      // percent slice image to the right of the button
       const thumbRadius = 28;
       const thumb = this.makeSliceThumbnail(
         r,
-        { x: startX - (thumbRadius * 2 + 18), y: y + (h - thumbRadius * 2) / 2 },
+        { x: startX + w + 18, y: y + (h - thumbRadius * 2) / 2 },
         thumbRadius,
       );
 
       this.uiGroup.add(thumb, btn);
+      this.answerChoices.push(thumb, btn);
     });
+  }
+
+  /**
+   * removes old answer choices, makes new ones
+   */
+  public updateButtons(newOptions: Fraction[]): void {
+    // remove old answers
+    this.answerChoices.forEach((node) => node.destroy());
+    this.answerChoices = [];
+
+    // make new answers
+    this.drawButtons(newOptions);
+    this.group.getLayer()?.batchDraw();
   }
 
   private makeSliceThumbnail(

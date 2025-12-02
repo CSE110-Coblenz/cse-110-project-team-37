@@ -1,4 +1,5 @@
 import { Fraction } from "../../models/Fraction.ts";
+import { MinigameQuestionService } from "../../services/MinigameQuestionService.ts";
 import { ScreenController } from "../../types.ts";
 
 import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
@@ -69,11 +70,15 @@ export class PizzaMinigameController extends ScreenController {
     // Draw the initial slice from 0 to `start`
     const zero = new Fraction(0, 1);
     this.view.addSliceVisual(zero, start);
+
+    // generate and show initial answer choices
+    this.refreshAnswerChoices();
   }
 
   private handleSliceClick(slice: Fraction): void {
     if (!this.model.canAdd(slice)) {
       this.view.setStatusText("That would overflow the pizza. Try a smaller slice.");
+      this.view.flashPizzaOverflow();
       return;
     }
 
@@ -93,6 +98,17 @@ export class PizzaMinigameController extends ScreenController {
       }, 500);
     } else {
       this.view.setStatusText(`Added ${slice.toString()}.`);
+      // update answer choices after each selection
+      this.refreshAnswerChoices();
     }
+  }
+
+  /**
+   * generate new answer choices, update the view
+   */
+  private refreshAnswerChoices(): void {
+    const current = this.model.getCurrent();
+    const choices = MinigameQuestionService.generateChoices(current, this.fractionOptions);
+    this.view.updateButtons(choices);
   }
 }

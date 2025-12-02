@@ -146,8 +146,8 @@ class App implements ScreenSwitcher {
         return {
           operations: ["+", "-", "*", "/"],
           numOperations: 1,
-          maxNumerator: 12,
-          maxDenominator: 12,
+          maxNumerator: 10,
+          maxDenominator: 10,
           numChoices: 4,
           commonDenominator: false,
         };
