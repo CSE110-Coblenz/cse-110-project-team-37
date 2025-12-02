@@ -14,6 +14,7 @@ export class BoardScreenModel {
   private readonly player: Player;
   private readonly monster: Player;
   private readonly startingTile: Tile;
+  private readonly minigameTile: Tile;
   private phase: BoardPhase;
   private pendingRoll: number;
 
@@ -24,7 +25,9 @@ export class BoardScreenModel {
     this.gameState = gameState;
     const boardGen = new BoardGenerator(0.4, 0.08);
 
-    this.startingTile = boardGen.generateLineBoard(40);
+    const genData = boardGen.generateLineBoard(40);
+    this.startingTile = genData.start;
+    this.minigameTile = genData.minigame;
     this.player = new Player("playboy", this.startingTile);
     this.monster = new Player("jefry", this.startingTile);
 
@@ -91,4 +94,12 @@ export class BoardScreenModel {
   getStart(): Tile {
     return this.startingTile;
   }
+
+  /*
+   * Returns the first encountered Minigame Tile.
+   */
+  getFirstMinigame(): Tile {
+    return this.minigameTile;
+  }
+  
 }

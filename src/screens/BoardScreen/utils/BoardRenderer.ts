@@ -39,7 +39,6 @@ export class BoardRenderer {
    * @param tile - players current tile
    */
   public async updatePlayer(tile: Tile): Promise<void> {
-    return new Promise((resolve) => {
       const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
       const playerTween = new Konva.Tween({
@@ -50,13 +49,11 @@ export class BoardRenderer {
         easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
         onFinish: () => {
           playerTween.destroy();
-          resolve();
         },
       });
 
       playerTween.play();
-      this.centerCameraOnPlayer(tile, null);
-    });
+      await this.centerCameraOnPlayer(tile, null);
   }
 
   /*
@@ -86,7 +83,8 @@ export class BoardRenderer {
    * Moves board layer to simulat camera movement.
    * @param tile - players current tile
    */
-  public centerCameraOnPlayer(tile: Tile, mousePos: { x: number; y: number } | null) {
+  public async centerCameraOnPlayer(tile: Tile, mousePos: { x: number; y: number } | null): Promise<void> {
+    return new Promise((resolve) => {
     const playerPos = this.boardLayout.getPosition(tile) ?? { x: 0, y: 0 };
 
     let panOffsetX = 0;
@@ -116,9 +114,14 @@ export class BoardRenderer {
       x: targetX,
       y: targetY,
       easing: Konva.Easings.EaseInOut.bind(Konva.Easings),
+      onFinish: () => {
+        this.cameraTween?.destroy();
+        resolve();
+      }
     });
 
     this.cameraTween.play();
+    })
   }
 
   /*
