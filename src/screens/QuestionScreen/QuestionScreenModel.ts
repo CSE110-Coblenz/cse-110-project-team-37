@@ -2,8 +2,10 @@ import type { Fraction } from "../../models/Fraction.ts";
 import type { Question } from "../../services/QuestionService";
 
 /**
- * note: new controller instance is created for each question, so the question
- * never changes during the screen's lifetime
+ * note: new controller instance is created for each question. this is not good 
+ * MVC i realize now (model should update state and controller should respond) but 
+ * when i was attempting to replicate lab code this made sense, as the main "game"
+ * was only played once 
  */
 export class QuestionScreenModel {
   private readonly currentQuestion: Question;
