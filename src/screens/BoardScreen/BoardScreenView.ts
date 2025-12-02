@@ -98,7 +98,9 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Roll Dice")
-      .onClick(() => {void this.onDiceClick})
+      .onClick(() => {
+        void this.onDiceClick;
+      })
       .build();
     this.viewGroup.add(this.diceButtonGroup);
 
@@ -110,7 +112,9 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Move!")
-      .onClick(() => {void this.onMoveClick})
+      .onClick(() => {
+        void this.onMoveClick;
+      })
       .build();
     this.viewGroup.add(this.moveButtonGroup);
 
@@ -150,7 +154,9 @@ export class BoardScreenView implements View {
   public updateRollState(pendingRoll: number, bonusRoll: number) {
     this.pendingRollTextGroup?.setText(pendingRoll.toString());
     this.bonusRollTextGroup?.setText(`+${bonusRoll}`);
-    void (pendingRoll === 0 ? this.pendingRollTextGroup?.hide() : this.pendingRollTextGroup?.show());
+    void (pendingRoll === 0
+      ? this.pendingRollTextGroup?.hide()
+      : this.pendingRollTextGroup?.show());
     void (bonusRoll === 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show());
   }
 
