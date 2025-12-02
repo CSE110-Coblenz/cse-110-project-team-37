@@ -20,8 +20,6 @@ export class SpaceRescueController extends ScreenController {
   private readonly model: SpaceRescueModel;
   private readonly view: SpaceRescueView;
 
-  // current state of the game
-  private readonly gameState: GameState;
   // need the screenswitcher so that we can define interactions between various scenes
   private readonly screenSwitcher: ScreenSwitcher;
 
