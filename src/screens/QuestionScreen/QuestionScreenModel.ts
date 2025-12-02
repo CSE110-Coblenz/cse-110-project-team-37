@@ -3,6 +3,9 @@ import { QuestionService } from "../../services/QuestionService.ts";
 import type { Fraction } from "../../models/Fraction.ts";
 import type { Question, QuestionConfig } from "../../services/QuestionService";
 
+/**
+ * Model manages question state and can generate new questions
+ */
 export class QuestionScreenModel {
   private currentQuestion: Question;
 
