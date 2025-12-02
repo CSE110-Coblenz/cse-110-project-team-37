@@ -5,27 +5,34 @@ import Konva from "konva";
  * Each parameter has a default, but if needed you can manually specify each of the following
  * To create desidred variant.
  *
+ * Icon svgs can be downloaded from https://lucide.dev/icons
+ *
  * Usage Example:
  *
  * const myButton = ButtonFactory.construct()
  *      .pos(this.width * 0.5, this.height * 0.1)
  *      .text("Call Saul")
+ *      .icon("/pause.svg") // pause.svg should be in the /public directory
  *      .onClick(() => console.log("calling..."))
  *      .build();
  *
  * Now just add myButton to your group and it's ready to use.
  */
-
 export class ButtonFactory {
   private dx: number = 0;
   private dy: number = 0;
   private dw: number | null = null;
   private dh: number | null = null;
-  private dtext: string = "Button";
+  private dtext: string | null = null;
   private dfont: number = 24;
   private dBBaseColor: string = "gray";
   private dBHoverColor: string = "black";
   private donClick: (() => void) | null = null;
+  private dicon: string | null = null;
+  private diconColor: string | null = null;
+  private diconWidth: number = 24;
+  private diconHeight: number = 24;
+  private diconGap: number = 8;
 
   static construct(): ButtonFactory {
     return new ButtonFactory();
@@ -97,22 +104,90 @@ export class ButtonFactory {
   }
 
   /*
+   * SVG file path (e.g., "/icons/play.svg")
+   */
+  icon(path: string): this {
+    this.dicon = path;
+    return this;
+  }
+
+  /*
+   * Icon color as CSS color value (e.g., "white", "#ffffff", "rgb(255,255,255)")
+   */
+  iconColor(color: string): this {
+    this.diconColor = color;
+    return this;
+  }
+
+  /*
+   * Icon width in pixels (default: 24)
+   */
+  iconWidth(w: number): this {
+    this.diconWidth = w;
+    return this;
+  }
+
+  /*
+   * Icon height in pixels (default: 24)
+   */
+  iconHeight(h: number): this {
+    this.diconHeight = h;
+    return this;
+  }
+
+  /*
+   * Gap between icon and text in pixels (default: 8)
+   */
+  iconGap(gap: number): this {
+    this.diconGap = gap;
+    return this;
+  }
+
+  /*
    * Constructs and returns the finihsed button group.
    */
   build(): Konva.Group {
     const button = new Konva.Group();
 
-    const buttonText = new Konva.Text({
-      text: this.dtext,
-      fontSize: this.dfont,
-      fontFamily: "Arial",
-      fill: "white",
-      align: "center",
-    });
+    const buttonText = this.dtext
+      ? new Konva.Text({
+          text: this.dtext,
+          fontSize: this.dfont,
+          fontFamily: "Arial",
+          fill: "white",
+          align: "center",
+        })
+      : null;
+
+    // Calculate dimensions including icon if present
+    const textWidth = buttonText?.width() ?? 0;
+    const textHeight = buttonText?.height() ?? 0;
+    let totalWidth = this.dw ?? textWidth + 20;
+    let totalHeight = this.dh ?? textHeight + 20;
+
+    if (this.dicon) {
+      if (textWidth > 0) {
+        // Icon + text
+        if (this.dw === null) {
+          totalWidth = textWidth + this.diconWidth + this.diconGap + 20;
+        }
+        if (this.dh === null) {
+          totalHeight = Math.max(textHeight, this.diconHeight) + 20;
+        }
+      } else {
+        // Icon only
+        if (this.dw === null) {
+          totalWidth = this.diconWidth + 20;
+        }
+        if (this.dh === null) {
+          totalHeight = this.diconHeight + 20;
+        }
+      }
+    }
 
     const buttonBack = new Konva.Rect({
-      width: this.dw ?? buttonText.width() + 20,
-      height: this.dh ?? buttonText.height() + 20,
+      width: totalWidth,
+      height: totalHeight,
       fill: this.dBBaseColor,
       cornerRadius: 10,
       stroke: "black",
@@ -120,13 +195,19 @@ export class ButtonFactory {
     });
 
     buttonBack.offsetX(buttonBack.width() / 2);
-    buttonText.offsetX(buttonText.width() / 2);
     buttonBack.offsetY(buttonBack.height() / 2);
-    buttonText.offsetY(buttonText.height() / 2);
 
     button.position({ x: this.dx, y: this.dy });
     button.add(buttonBack);
-    button.add(buttonText);
+
+    // Add icon and text based on position
+    if (this.dicon) {
+      this.addIconAndText(button, buttonText, totalWidth);
+    } else if (buttonText) {
+      buttonText.offsetX(buttonText.width() / 2);
+      buttonText.offsetY(buttonText.height() / 2);
+      button.add(buttonText);
+    }
 
     if (this.donClick) {
       button.on("click", this.donClick);
@@ -143,5 +224,126 @@ export class ButtonFactory {
     });
 
     return button;
+  }
+
+  /*
+   * Private helper to add icon and text to button with proper positioning
+   */
+  private addIconAndText(
+    button: Konva.Group,
+    buttonText: Konva.Text | null,
+    _totalWidth: number,
+  ): void {
+    if (!this.dicon) {
+      // Fallback to text only if no icon
+      if (buttonText) {
+        buttonText.offsetX(buttonText.width() / 2);
+        buttonText.offsetY(buttonText.height() / 2);
+        button.add(buttonText);
+      }
+      return;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      const iconImage = new Konva.Image({
+        image,
+        width: this.diconWidth,
+        height: this.diconHeight,
+      });
+
+      // Apply color filter if specified
+      if (this.diconColor) {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          // Draw original image
+          ctx.drawImage(image, 0, 0);
+
+          // Get image data and recolor strokes
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          // Parse the color
+          const color = this.diconColor;
+          let r = 255;
+          let g = 255;
+          let b = 255;
+
+          if (color.startsWith("#")) {
+            const hex = color.slice(1);
+            r = Number.parseInt(hex.slice(0, 2), 16);
+            g = Number.parseInt(hex.slice(2, 4), 16);
+            b = Number.parseInt(hex.slice(4, 6), 16);
+          } else if (color.startsWith("rgb")) {
+            const match = color.match(/\d+/g);
+            if (match) {
+              r = Number.parseInt(match[0]);
+              g = Number.parseInt(match[1]);
+              b = Number.parseInt(match[2]);
+            }
+          }
+
+          // Recolor non-transparent pixels to the specified color
+          for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 128) {
+              // If alpha > 128, recolor this pixel
+              data[i] = r;
+              data[i + 1] = g;
+              data[i + 2] = b;
+            }
+          }
+
+          ctx.putImageData(imageData, 0, 0);
+          iconImage.image(canvas);
+        }
+      }
+
+      // Auto-determine position: left if text present, centered if icon-only
+      const textWidth = buttonText?.width() ?? 0;
+      const hasText = buttonText && textWidth > 0;
+
+      if (hasText) {
+        // Icon to the left of text
+        const totalContentWidth = this.diconWidth + this.diconGap + textWidth;
+        const startX = -totalContentWidth / 2;
+
+        iconImage.offsetX(this.diconWidth / 2);
+        iconImage.offsetY(this.diconHeight / 2);
+        iconImage.x(startX + this.diconWidth / 2);
+        iconImage.y(0);
+
+        buttonText.offsetX(buttonText.width() / 2);
+        buttonText.offsetY(buttonText.height() / 2);
+        buttonText.x(startX + this.diconWidth + this.diconGap + textWidth / 2);
+        buttonText.y(0);
+      } else {
+        // Icon centered (no text)
+        iconImage.offsetX(this.diconWidth / 2);
+        iconImage.offsetY(this.diconHeight / 2);
+        iconImage.x(0);
+        iconImage.y(0);
+      }
+
+      button.add(iconImage);
+      if (buttonText) {
+        button.add(buttonText);
+      }
+      button.getLayer()?.batchDraw();
+    };
+
+    image.onerror = () => {
+      // Fallback to text only if image fails to load
+      if (buttonText) {
+        buttonText.offsetX(buttonText.width() / 2);
+        buttonText.offsetY(buttonText.height() / 2);
+        button.add(buttonText);
+      }
+      button.getLayer()?.batchDraw();
+    };
+
+    image.src = this.dicon;
   }
 }
