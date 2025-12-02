@@ -98,9 +98,8 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Roll Dice")
-      .onClick(() => {
-        void this.onDiceClick;
-      })
+      /* eslint-disable ts/no-misused-promises */
+      .onClick(this.onDiceClick)
       .build();
     this.viewGroup.add(this.diceButtonGroup);
 
@@ -112,9 +111,7 @@ export class BoardScreenView implements View {
       .pos(this.width * 0.5, this.height * 0.9)
       .width(200)
       .text("Move!")
-      .onClick(() => {
-        void this.onMoveClick;
-      })
+      .onClick(this.onMoveClick)
       .build();
     this.viewGroup.add(this.moveButtonGroup);
 
