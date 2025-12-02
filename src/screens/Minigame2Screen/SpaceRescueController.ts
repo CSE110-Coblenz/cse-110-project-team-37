@@ -25,16 +25,24 @@ export class SpaceRescueController extends ScreenController {
   // need the screenswitcher so that we can define interactions between various scenes
   private readonly screenSwitcher: ScreenSwitcher;
 
+  // we need the game state so we can vary minigame difficulty on chosen difficulty at the start
+  private readonly gameState: GameState;
+
   // boolean determining if the game has been started
   private gameStarted: boolean = false;
 
-  // defining our constructor, given a screen switcher object
+  // defining a sound that will be played when clicking an asteroid (idea from lab)
+  private readonly laserSound: HTMLAudioElement;
+
+  // defining our constructor, given a screen switcher object and a game state object
   constructor(screenSwitcher: ScreenSwitcher, gameState: GameState) {
     super();
-    // initialize game state object
-    this.gameState = gameState;
+
     // initialize screen switcher object
     this.screenSwitcher = screenSwitcher;
+
+    // initializing the game state
+    this.gameState = gameState;
 
     // initialize the model (starts the first round)
     this.model = new SpaceRescueModel();
@@ -44,6 +52,9 @@ export class SpaceRescueController extends ScreenController {
 
     // defining timer handler
     this.view.setTimerEndHandler(() => this.handleTimeExpired());
+
+    // defining the sound that will be played (in public folder)
+    this.laserSound = new Audio("/laser.mp3");
   }
 
   /**
@@ -64,6 +75,26 @@ export class SpaceRescueController extends ScreenController {
   }
 
   /**
+   * helper function that defines the duration of the minigame depending on the difficulty in game state
+   * @returns the duration of the minigame, in seconds
+   */
+  private getDurationByDifficulty(): number {
+    // extracting the difficulty
+    const difficulty = this.gameState.getDifficulty();
+
+    // defining minigame duration depending on difficulty
+    switch (difficulty) {
+      case "Hard":
+        return 15;
+      case "Medium":
+        return 20;
+      case "Easy":
+      default:
+        return 25;
+    }
+  }
+
+  /**
    * starting the game (after clicking start game in intro popup)
    */
   private startGame(): void {
@@ -73,8 +104,11 @@ export class SpaceRescueController extends ScreenController {
     // setting boolean value to be true
     this.gameStarted = true;
 
-    // starting the timer
-    this.view.startTimer();
+    // getting the round duration
+    const roundDuration = this.getDurationByDifficulty();
+
+    // starting the timer with specified duration
+    this.view.startTimer(roundDuration);
 
     // updating the visuals on the screen
     this.view.updateVisuals(this.model);
@@ -86,6 +120,12 @@ export class SpaceRescueController extends ScreenController {
    */
   private handleFractionClick(clickedFraction: Fraction): void {
     if (!this.gameStarted) return;
+
+    // playing the laser sound
+    void this.laserSound.play();
+
+    // allowing for multiple clicks in succession to trigger sound
+    this.laserSound.currentTime = 0;
 
     // checking if the clicked fraction is correct
     const isCorrect = this.model.checkClick(clickedFraction);
@@ -113,7 +153,7 @@ export class SpaceRescueController extends ScreenController {
       // show message with remaining lives
       this.view.displayMessage(`Incorrect! Strikes left: ${remaining}`, 400);
 
-      // if player is out of strikes → fail immediately
+      // if player is out of strikes, fail immediately
       if (this.model.isOutOfStrikes()) {
         this.view.stopTimer();
         this.view.showFailurePopup(() => {
