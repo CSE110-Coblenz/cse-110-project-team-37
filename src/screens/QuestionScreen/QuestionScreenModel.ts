@@ -1,18 +1,23 @@
-import type { Fraction } from "../../models/Fraction.ts";
-import type { Question } from "../../services/QuestionService";
+import { QuestionService } from "../../services/QuestionService.ts";
 
-/**
- * note: new controller instance is created for each question, so the question
- * never changes during the screen's lifetime
- */
+import type { Fraction } from "../../models/Fraction.ts";
+import type { Question, QuestionConfig } from "../../services/QuestionService";
+
 export class QuestionScreenModel {
-  private readonly currentQuestion: Question;
+  private currentQuestion: Question;
 
   /**
-   * constructs a new QuestionScreenModel with a question
+   * constructs a new QuestionScreenModel with an initial question
    */
   constructor(question: Question) {
     this.currentQuestion = question;
+  }
+
+  /**
+   * generates a new question using the provided configuration
+   */
+  generateNewQuestion(config: QuestionConfig): void {
+    this.currentQuestion = QuestionService.generateQuestion(config);
   }
 
   /**

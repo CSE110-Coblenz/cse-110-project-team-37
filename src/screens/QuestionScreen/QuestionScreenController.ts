@@ -17,6 +17,7 @@ export class QuestionScreenController extends ScreenController {
     this.questionConfig = questionConfig;
     this.screenSwitcher = screenSwitcher;
 
+    // initialize model with first question
     this.model = new QuestionScreenModel(QuestionService.generateQuestion(this.questionConfig));
     // intializes the view with callback handlers for user interactions
     this.view = new QuestionScreenView(
@@ -47,6 +48,14 @@ export class QuestionScreenController extends ScreenController {
    */
   private handleHelpClick(): void {
     this.screenSwitcher.switchToScreen({ type: "equation_help" });
+  }
+
+  /**
+   * generates a new question and updates the view
+   */
+  generateNewQuestion(config: QuestionConfig): void {
+    this.model.generateNewQuestion(config);
+    this.updateView();
   }
 
   /**
