@@ -23,7 +23,7 @@ export class BoardScreenModel {
    */
   constructor(gameState: GameState) {
     this.gameState = gameState;
-    const boardGen = new BoardGenerator(0.4, 0.08);
+    const boardGen = new BoardGenerator(0.3, 0.08);
 
     const genData = boardGen.generateLineBoard(40);
     this.startingTile = genData.start;

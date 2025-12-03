@@ -247,14 +247,8 @@ export class BoardRenderer {
       case "end":
         this.drawEndTile(tile, dx, dy);
         break;
-      case "minigame1":
+      case "minigame":
         this.drawMinigameTile(tile, dx, dy, "#F09090");
-        break;
-      case "minigame2":
-        this.drawMinigameTile(tile, dx, dy, "#90F090");
-        break;
-      case "minigame3":
-        this.drawMinigameTile(tile, dx, dy, "#9090F0");
         break;
       default:
         this.drawNormalTile(tile, dx, dy);

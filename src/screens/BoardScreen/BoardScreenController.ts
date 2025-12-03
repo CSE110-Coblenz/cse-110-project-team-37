@@ -80,17 +80,16 @@ export class BoardScreenController extends ScreenController {
       case "end":
         this.screenSwitcher.switchToScreen({ type: "end" });
         break;
-      case "minigame1":
-        await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({ type: "minigame1" });
-        break;
-      case "minigame2":
-        await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({ type: "minigame2" });
-        break;
-      case "minigame3":
-        await this.view.updateBoardFade(0.0, 0.8);
-        this.screenSwitcher.switchToScreen({ type: "game" });
+      case "minigame":
+        const game = DiceService.rollDice(2);
+
+        if (game === 1) {
+          await this.view.updateBoardFade(0.0, 0.8);
+          this.screenSwitcher.switchToScreen({ type: "minigame1" });
+        } else {
+          await this.view.updateBoardFade(0.0, 0.8);
+          this.screenSwitcher.switchToScreen({ type: "minigame2" });
+        }
         break;
       default:
         break;
