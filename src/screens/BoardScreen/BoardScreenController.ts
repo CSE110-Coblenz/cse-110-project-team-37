@@ -1,3 +1,4 @@
+import { DiceService } from "../../services/DiceService.ts";
 import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ScreenController, type ScreenSwitcher } from "../../types.ts";
 
@@ -118,10 +119,9 @@ export class BoardScreenController extends ScreenController {
     }
 
     if (this.gameState.getTurnCount() > 2) {
-      this.model.getMonster().move();
-      this.model.getMonster().move();
-      this.model.getMonster().move();
-      this.model.getMonster().move();
+      for (let i = 0; i < DiceService.rollDice(6); i++) {
+        this.model.getMonster().move();
+      }
 
       await this.view.updateMonsterPos(this.model.getMonster());
     }
