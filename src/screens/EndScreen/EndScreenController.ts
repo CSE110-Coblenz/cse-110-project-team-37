@@ -27,12 +27,11 @@ export class EndScreenController extends ScreenController {
   }
 
   override show(): void {
-    this.model.reset();
-    super.show();
+    this.view.getGroup().visible(true);
   }
 
   override hide(): void {
-    super.hide();
+    this.view.getGroup().visible(false);
   }
 
   /**
