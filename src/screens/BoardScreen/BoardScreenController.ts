@@ -30,7 +30,7 @@ export class BoardScreenController extends ScreenController {
   }
 
   private handlePauseClick(): void {
-    // TODO Pause placeholder
+    this.screenSwitcher.togglePause();
   }
 
   private handleDiceClick(): void {

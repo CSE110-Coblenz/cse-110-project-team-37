@@ -1,5 +1,7 @@
 import Konva from "konva";
 
+import { GameState } from "./models/GameState.ts"
+
 import { BoardScreenController } from "./screens/BoardScreen/BoardScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
@@ -7,6 +9,7 @@ import { MainMenuScreenController } from "./screens/MainMenuScreen/MainMenuScree
 import { PizzaMinigameController } from "./screens/Minigame1Screen/PizzaMinigameController.ts";
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
+import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScreenController.ts";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
@@ -25,12 +28,15 @@ class App implements ScreenSwitcher {
   private readonly stage: Konva.Stage;
   private readonly layer: Konva.Layer;
 
+  private readonly gameState: GameState;
+
   private readonly mainMenuController: MainMenuScreenController;
   private readonly boardScreenControoler: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
   private readonly pizzaMinigameController: PizzaMinigameController;
   private readonly endScreenController: EndScreenController;
   private readonly equationHelpScreenController: EquationHelpScreenController;
+  private readonly tutorialScreenController: TutorialScreenController;
 
   private gameScreenController: QuestionScreenController;
 
@@ -56,6 +62,7 @@ class App implements ScreenSwitcher {
   }
 
   constructor(container: string) {
+    this.gameState = new GameState();
     // Initialize Konva stage (the main canvas)
     this.stage = new Konva.Stage({
       container,
@@ -69,7 +76,7 @@ class App implements ScreenSwitcher {
 
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
-    this.mainMenuController = new MainMenuScreenController(this);
+    this.mainMenuController = new MainMenuScreenController(this, this.gameState);
     this.boardScreenControoler = new BoardScreenController(this);
     this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
@@ -79,6 +86,7 @@ class App implements ScreenSwitcher {
     this.pizzaMinigameController = new PizzaMinigameController(this);
     this.endScreenController = new EndScreenController(this);
     this.equationHelpScreenController = new EquationHelpScreenController(this);
+    this.tutorialScreenController = new TutorialScreenController(this);
 
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
@@ -89,6 +97,7 @@ class App implements ScreenSwitcher {
     this.layer.add(this.pizzaMinigameController.getView().getGroup());
     this.layer.add(this.endScreenController.getView().getGroup());
     this.layer.add(this.equationHelpScreenController.getView().getGroup());
+    this.layer.add(this.tutorialScreenController.getView().getGroup());
 
     // Initially show only the main menu
     this.mainMenuController.show();
@@ -98,6 +107,7 @@ class App implements ScreenSwitcher {
     this.pizzaMinigameController.hide();
     this.endScreenController.hide();
     this.equationHelpScreenController.hide();
+    this.tutorialScreenController.hide();
     this.current = "menu";
 
     // Draw the layer (render everything to the canvas)
@@ -191,6 +201,7 @@ class App implements ScreenSwitcher {
     this.pizzaMinigameController.hide();
     this.endScreenController.hide();
     this.equationHelpScreenController.hide();
+    this.tutorialScreenController.hide();
 
     // Show the requested screen based on the screen type
     switch (screen.type) {
@@ -205,7 +216,7 @@ class App implements ScreenSwitcher {
         break;
       case "game":
         // Get the configuration for the selected difficulty
-        const config = this.getDifficultyConfig(screen.difficulty);
+        const config = this.getDifficultyConfig(this.gameState.getDifficulty());
         // Remove old game view
         this.gameScreenController.getView().getGroup().remove();
         // Create a new controller with the correct difficulty config
@@ -223,6 +234,9 @@ class App implements ScreenSwitcher {
         break;
       case "equation_help":
         this.equationHelpScreenController.show();
+        break;
+      case "tutorial":
+        this.tutorialScreenController.show();
         break;
     }
 
