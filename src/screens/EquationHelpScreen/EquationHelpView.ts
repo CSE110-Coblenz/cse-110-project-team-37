@@ -102,7 +102,7 @@ export class EquationHelpScreenView implements View {
         .fontSize(24)
 
         // applying color theme
-        .backColor("red")
+        .backColor("#df1e19")
         .hoverColor("black")
 
         // attach handler
@@ -136,7 +136,7 @@ export class EquationHelpScreenView implements View {
       .height(BUTTON_HEIGHT)
       .fontSize(20)
       .backColor("black")
-      .hoverColor("red")
+      .hoverColor("#df1e19")
       .onClick(onBackClick)
       .build();
 

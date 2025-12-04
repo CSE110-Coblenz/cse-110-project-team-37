@@ -83,7 +83,7 @@ export class MainMenuScreenView implements View {
       .width(200)
       .height(60)
       .fontSize(24)
-      .backColor("red")
+      .backColor("#df1e19")
       .onClick(onStartClick)
       .build(); // Creates the final Konva.Group
 
@@ -96,7 +96,7 @@ export class MainMenuScreenView implements View {
       .width(200)
       .height(60)
       .fontSize(24)
-      .backColor("red")
+      .backColor("#df1e19")
       .onClick(onHelpClick)
       .build();
 
