@@ -65,4 +65,13 @@ export class GameState {
   public setPassedQuestion(passed: boolean): void {
     this.passedQuestion = passed;
   }
+
+  /*
+   * Resets all entries of the game state except of the selected difficulty.
+   */
+  public resetGameState(): void {
+    this.bonusRoll = 0;
+    this.turnCounter = 0;
+    this.passedQuestion = false;
+  }
 }

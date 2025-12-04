@@ -246,4 +246,16 @@ export class BoardScreenView implements View {
   getGroup(): Konva.Group {
     return this.viewGroup;
   }
+
+  /*
+   * Resets board view and all rendered elements.
+   */
+  public resetBoardView(): void {
+    this.viewGroup.destroyChildren();
+    this.boardGroup.destroyChildren();
+
+    this.viewGroup.add(this.boardGroup);
+
+    this.initializeBoard();
+  }
 }

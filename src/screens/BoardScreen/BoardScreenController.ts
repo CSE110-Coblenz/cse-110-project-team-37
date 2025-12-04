@@ -64,8 +64,8 @@ export class BoardScreenController extends ScreenController {
       // Wait until the App switches back to the board screen
 
       while (this.screenSwitcher.getCurrentScreen() !== "board") {
-        // eslint-disable-next-line no-await-in-loop
-        await Promise.resolve();
+        // // eslint-disable-next-line no-await-in-loop
+        // await Promise.resolve();
         // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
         await new Promise((res) => setTimeout(res, 100));
       }
@@ -114,6 +114,7 @@ export class BoardScreenController extends ScreenController {
     switch (cTile.getType().type) {
       case "end":
         this.screenSwitcher.switchToScreen({ type: "end" });
+        this.restBoard();
         break;
       case "minigame":
         const game = DiceService.rollDice(2);
@@ -169,6 +170,7 @@ export class BoardScreenController extends ScreenController {
       this.view.hideButtons();
       await SleeperService.sleep(1500);
       this.screenSwitcher.switchToScreen({ type: "end" });
+      this.restBoard();
     }
   }
 
@@ -179,5 +181,17 @@ export class BoardScreenController extends ScreenController {
   // Refresh the board view state (useful after overlays close)
   public refreshView(): void {
     this.view.updatePhaseState(this.model.getPhase());
+  }
+
+  /*
+   * Resets Model and View for a baord and Game State variables used in board.
+   */
+  public restBoard(): void {
+    this.gameState.resetGameState();
+    this.model.resetBoardModel();
+    this.view.resetBoardView();
+
+    void this.view.updatePlayerPos(this.model.getPlayer());
+    void this.view.updateMonsterPos(this.model.getMonster());
   }
 }
