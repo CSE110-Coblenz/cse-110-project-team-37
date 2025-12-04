@@ -59,7 +59,8 @@ export class PizzaMinigameController extends ScreenController {
       },
       onStart: () => {
         // begin the minigame after start click
-        this.startMinigame()},
+        this.startMinigame();
+      },
     });
   }
 
@@ -137,7 +138,7 @@ export class PizzaMinigameController extends ScreenController {
    * start game timer
    */
   private startTimer(): void {
-    this.stopTimer()
+    this.stopTimer();
     this.timeRemaining = PizzaMinigameController.GAME_DURATION;
     this.isGameActive = true;
     this.view.updateTimer(this.timeRemaining);
@@ -183,8 +184,7 @@ export class PizzaMinigameController extends ScreenController {
    * Method to manually start a pizza minigame.
    */
   public startMinigame(): void {
-        this.startTimer();
-        this.startNewPizza();
+    this.startTimer();
+    this.startNewPizza();
   }
-
 }
