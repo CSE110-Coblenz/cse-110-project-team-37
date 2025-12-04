@@ -1,7 +1,9 @@
 // screens/PauseScreen/PauseScreenView.ts
 import Konva from "konva";
-import type { View } from "../../types.ts";
+
 import { ButtonFactory } from "../../util/ButtonFactory.ts";
+
+import type { View } from "../../types.ts";
 
 export class PauseScreenView implements View {
   private readonly onResume: () => void;
@@ -10,11 +12,7 @@ export class PauseScreenView implements View {
 
   private readonly group: Konva.Group;
 
-  constructor(
-    onResume: () => void,
-    onHelp: () => void,
-    onQuit: () => void,
-  ) {
+  constructor(onResume: () => void, onHelp: () => void, onQuit: () => void) {
     this.onResume = onResume;
     this.onHelp = onHelp;
     this.onQuit = onQuit;

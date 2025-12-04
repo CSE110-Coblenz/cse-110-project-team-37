@@ -21,7 +21,7 @@ export class PauseScreenController extends ScreenController {
     this.view = new PauseScreenView(
       () => this.handleResume(),
       () => this.handleHelp(),
-      () => this.handleQuit()
+      () => this.handleQuit(),
     );
   }
 

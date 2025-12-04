@@ -1,7 +1,6 @@
 import Konva from "konva";
 
-import { GameState } from "./models/GameState.ts"
-
+import { GameState } from "./models/GameState.ts";
 import { BoardScreenController } from "./screens/BoardScreen/BoardScreenController.ts";
 import { EndScreenController } from "./screens/EndScreen/EndScreenController.ts";
 import { EquationHelpScreenController } from "./screens/EquationHelpScreen/EquationHelpController.ts";
@@ -47,18 +46,20 @@ class App implements ScreenSwitcher {
   // pause function
   togglePause() {
     // If we're already on pause, go back to wherever we paused from
-      if (this.current === "pause") {
-        if (this.previous) { 
-          this.switchToScreen({ type: this.previous });
-        }
-        return;
+    if (this.current === "pause") {
+      if (this.previous) {
+        this.switchToScreen({ type: this.previous });
       }
-      else if (this.current === "game" || this.current === "board"
-        || this.current == "minigame1" || this.current === "minigame2") {
-          // If we're on any other screen, remember it and go to pause
-          this.previous = this.current;
-          this.switchToScreen({ type: "pause" })
-      }
+    } else if (
+      this.current === "game" ||
+      this.current === "board" ||
+      this.current == "minigame1" ||
+      this.current === "minigame2"
+    ) {
+      // If we're on any other screen, remember it and go to pause
+      this.previous = this.current;
+      this.switchToScreen({ type: "pause" });
+    }
   }
 
   constructor(container: string) {
@@ -112,7 +113,6 @@ class App implements ScreenSwitcher {
 
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
-
 
     // ESC toggles game <-> pause (only when in those states)
     window.addEventListener("keydown", (e) => {
@@ -248,4 +248,3 @@ class App implements ScreenSwitcher {
 // Initialize the application
 // eslint-disable-next-line no-new
 new App("app");
-  
