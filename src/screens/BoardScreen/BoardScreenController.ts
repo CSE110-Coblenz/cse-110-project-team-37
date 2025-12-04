@@ -64,16 +64,22 @@ export class BoardScreenController extends ScreenController {
       // Wait until the App switches back to the board screen
 
       while (this.screenSwitcher.getCurrentScreen() !== "board") {
-        // // eslint-disable-next-line no-await-in-loop
-        // await Promise.resolve();
-        // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
-        await new Promise((res) => setTimeout(res, 100));
+        // eslint-disable-next-line no-await-in-loop
+        await SleeperService.sleep(100);
       }
 
       passed = this.gameState.hasPassedQuestion();
     }
 
     if (passed) {
+      /*
+       * Not sure why exactly, but awaiting for response
+       * from question screen would sometimes arrive as we press
+       * roll dice button, causing the button to apper during the roll animation.
+       * Thus to avoid user accidentally clicking it, we forcefully hide them
+       * before any animations start.
+       */
+      this.view.hideButtons();
       // Player passed — perform normal roll and movement
       this.model.roll();
       this.model.setPhase("move");
@@ -87,6 +93,7 @@ export class BoardScreenController extends ScreenController {
       await this.checkMonsterCatch();
       this.view.updatePhaseState(this.model.getPhase());
     } else {
+      this.view.hideButtons();
       // Player failed — skip their move and immediately run monster actions
       this.gameState.incrementTurn();
       await this.handleMonsterActions();
@@ -118,12 +125,10 @@ export class BoardScreenController extends ScreenController {
         break;
       case "minigame":
         const game = DiceService.rollDice(2);
-
+        await this.view.updateBoardFade(0.0, 0.8);
         if (game === 1) {
-          await this.view.updateBoardFade(0.0, 0.8);
           this.screenSwitcher.switchToScreen({ type: "minigame1" });
         } else {
-          await this.view.updateBoardFade(0.0, 0.8);
           this.screenSwitcher.switchToScreen({ type: "minigame2" });
         }
         break;
