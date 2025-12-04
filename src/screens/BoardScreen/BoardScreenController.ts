@@ -45,34 +45,35 @@ export class BoardScreenController extends ScreenController {
   }
 
   private async handleDiceClick(): Promise<void> {
-    // When dice is clicked, present the question minigame first.
-    // The Question screen will set `gameState.passedQuestion` and
-    // switch back to the board when complete. We wait for that
-    // navigation to finish, then branch based on the flag.
+    // Present the question as an overlay and await the result.
     this.view.hideButtons();
 
     // Reset the flag before presenting the question
     this.gameState.setPassedQuestion(false);
 
-    // Navigate to question screen
-    this.screenSwitcher.switchToScreen({ type: "game" });
+    let passed = false;
 
-    // Wait until the App switches back to the board screen
-    // Polling with short sleeps is fine here since there is no
-    // callback hook on ScreenSwitcher.
+    // If the ScreenSwitcher provides presentQuestion, use it (preferred)
+    // otherwise fall back to the older polling behavior.
+    if (typeof this.screenSwitcher.presentQuestion === "function") {
+      passed = await this.screenSwitcher.presentQuestion();
+    } else {
+      // Fallback: show question screen and poll for return to board
+      this.screenSwitcher.switchToScreen({ type: "game" });
 
-    while (this.screenSwitcher.getCurrentScreen() !== "board") {
-      // small delay to avoid tight loop
-      // eslint-disable-next-line no-await-in-loop
-      await Promise.resolve();
-      // Use a slightly longer tick to avoid burning CPU
+      // Wait until the App switches back to the board screen
 
-      // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
-      await new Promise((res) => setTimeout(res, 100));
+      while (this.screenSwitcher.getCurrentScreen() !== "board") {
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.resolve();
+        // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+        await new Promise((res) => setTimeout(res, 100));
+      }
+
+      passed = this.gameState.hasPassedQuestion();
     }
 
-    // At this point the QuestionScreen returned us to the board.
-    if (this.gameState.hasPassedQuestion()) {
+    if (passed) {
       // Player passed — perform normal roll and movement
       this.model.roll();
       this.model.setPhase("move");
@@ -173,5 +174,10 @@ export class BoardScreenController extends ScreenController {
 
   getView(): BoardScreenView {
     return this.view;
+  }
+
+  // Refresh the board view state (useful after overlays close)
+  public refreshView(): void {
+    this.view.updatePhaseState(this.model.getPhase());
   }
 }

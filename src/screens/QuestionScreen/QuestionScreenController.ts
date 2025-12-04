@@ -13,6 +13,7 @@ export class QuestionScreenController extends ScreenController {
   private readonly questionConfig: QuestionConfig;
   private readonly screenSwitcher: ScreenSwitcher;
   private readonly gameState: GameState;
+  private readonly onComplete?: (passed: boolean) => void;
 
   // private readonly screenSwitcher: ScreenSwitcher;
 
@@ -20,12 +21,14 @@ export class QuestionScreenController extends ScreenController {
     screenSwitcher: ScreenSwitcher,
     questionConfig: QuestionConfig,
     gameState: GameState,
+    onComplete?: (passed: boolean) => void,
   ) {
     super(); // must use this cause GameScreenController extends ScreenController
     // this.screenSwitcher = screenSwitcher;
     this.questionConfig = questionConfig;
     this.screenSwitcher = screenSwitcher;
     this.gameState = gameState;
+    this.onComplete = onComplete;
 
     // generate new question and initialize model
     this.model = new QuestionScreenModel(QuestionService.generateQuestion(this.questionConfig));
@@ -41,18 +44,17 @@ export class QuestionScreenController extends ScreenController {
   private handleAnswerClick(index: number): void {
     const isCorrect = this.model.checkAnswer(index);
 
-    if (isCorrect) {
-      this.model.incrementScore();
-      this.gameState.setPassedQuestion(true);
-    }
+    // record result
+    this.gameState.setPassedQuestion(isCorrect);
 
     this.view.flashFeedback(isCorrect, index);
 
-    // After feedback, switch to score screen
+    // hide popup after feedback and notify caller if provided
     setTimeout(() => {
-      // this.model.setQuestion(QuestionService.generateQuestion(this.questionConfig));
-      // this.updateView();
-      this.screenSwitcher.switchToScreen({ type: "board" });
+      this.view.hide();
+      if (this.onComplete) {
+        this.onComplete(isCorrect);
+      }
     }, 500);
   }
 

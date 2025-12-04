@@ -24,6 +24,7 @@ export type Screen =
   | { type: "menu" }
   | { type: "board" }
   | { type: "game" }
+  | { type: "help" }
   | { type: "pause" }
   | { type: "end" }
   | { type: "equation_help" }
@@ -47,4 +48,6 @@ export type ScreenSwitcher = {
   switchToScreen: (screen: Screen) => void;
   // Returns the currently visible screen type (e.g. 'board', 'game')
   getCurrentScreen: () => Screen["type"];
+  // Present the question overlay and return a promise resolved with whether the player passed
+  presentQuestion?: () => Promise<boolean>;
 };
