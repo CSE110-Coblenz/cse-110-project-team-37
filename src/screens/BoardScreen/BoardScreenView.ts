@@ -59,17 +59,16 @@ export class BoardScreenView implements View {
     this.drawDiceButton();
   }
 
-  // TODO Create a Button factory to avoid duplicates as this
   private drawPauseButton(): void {
     const pauseButtonGroup = ButtonFactory.construct()
       .pos(this.width * 0.9, this.height * 0.1)
-      .text("Pause")
+      .icon("/pause.svg")
+      .iconColor("white")
       .onClick(this.onPauseClick)
       .build();
     this.viewGroup.add(pauseButtonGroup);
   }
 
-  // TODO Create a Button factory to avoid duplicates as this
   private drawDiceButton(): void {
     const diceButtonGroup = ButtonFactory.construct()
       .pos(this.width * 0.5, this.height * 0.9)
