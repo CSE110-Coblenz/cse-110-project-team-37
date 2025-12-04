@@ -51,7 +51,7 @@ export class EquationHelpScreenController extends ScreenController {
     this.view.hide();
 
     // go back to question screen
-    this.screenSwitcher.switchToScreen({ type: "game" });
+    this.screenSwitcher.switchToScreen({ type: "pause" });
   }
 
   /**

@@ -29,14 +29,11 @@ export class PauseScreenController extends ScreenController {
   }
 
   private handleResume(): void {
-    this.screenSwitcher.switchToScreen({
-      type: "game",
-      difficulty: this.difficulty,
-    });
+    this.screenSwitcher.togglePause();
   }
 
   private handleHelp(): void {
-    this.screenSwitcher.switchToScreen({ type: "help" });
+    this.screenSwitcher.switchToScreen({ type: "equation_help" });
   }
 
   private handleRestart(): void {
