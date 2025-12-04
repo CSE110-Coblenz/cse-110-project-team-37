@@ -45,19 +45,53 @@ export class BoardScreenController extends ScreenController {
   }
 
   private async handleDiceClick(): Promise<void> {
+    // When dice is clicked, present the question minigame first.
+    // The Question screen will set `gameState.passedQuestion` and
+    // switch back to the board when complete. We wait for that
+    // navigation to finish, then branch based on the flag.
     this.view.hideButtons();
 
-    this.model.roll();
-    this.model.setPhase("move");
+    // Reset the flag before presenting the question
+    this.gameState.setPassedQuestion(false);
 
-    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
-    await this.view.animateDiceJiggle(40);
-    this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+    // Navigate to question screen
+    this.screenSwitcher.switchToScreen({ type: "game" });
 
-    this.gameState.incrementTurn();
-    await this.handleMonsterActions();
-    await this.checkMonsterCatch();
-    this.view.updatePhaseState(this.model.getPhase());
+    // Wait until the App switches back to the board screen
+    // Polling with short sleeps is fine here since there is no
+    // callback hook on ScreenSwitcher.
+
+    while (this.screenSwitcher.getCurrentScreen() !== "board") {
+      // small delay to avoid tight loop
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.resolve();
+      // Use a slightly longer tick to avoid burning CPU
+
+      // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+      await new Promise((res) => setTimeout(res, 100));
+    }
+
+    // At this point the QuestionScreen returned us to the board.
+    if (this.gameState.hasPassedQuestion()) {
+      // Player passed — perform normal roll and movement
+      this.model.roll();
+      this.model.setPhase("move");
+
+      this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+      await this.view.animateDiceJiggle(40);
+      this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+
+      this.gameState.incrementTurn();
+      await this.handleMonsterActions();
+      await this.checkMonsterCatch();
+      this.view.updatePhaseState(this.model.getPhase());
+    } else {
+      // Player failed — skip their move and immediately run monster actions
+      this.gameState.incrementTurn();
+      await this.handleMonsterActions();
+      await this.checkMonsterCatch();
+      this.view.updatePhaseState(this.model.getPhase());
+    }
   }
 
   private async handleMoveClick(): Promise<void> {

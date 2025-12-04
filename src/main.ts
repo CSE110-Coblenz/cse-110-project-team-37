@@ -242,6 +242,11 @@ class App implements ScreenSwitcher {
     this.current = screen.type;
     this.layer.draw();
   }
+
+  // Expose current screen for controllers that need to wait on navigation
+  getCurrentScreen(): Screen["type"] {
+    return this.current;
+  }
 }
 
 // Initialize the application

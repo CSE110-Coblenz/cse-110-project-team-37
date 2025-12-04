@@ -4,6 +4,7 @@ export class GameState {
   private difficulty: Difficulty;
   private bonusRoll: number;
   private turnCounter: number;
+  private passedQuestion: boolean;
 
   /*
    * Constructor for class.
@@ -12,6 +13,7 @@ export class GameState {
     this.difficulty = "Easy";
     this.bonusRoll = 0;
     this.turnCounter = 0;
+    this.passedQuestion = false;
   }
 
   /*
@@ -54,5 +56,13 @@ export class GameState {
    */
   public incrementTurn(): void {
     this.turnCounter += 1;
+  }
+
+  public hasPassedQuestion(): boolean {
+    return this.passedQuestion;
+  }
+
+  public setPassedQuestion(passed: boolean): void {
+    this.passedQuestion = passed;
   }
 }

@@ -43,16 +43,17 @@ export class QuestionScreenController extends ScreenController {
 
     if (isCorrect) {
       this.model.incrementScore();
-      // After feedback, switch to score screen
-      this.gameState.addBonus(2);
-      setTimeout(() => {
-        // this.model.setQuestion(QuestionService.generateQuestion(this.questionConfig));
-        // this.updateView();
-        this.screenSwitcher.switchToScreen({ type: "board" });
-      }, 500);
+      this.gameState.setPassedQuestion(true);
     }
 
     this.view.flashFeedback(isCorrect, index);
+
+    // After feedback, switch to score screen
+    setTimeout(() => {
+      // this.model.setQuestion(QuestionService.generateQuestion(this.questionConfig));
+      // this.updateView();
+      this.screenSwitcher.switchToScreen({ type: "board" });
+    }, 500);
   }
 
   // making sure that help button leads to right place

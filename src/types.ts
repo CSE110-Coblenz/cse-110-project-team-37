@@ -45,4 +45,6 @@ export abstract class ScreenController {
 
 export type ScreenSwitcher = {
   switchToScreen: (screen: Screen) => void;
+  // Returns the currently visible screen type (e.g. 'board', 'game')
+  getCurrentScreen: () => Screen["type"];
 };
