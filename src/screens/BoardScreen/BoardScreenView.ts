@@ -1,5 +1,6 @@
 import Konva from "konva";
 
+import { DiceRenderer } from "../../components/DiceRenderer.ts";
 import { DiceService } from "../../services/DiceService.ts";
 import { SleeperService } from "../../services/SleeperSerive.ts";
 import { ButtonFactory } from "../../util/ButtonFactory.ts";
@@ -10,7 +11,6 @@ import type { View } from "../../types.ts";
 import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
 import type { Tile } from "./containers/Tile.ts";
-import { DiceRenderer } from "../../components/DiceRenderer.ts";
 
 export class BoardScreenView implements View {
   private readonly width = window.innerWidth;
@@ -47,7 +47,12 @@ export class BoardScreenView implements View {
     this.viewGroup.add(this.boardGroup);
 
     this.boardRenderer = new BoardRenderer(this.boardGroup, this.width, this.height);
-    this.diceRenderer = new DiceRenderer({x: this.width * 0.498, y: this.height * 0.75, size: 60, parent: this.viewGroup});
+    this.diceRenderer = new DiceRenderer({
+      x: this.width * 0.498,
+      y: this.height * 0.75,
+      size: 60,
+      parent: this.viewGroup,
+    });
 
     this.model = model;
     this.onPauseClick = onPauseClick;
