@@ -53,7 +53,7 @@ class App implements ScreenSwitcher {
     } else if (
       this.current === "game" ||
       this.current === "board" ||
-      this.current == "minigame1" ||
+      this.current === "minigame1" ||
       this.current === "minigame2"
     ) {
       // If we're on any other screen, remember it and go to pause
