@@ -1,5 +1,3 @@
-/* eslint-disable ts/unbound-method */
-
 import Konva from "konva";
 
 import { DiceService } from "../services/DiceService.ts";
@@ -80,6 +78,7 @@ export class DiceRenderer {
   /**
    * Roll the dice with animation and return the rolled value
    */
+  /* eslint-disable ts/unbound-method */
   roll = (sides = 6): number => {
     const value = DiceService.rollDice(sides);
 
