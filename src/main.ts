@@ -182,6 +182,7 @@ class App implements ScreenSwitcher {
         };
     }
   }
+  // filler comment
 
   /**
    * Switch to a different screen
