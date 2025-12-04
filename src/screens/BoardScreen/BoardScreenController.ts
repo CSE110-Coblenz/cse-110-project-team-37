@@ -85,7 +85,9 @@ export class BoardScreenController extends ScreenController {
       this.model.setPhase("move");
 
       this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
+      await this.view.diceRenderer.roll();
       await this.view.animateDiceJiggle(40);
+      this.view.diceRenderer.setFace(this.model.getRoll());
       this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
 
       this.gameState.incrementTurn();

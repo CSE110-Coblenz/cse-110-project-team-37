@@ -10,6 +10,7 @@ import type { View } from "../../types.ts";
 import type { BoardPhase, BoardScreenModel } from "./BoardScreenModel.ts";
 import type { Player } from "./containers/Player.ts";
 import type { Tile } from "./containers/Tile.ts";
+import { DiceRenderer } from "../../components/DiceRenderer.ts";
 
 export class BoardScreenView implements View {
   private readonly width = window.innerWidth;
@@ -21,6 +22,7 @@ export class BoardScreenView implements View {
   private readonly boardGroup: Konva.Group;
 
   public readonly boardRenderer: BoardRenderer;
+  public readonly diceRenderer: DiceRenderer;
 
   private readonly model: BoardScreenModel;
   private readonly onPauseClick: () => void;
@@ -45,6 +47,7 @@ export class BoardScreenView implements View {
     this.viewGroup.add(this.boardGroup);
 
     this.boardRenderer = new BoardRenderer(this.boardGroup, this.width, this.height);
+    this.diceRenderer = new DiceRenderer({x: this.width * 0.498, y: this.height * 0.75, size: 60, parent: this.viewGroup});
 
     this.model = model;
     this.onPauseClick = onPauseClick;
@@ -81,6 +84,7 @@ export class BoardScreenView implements View {
     this.drawBonusRollText();
 
     this.diceButtonGroup?.show();
+    this.boardRenderer.renderedMonster.moveToTop();
     this.boardRenderer.renderedMonster.hide();
   }
 
@@ -157,6 +161,9 @@ export class BoardScreenView implements View {
     void (pendingRoll === 0
       ? this.pendingRollTextGroup?.hide()
       : this.pendingRollTextGroup?.show());
+    void (pendingRoll === 0
+      ? this.diceRenderer?.getGroup().hide()
+      : this.diceRenderer?.setFace(pendingRoll));
     void (bonusRoll === 0 ? this.bonusRollTextGroup?.hide() : this.bonusRollTextGroup?.show());
   }
 
@@ -168,6 +175,7 @@ export class BoardScreenView implements View {
       this.diceButtonGroup?.show();
       this.moveButtonGroup?.hide();
     }
+    this.diceRenderer.getGroup().show();
   }
 
   /*
