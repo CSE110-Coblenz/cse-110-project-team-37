@@ -28,7 +28,7 @@ class App implements ScreenSwitcher {
   private readonly layer: Konva.Layer;
 
   private readonly gameState: GameState;
-  private storedGameController: any;
+  private storedGameController: QuestionScreenController | null = null;
 
   private readonly mainMenuController: MainMenuScreenController;
   private readonly boardScreenControoler: BoardScreenController;
