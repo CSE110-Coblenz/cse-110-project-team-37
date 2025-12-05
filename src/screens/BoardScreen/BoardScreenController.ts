@@ -148,17 +148,11 @@ export class BoardScreenController extends ScreenController {
     if (this.gameState.getTurnCount() === 2) {
       this.view.hideButtons();
       this.view.showMonster();
-    // fix
-    await this.view.boardRenderer.centerCameraOnPlayer(
-      this.model.getMonster().currentTile,
-      null
-    );
-    await SleeperService.sleep(1500);
-    // fix
-    await this.view.boardRenderer.centerCameraOnPlayer(
-      this.model.getPlayer().currentTile,
-      null
-    );
+      // fix
+      await this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null);
+      await SleeperService.sleep(1500);
+      // fix
+      await this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null);
       this.view.updatePhaseState(this.model.getPhase());
     }
 
