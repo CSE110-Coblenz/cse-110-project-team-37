@@ -34,10 +34,7 @@ export class BoardScreenController extends ScreenController {
    * Updates the position of a camera
    */
   public async updateCameraPanning(mousePos: { x: number; y: number }) {
-    await this.view.boardRenderer.centerCameraOnPlayer(
-      this.model.getPlayer().currentTile,
-      mousePos,
-    );
+    this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, mousePos);
   }
 
   private handlePauseClick(): void {
@@ -150,14 +147,10 @@ export class BoardScreenController extends ScreenController {
     if (this.gameState.getTurnCount() === 2) {
       this.view.hideButtons();
       this.view.showMonster();
-      await Promise.resolve(
-        this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null),
-      );
-      await SleeperService.sleep(1500);
-      await Promise.resolve(
-        this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null),
-      );
-      this.view.updatePhaseState(this.model.getPhase());
+      (this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null),
+        await SleeperService.sleep(1500));
+      (this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null),
+        this.view.updatePhaseState(this.model.getPhase()));
     }
 
     if (this.gameState.getTurnCount() > 2) {
