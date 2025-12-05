@@ -8,6 +8,9 @@ import { PizzaMinigameView } from "./PizzaMinigameView.ts";
 import type { GameState } from "../../models/GameState.ts";
 import type { ScreenSwitcher } from "../../types.ts";
 
+import { soundManager } from "../../util/SoundManager.ts";
+
+
 export class PizzaMinigameController extends ScreenController {
   private readonly view: PizzaMinigameView;
   private readonly screenSwitcher: ScreenSwitcher;
@@ -97,6 +100,7 @@ export class PizzaMinigameController extends ScreenController {
     }
 
     if (!this.model.canAdd(slice)) {
+      soundManager.playFail();
       this.view.setStatusText("That would overflow the pizza. Try a smaller slice.");
       this.view.flashPizzaOverflow();
       return;
@@ -108,6 +112,7 @@ export class PizzaMinigameController extends ScreenController {
     this.view.setCurrentFractionText(next);
 
     if (completed) {
+      soundManager.playSuccess();
       this.view.setStatusText("Perfect! Pizza completed!");
       this.view.updatePizzasCompleted(this.model.getPizzasCompleted());
       this.view.flashPizzaSuccess();

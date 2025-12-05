@@ -7,6 +7,8 @@ import { QuestionScreenView } from "./QuestionScreenView.ts";
 import type { GameState } from "../../models/GameState.ts";
 import type { ScreenSwitcher } from "../../types.ts";
 
+import { soundManager } from "../../util/SoundManager.ts";
+
 export class QuestionScreenController extends ScreenController {
   private readonly model: QuestionScreenModel;
   private readonly view: QuestionScreenView;
@@ -43,6 +45,12 @@ export class QuestionScreenController extends ScreenController {
 
   private handleAnswerClick(index: number): void {
     const isCorrect = this.model.checkAnswer(index);
+
+    if (isCorrect) {
+      soundManager.playSuccess();
+    } else {
+      soundManager.playFail();
+    }
 
     // record result
     this.gameState.setPassedQuestion(isCorrect);

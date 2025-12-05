@@ -14,6 +14,9 @@ import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScree
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
 
+import { soundManager } from "./util/SoundManager";
+import { MusicManager } from "./util/MusicManager";
+
 /**
  * Main Application - Coordinates all screens
  *
@@ -75,6 +78,29 @@ class App implements ScreenSwitcher {
       width: window.innerWidth,
       height: window.innerHeight,
     });
+
+   this.stage.on("mouseover", (e) => {
+  const t = e.target as Konva.Node;
+  if (!t) return;
+
+  const group = t.getParent();
+  if (t.getAttr("isButton") || group?.getAttr("isButton")) {
+    soundManager.playHover();
+  }
+});
+
+this.stage.on("mousedown", (e) => {
+  const t = e.target as Konva.Node;
+  if (!t) return;
+
+  const group = t.getParent();
+  if (t.getAttr("isButton") || group?.getAttr("isButton")) {
+    soundManager.playClick();
+  }
+});
+
+
+
 
     // Initiailize difficulty
     //this.currentDifficulty = "Easy";
@@ -353,3 +379,6 @@ class App implements ScreenSwitcher {
 // Initialize the application
 // eslint-disable-next-line no-new
 new App("app");
+
+// Start background music immediately (autoplay hack handled inside)
+new MusicManager("./bg-music.mp3");

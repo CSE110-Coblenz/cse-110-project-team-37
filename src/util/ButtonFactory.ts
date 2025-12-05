@@ -223,6 +223,10 @@ export class ButtonFactory {
       buttonBack.getLayer()?.batchDraw();
     });
 
+    button.setAttr("isButton", true);
+    button.listening(true);
+    buttonBack.listening(true);
+    if (buttonText) buttonText.listening(true);
     return button;
   }
 
