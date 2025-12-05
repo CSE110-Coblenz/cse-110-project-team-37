@@ -1,5 +1,6 @@
 import { type QuestionConfig, QuestionService } from "../../services/QuestionService.ts";
 import { ScreenController } from "../../types.ts";
+import { soundManager } from "../../util/SoundManager.ts";
 
 import { QuestionScreenModel } from "./QuestionScreenModel.ts";
 import { QuestionScreenView } from "./QuestionScreenView.ts";
@@ -43,6 +44,12 @@ export class QuestionScreenController extends ScreenController {
 
   private handleAnswerClick(index: number): void {
     const isCorrect = this.model.checkAnswer(index);
+
+    if (isCorrect) {
+      soundManager.playSuccess();
+    } else {
+      soundManager.playFail();
+    }
 
     // record result
     this.gameState.setPassedQuestion(isCorrect);

@@ -1,6 +1,7 @@
 import { Fraction } from "../../models/Fraction.ts";
 import { MinigameQuestionService } from "../../services/MinigameQuestionService.ts";
 import { ScreenController } from "../../types.ts";
+import { soundManager } from "../../util/SoundManager.ts";
 
 import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
 import { PizzaMinigameView } from "./PizzaMinigameView.ts";
@@ -97,6 +98,7 @@ export class PizzaMinigameController extends ScreenController {
     }
 
     if (!this.model.canAdd(slice)) {
+      soundManager.playFail();
       this.view.setStatusText("That would overflow the pizza. Try a smaller slice.");
       this.view.flashPizzaOverflow();
       return;
@@ -108,6 +110,7 @@ export class PizzaMinigameController extends ScreenController {
     this.view.setCurrentFractionText(next);
 
     if (completed) {
+      soundManager.playSuccess();
       this.view.setStatusText("Perfect! Pizza completed!");
       this.view.updatePizzasCompleted(this.model.getPizzasCompleted());
       this.view.flashPizzaSuccess();
