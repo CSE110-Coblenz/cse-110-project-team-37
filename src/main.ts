@@ -28,6 +28,7 @@ class App implements ScreenSwitcher {
   private readonly layer: Konva.Layer;
 
   private readonly gameState: GameState;
+  private storedGameController: any;
 
   private readonly mainMenuController: MainMenuScreenController;
   private readonly boardScreenControoler: BoardScreenController;
@@ -78,11 +79,12 @@ class App implements ScreenSwitcher {
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
-    this.boardScreenControoler = new BoardScreenController(this);
+    this.boardScreenControoler = new BoardScreenController(this, this.gameState);
     this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
+      this.gameState,
     );
     this.pizzaMinigameController = new PizzaMinigameController(this, this.gameState);
     this.endScreenController = new EndScreenController(this);
