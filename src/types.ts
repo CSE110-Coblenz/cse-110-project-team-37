@@ -52,4 +52,6 @@ export type ScreenSwitcher = {
   // Present the question overlay and return a promise resolved with whether the player passed
   presentQuestion?: () => Promise<boolean>;
   resetBoard: () => void;
+
+  forceQuitAllMinigames: () => void;
 };

@@ -282,6 +282,21 @@ class App implements ScreenSwitcher {
     this.boardScreenController.resetBoard();
 }
 
+  forceQuitAllMinigames(): void {
+    // Space Rescue
+    this.minigame2Controller.forceQuit?.();
+
+    // Pizza Minigame
+    this.pizzaMinigameController.forceQuit?.();
+
+    // Question popup (just hide it)
+    try {
+      this.gameScreenController.hide();
+    } catch {}
+
+    this.boardScreenController.resetBoard();
+  }
+
   // Present the question overlay and resolve when it completes.
   // Returns true if the player answered correctly, false otherwise.
   async presentQuestion(): Promise<boolean> {

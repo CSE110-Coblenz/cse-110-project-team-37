@@ -187,4 +187,19 @@ export class SpaceRescueController extends ScreenController {
   public hide(): void {
     this.view.hide();
   }
+
+  public forceQuit(): void {
+    // stop timer if running
+    this.view.stopTimer();
+
+    // prevent further clicks
+    this.gameStarted = false;
+
+    // hide all popups
+    this.view.hideIntroDialogue();
+    this.view.hideEndPopup();
+
+    // hide the whole minigame screen
+    this.hide();
+  }
 }
