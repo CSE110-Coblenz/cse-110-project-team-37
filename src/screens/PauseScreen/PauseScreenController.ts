@@ -35,6 +35,7 @@ export class PauseScreenController extends ScreenController {
 
   private handleQuit(): void {
     this.screenSwitcher.switchToScreen({ type: "menu" });
+    this.screenSwitcher.resetBoard();
   }
 
   getView(): PauseScreenView {

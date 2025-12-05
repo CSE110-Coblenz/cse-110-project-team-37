@@ -31,7 +31,7 @@ class App implements ScreenSwitcher {
   private readonly gameState: GameState;
 
   private readonly mainMenuController: MainMenuScreenController;
-  private readonly boardScreenControoler: BoardScreenController;
+  private readonly boardScreenController: BoardScreenController;
   private readonly pauseScreenController: PauseScreenController;
   private readonly pizzaMinigameController: PizzaMinigameController;
   private readonly endScreenController: EndScreenController;
@@ -87,7 +87,7 @@ class App implements ScreenSwitcher {
     // Initialize all screen controllers
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
-    this.boardScreenControoler = new BoardScreenController(this, this.gameState);
+    this.boardScreenController = new BoardScreenController(this, this.gameState);
     this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
       this,
@@ -103,7 +103,7 @@ class App implements ScreenSwitcher {
     // Add all screen groups to the layer
     // All screens exist simultaneously but only one is visible at a time
     this.layer.add(this.mainMenuController.getView().getGroup());
-    this.layer.add(this.boardScreenControoler.getView().getGroup());
+    this.layer.add(this.boardScreenController.getView().getGroup());
     this.layer.add(this.pauseScreenController.getView().getGroup());
     this.layer.add(this.gameScreenController.getView().getGroup());
     this.layer.add(this.pizzaMinigameController.getView().getGroup());
@@ -115,7 +115,7 @@ class App implements ScreenSwitcher {
     // start on main menu
     this.mainMenuController.show();
     this.pauseScreenController.hide();
-    this.boardScreenControoler.hide();
+    this.boardScreenController.hide();
     this.pizzaMinigameController.hide();
     this.endScreenController.hide();
     this.tutorialScreenController.hide();
@@ -198,7 +198,7 @@ class App implements ScreenSwitcher {
     this.mainMenuController.hide();
     // Don't hide board when showing question popup (enables popup capability)
     if (screen.type !== "game") {
-      this.boardScreenControoler.hide();
+      this.boardScreenController.hide();
     }
     this.gameScreenController.hide();
     this.pauseScreenController.hide();
@@ -213,11 +213,11 @@ class App implements ScreenSwitcher {
         break;
       case "board":
         // allows interaction with board when returning from question screen
-        this.boardScreenControoler.getView().getGroup().listening(true);
-        this.boardScreenControoler.show();
+        this.boardScreenController.getView().getGroup().listening(true);
+        this.boardScreenController.show();
         // Ensure UI (buttons) reflect the current board phase after overlays close
         try {
-          this.boardScreenControoler.refreshView();
+          this.boardScreenController.refreshView();
         } catch {
           // ignore if refreshView is not present
         }
@@ -228,7 +228,7 @@ class App implements ScreenSwitcher {
       case "game":
         // question screen a popup overlay so the board is still technically visible
         // this disables board interactions while popup is showing
-        this.boardScreenControoler.getView().getGroup().listening(false);
+        this.boardScreenController.getView().getGroup().listening(false);
 
         // Check if we're returning from help and should restore previous state
         if (this.storedGameController) {
@@ -278,6 +278,10 @@ class App implements ScreenSwitcher {
     return this.current;
   }
 
+  resetBoard(): void {
+    this.boardScreenController.resetBoard();
+}
+
   // Present the question overlay and resolve when it completes.
   // Returns true if the player answered correctly, false otherwise.
   async presentQuestion(): Promise<boolean> {
@@ -310,7 +314,7 @@ class App implements ScreenSwitcher {
       // the controller and drop the onComplete callback. Instead, disable board
       // interactions and start the question view directly.
       try {
-        this.boardScreenControoler.getView().getGroup().listening(false);
+        this.boardScreenController.getView().getGroup().listening(false);
       } catch {
         // ignore
       }

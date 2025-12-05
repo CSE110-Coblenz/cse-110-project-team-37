@@ -51,4 +51,5 @@ export type ScreenSwitcher = {
   getCurrentScreen: () => Screen["type"];
   // Present the question overlay and return a promise resolved with whether the player passed
   presentQuestion?: () => Promise<boolean>;
+  resetBoard: () => void;
 };
