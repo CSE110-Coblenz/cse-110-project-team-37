@@ -58,9 +58,7 @@ class App implements ScreenSwitcher {
       }
     } else if (
       this.current === "game" ||
-      this.current === "board" ||
-      this.current === "minigame1" ||
-      this.current === "minigame2"
+      this.current === "board"
     ) {
       // SAVE game state before pausing
       if (this.current === "game") {
