@@ -62,7 +62,7 @@ class App implements ScreenSwitcher {
       this.current === "minigame1" ||
       this.current === "minigame2"
     ) {
-       // SAVE game state before pausing
+      // SAVE game state before pausing
       if (this.current === "game") {
         this.storedGameController = this.gameScreenController;
       }
@@ -290,7 +290,7 @@ class App implements ScreenSwitcher {
 
   resetBoard(): void {
     this.boardScreenController.resetBoard();
-}
+  }
 
   forceQuitAllMinigames(): void {
     // Space Rescue
