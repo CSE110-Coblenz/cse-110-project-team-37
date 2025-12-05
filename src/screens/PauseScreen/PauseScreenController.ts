@@ -12,39 +12,25 @@ import type { ScreenSwitcher } from "../../types.ts";
 export class PauseScreenController extends ScreenController {
   private readonly view: PauseScreenView;
   private readonly screenSwitcher: ScreenSwitcher;
-  private readonly difficulty: string;
 
-  constructor(screenSwitcher: ScreenSwitcher, difficulty: string) {
+  constructor(screenSwitcher: ScreenSwitcher) {
     super();
     this.screenSwitcher = screenSwitcher;
-    this.difficulty = difficulty;
 
     // Wire up view callbacks
     this.view = new PauseScreenView(
       () => this.handleResume(),
       () => this.handleHelp(),
-      () => this.handleRestart(),
       () => this.handleQuit(),
     );
   }
 
   private handleResume(): void {
-    this.screenSwitcher.switchToScreen({
-      type: "game",
-      difficulty: this.difficulty,
-    });
+    this.screenSwitcher.togglePause();
   }
 
   private handleHelp(): void {
-    this.screenSwitcher.switchToScreen({ type: "help" });
-  }
-
-  private handleRestart(): void {
-    // Reset flow if you have one, then go to game
-    this.screenSwitcher.switchToScreen({
-      type: "game",
-      difficulty: this.difficulty,
-    });
+    this.screenSwitcher.switchToScreen({ type: "tutorial" });
   }
 
   private handleQuit(): void {

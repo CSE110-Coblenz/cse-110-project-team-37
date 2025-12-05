@@ -44,7 +44,27 @@ class App implements ScreenSwitcher {
 
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
-  private readonly currentDifficulty: string = "Easy";
+  private previous: Screen["type"] | null = null;
+  //private readonly currentDifficulty: string = "Easy";
+
+  // pause function
+  togglePause() {
+    // If we're already on pause, go back to wherever we paused from
+    if (this.current === "pause") {
+      if (this.previous) {
+        this.switchToScreen({ type: this.previous });
+      }
+    } else if (
+      this.current === "game" ||
+      this.current === "board" ||
+      this.current === "minigame1" ||
+      this.current === "minigame2"
+    ) {
+      // If we're on any other screen, remember it and go to pause
+      this.previous = this.current;
+      this.switchToScreen({ type: "pause" });
+    }
+  }
 
   constructor(container: string) {
     // Initialize Konva stage (the main canvas)
@@ -55,7 +75,7 @@ class App implements ScreenSwitcher {
     });
 
     // Initiailize difficulty
-    this.currentDifficulty = "Easy";
+    //this.currentDifficulty = "Easy";
 
     // Create a layer (screens will be added to this layer)
     this.layer = new Konva.Layer();
@@ -68,7 +88,7 @@ class App implements ScreenSwitcher {
     // Each controller manages a Model, View, and handles user interactions
     this.mainMenuController = new MainMenuScreenController(this, this.gameState);
     this.boardScreenControoler = new BoardScreenController(this, this.gameState);
-    this.pauseScreenController = new PauseScreenController(this, this.currentDifficulty);
+    this.pauseScreenController = new PauseScreenController(this);
     this.gameScreenController = new QuestionScreenController(
       this,
       this.getDifficultyConfig("Easy"),
@@ -105,6 +125,7 @@ class App implements ScreenSwitcher {
     // Draw the layer (render everything to the canvas)
     this.layer.draw();
 
+    // ESC toggles game <-> pause (only when in those states)
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (this.current === "game") {
@@ -112,6 +133,7 @@ class App implements ScreenSwitcher {
         } else if (this.current === "pause") {
           this.switchToScreen({ type: "game" });
         }
+        this.togglePause();
       }
     });
 

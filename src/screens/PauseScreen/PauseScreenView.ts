@@ -1,112 +1,118 @@
 // screens/PauseScreen/PauseScreenView.ts
 import Konva from "konva";
 
+import { ButtonFactory } from "../../util/ButtonFactory.ts";
+
 import type { View } from "../../types.ts";
 
-/**
- * PauseScreenView - implements View
- * No constructor parameter properties (tsconfig: erasableSyntaxOnly).
- */
 export class PauseScreenView implements View {
-  private readonly group: Konva.Group;
-
   private readonly onResume: () => void;
   private readonly onHelp: () => void;
-  private readonly onRestart: () => void;
   private readonly onQuit: () => void;
 
-  constructor(onResume: () => void, onHelp: () => void, onRestart: () => void, onQuit: () => void) {
+  private readonly group: Konva.Group;
+
+  constructor(onResume: () => void, onHelp: () => void, onQuit: () => void) {
     this.onResume = onResume;
     this.onHelp = onHelp;
-    this.onRestart = onRestart;
     this.onQuit = onQuit;
-
-    this.group = new Konva.Group({ visible: false, listening: true });
 
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    // ----------------------------- Title -----------------------------
-    const title = new Konva.Text({
-      x: width / 2,
-      y: height / 5,
-      text: "Paused",
-      fontSize: 80,
-      fontFamily: "Arial",
-      fill: "gray",
-      stroke: "black",
-      strokeWidth: 3,
-      align: "center",
-      fontStyle: "bold",
+    this.group = new Konva.Group({
+      visible: false,
+      listening: true,
     });
+
+    // ---------- Dim overlay ----------
+    const overlay = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      fill: "black",
+      opacity: 0.35,
+    });
+    this.group.add(overlay);
+
+    // ---------- Popup panel ----------
+    const panelWidth = Math.min(420, width * 0.5); // narrower
+    const panelHeight = Math.min(330, height * 0.55);
+
+    const panelX = width / 2 - panelWidth / 2;
+    const panelY = height / 2 - panelHeight / 2;
+
+    const panel = new Konva.Rect({
+      x: panelX,
+      y: panelY,
+      width: panelWidth,
+      height: panelHeight,
+      fill: "#222",
+      cornerRadius: 18,
+      stroke: "white",
+      strokeWidth: 2,
+      shadowBlur: 15,
+      shadowOffset: { x: 0, y: 4 },
+      shadowOpacity: 0.5,
+    });
+    this.group.add(panel);
+
+    // ---------- Title ----------
+    const title = new Konva.Text({
+      text: "Paused",
+      fontSize: 44, // bigger
+      fontFamily: "Arial",
+      fill: "white",
+      align: "center",
+    });
+
+    // Horizontal centering
     title.offsetX(title.width() / 2);
+
+    // Slightly higher placement
+    title.x(panelX + panelWidth / 2);
+    title.y(panelY + 40);
+
     this.group.add(title);
 
-    // ----------------------------- Buttons -----------------------------
+    // ---------- Buttons ----------
     const buttons = [
-      { label: "Resume", onClick: this.onResume },
-      { label: "Help", onClick: this.onHelp },
-      { label: "Restart", onClick: this.onRestart },
-      { label: "Quit", onClick: this.onQuit },
-    ] as const;
+      { label: "Resume", handler: this.onResume },
+      { label: "Help", handler: this.onHelp },
+      { label: "Quit to Menu", handler: this.onQuit },
+    ];
 
-    const buttonWidth = 220;
-    const buttonHeight = 60;
-    const spacing = 20;
-    const startY = height / 2.5;
+    const buttonWidth = Math.min(240, panelWidth * 0.6); // narrower buttons
+    const buttonHeight = 45;
 
-    buttons.forEach((btn, i) => {
-      const g = new Konva.Group({
-        x: width / 2 - buttonWidth / 2,
-        y: startY + i * (buttonHeight + spacing),
-      });
+    // Perfect spacing beneath title
+    const startY = title.y() + 90;
 
-      const rect = new Konva.Rect({
-        width: buttonWidth,
-        height: buttonHeight,
-        fill: "gray",
-        cornerRadius: 10,
-        stroke: "black",
-        strokeWidth: 2,
-      });
+    const spacing = 16;
+    const centerX = panelX + panelWidth / 2;
 
-      const text = new Konva.Text({
-        x: 0,
-        y: 0,
-        width: buttonWidth,
-        height: buttonHeight,
-        text: btn.label,
-        fontSize: 24,
-        fontFamily: "Arial",
-        fill: "white",
-        align: "center",
-        verticalAlign: "middle",
-      });
+    buttons.forEach((btn, index) => {
+      const y = startY + index * (buttonHeight + spacing);
 
-      // hover
-      g.on("mouseenter", () => {
-        document.body.style.cursor = "pointer";
-        rect.fill("darkgray");
-        g.getLayer()?.draw();
-      });
-      g.on("mouseleave", () => {
-        document.body.style.cursor = "default";
-        rect.fill("gray");
-        g.getLayer()?.draw();
-      });
-      // ignore this comment
+      const button = ButtonFactory.construct()
+        .pos(centerX, y)
+        .width(buttonWidth)
+        .height(buttonHeight)
+        .text(btn.label)
+        .fontSize(20)
+        .backColor("#777") // nicer shade
+        .hoverColor("#555")
+        .onClick(btn.handler)
+        .build();
 
-      // click
-      g.on("click", () => btn.onClick());
-
-      g.add(rect);
-      g.add(text);
-      this.group.add(g);
+      this.group.add(button);
     });
   }
 
   show(): void {
     this.group.visible(true);
+    this.group.moveToTop();
     this.group.getLayer()?.draw();
   }
 
