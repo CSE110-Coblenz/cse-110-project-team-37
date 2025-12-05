@@ -60,6 +60,11 @@ class App implements ScreenSwitcher {
       this.current === "minigame1" ||
       this.current === "minigame2"
     ) {
+       // SAVE game state before pausing
+      if (this.current === "game") {
+        this.storedGameController = this.gameScreenController;
+      }
+
       // If we're on any other screen, remember it and go to pause
       this.previous = this.current;
       this.switchToScreen({ type: "pause" });
@@ -236,6 +241,7 @@ class App implements ScreenSwitcher {
           this.gameScreenController = this.storedGameController;
           this.storedGameController = null;
           this.gameScreenController.show();
+          break;
         } else {
           // TODO Really big mess, better to clean it up and move configuration part to gameState/controller
 
@@ -287,7 +293,7 @@ class App implements ScreenSwitcher {
     this.minigame2Controller.forceQuit?.();
 
     // Pizza Minigame
-    this.pizzaMinigameController.forceQuit?.();
+    //this.pizzaMinigameController.forceQuit?.();
 
     // Question popup (just hide it)
     try {
