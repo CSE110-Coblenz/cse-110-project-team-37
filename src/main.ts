@@ -128,11 +128,6 @@ class App implements ScreenSwitcher {
     // ESC toggles game <-> pause (only when in those states)
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
-        if (this.current === "game") {
-          this.switchToScreen({ type: "pause" });
-        } else if (this.current === "pause") {
-          this.switchToScreen({ type: "game" });
-        }
         this.togglePause();
       }
     });

@@ -46,9 +46,9 @@ export abstract class ScreenController {
 
 export type ScreenSwitcher = {
   switchToScreen: (screen: Screen) => void;
+  togglePause: () => void;
   // Returns the currently visible screen type (e.g. 'board', 'game')
   getCurrentScreen: () => Screen["type"];
   // Present the question overlay and return a promise resolved with whether the player passed
   presentQuestion?: () => Promise<boolean>;
-  togglePause: () => void;
 };
