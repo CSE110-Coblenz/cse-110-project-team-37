@@ -41,7 +41,7 @@ export class BoardScreenController extends ScreenController {
   }
 
   private handlePauseClick(): void {
-    // TODO Pause placeholder
+    this.screenSwitcher.togglePause();
   }
 
   private async handleDiceClick(): Promise<void> {
@@ -121,7 +121,7 @@ export class BoardScreenController extends ScreenController {
     switch (cTile.getType().type) {
       case "end":
         this.screenSwitcher.switchToScreen({ type: "end" });
-        this.restBoard();
+        this.resetBoard();
         break;
       case "minigame":
         const game = DiceService.rollDice(2);
@@ -175,7 +175,7 @@ export class BoardScreenController extends ScreenController {
       this.view.hideButtons();
       await SleeperService.sleep(1500);
       this.screenSwitcher.switchToScreen({ type: "end" });
-      this.restBoard();
+      this.resetBoard();
     }
   }
 
@@ -191,7 +191,7 @@ export class BoardScreenController extends ScreenController {
   /*
    * Resets Model and View for a baord and Game State variables used in board.
    */
-  public restBoard(): void {
+  public resetBoard(): void {
     this.gameState.resetGameState();
     this.model.resetBoardModel();
     this.view.resetBoardView();
