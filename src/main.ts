@@ -377,4 +377,4 @@ class App implements ScreenSwitcher {
 new App("app");
 
 // Start background music immediately (autoplay hack handled inside)
-new MusicManager("./bg-music.mp3");
+const bgm = new MusicManager("/bg-music.mp3");
