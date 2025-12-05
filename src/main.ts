@@ -42,6 +42,8 @@ class App implements ScreenSwitcher {
   private gameScreenController: QuestionScreenController;
   private storedGameController: QuestionScreenController | null = null;
 
+  private tutorialPreviousScreen: Screen["type"] | null = null;
+
   // track current screen so Esc can toggle game <-> pause
   private current: Screen["type"] = "menu";
   private previous: Screen["type"] | null = null;
@@ -271,6 +273,8 @@ class App implements ScreenSwitcher {
         this.equationHelpScreenController.show();
         break;
       case "tutorial":
+        // Record where we came from
+        this.tutorialPreviousScreen = this.current;
         this.tutorialScreenController.show();
         break;
     }
@@ -301,6 +305,10 @@ class App implements ScreenSwitcher {
     } catch {}
 
     this.boardScreenController.resetBoard();
+  }
+
+  getTutorialPrevious(): Screen["type"] | null {
+    return this.tutorialPreviousScreen;
   }
 
   // Present the question overlay and resolve when it completes.

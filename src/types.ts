@@ -54,4 +54,6 @@ export type ScreenSwitcher = {
   resetBoard: () => void;
 
   forceQuitAllMinigames: () => void;
+
+  getTutorialPrevious: () => Screen["type"] | null;
 };

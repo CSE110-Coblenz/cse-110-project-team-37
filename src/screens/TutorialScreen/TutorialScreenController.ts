@@ -26,7 +26,8 @@ export class TutorialScreenController extends ScreenController {
   }
 
   private handleClose(): void {
-    this.screenSwitcher.switchToScreen({ type: "menu" });
+    const prev = this.screenSwitcher.getTutorialPrevious();
+    this.screenSwitcher.switchToScreen({ type: prev ?? "menu" });
   }
 
   private handleAdvance(): void {
@@ -38,7 +39,8 @@ export class TutorialScreenController extends ScreenController {
     if (next) {
       this.view.startTyping(next);
     } else {
-      this.screenSwitcher.switchToScreen({ type: "menu" });
+      const prev = this.screenSwitcher.getTutorialPrevious();
+      this.screenSwitcher.switchToScreen({ type: prev ?? "menu" });
     }
   }
 
