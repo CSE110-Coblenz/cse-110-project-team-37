@@ -56,10 +56,7 @@ class App implements ScreenSwitcher {
       if (this.previous) {
         this.switchToScreen({ type: this.previous });
       }
-    } else if (
-      this.current === "game" ||
-      this.current === "board"
-    ) {
+    } else if (this.current === "game" || this.current === "board") {
       // SAVE game state before pausing
       if (this.current === "game") {
         this.storedGameController = this.gameScreenController;
