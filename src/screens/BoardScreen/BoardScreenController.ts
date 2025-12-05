@@ -34,11 +34,14 @@ export class BoardScreenController extends ScreenController {
    * Updates the position of a camera
    */
   public async updateCameraPanning(mousePos: { x: number; y: number }) {
-    this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, mousePos);
+    await this.view.boardRenderer.centerCameraOnPlayer(
+      this.model.getPlayer().currentTile,
+      mousePos,
+    );
   }
 
   private handlePauseClick(): void {
-    // TODO Pause placeholder
+    this.screenSwitcher.togglePause();
   }
 
   private async handleDiceClick(): Promise<void> {
@@ -82,9 +85,7 @@ export class BoardScreenController extends ScreenController {
       this.model.setPhase("move");
 
       this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
-      await this.view.diceRenderer.roll();
       await this.view.animateDiceJiggle(40);
-      this.view.diceRenderer.setFace(this.model.getRoll());
       this.view.updateRollState(this.model.getRoll(), this.gameState.getBonus());
 
       this.gameState.incrementTurn();
@@ -120,7 +121,7 @@ export class BoardScreenController extends ScreenController {
     switch (cTile.getType().type) {
       case "end":
         this.screenSwitcher.switchToScreen({ type: "end" });
-        this.restBoard();
+        this.resetBoard();
         break;
       case "minigame":
         const game = DiceService.rollDice(2);
@@ -147,10 +148,18 @@ export class BoardScreenController extends ScreenController {
     if (this.gameState.getTurnCount() === 2) {
       this.view.hideButtons();
       this.view.showMonster();
-      (this.view.boardRenderer.centerCameraOnPlayer(this.model.getMonster().currentTile, null),
-        await SleeperService.sleep(1500));
-      (this.view.boardRenderer.centerCameraOnPlayer(this.model.getPlayer().currentTile, null),
-        this.view.updatePhaseState(this.model.getPhase()));
+    // fix
+    await this.view.boardRenderer.centerCameraOnPlayer(
+      this.model.getMonster().currentTile,
+      null
+    );
+    await SleeperService.sleep(1500);
+    // fix
+    await this.view.boardRenderer.centerCameraOnPlayer(
+      this.model.getPlayer().currentTile,
+      null
+    );
+      this.view.updatePhaseState(this.model.getPhase());
     }
 
     if (this.gameState.getTurnCount() > 2) {
@@ -170,7 +179,7 @@ export class BoardScreenController extends ScreenController {
       this.view.hideButtons();
       await SleeperService.sleep(1500);
       this.screenSwitcher.switchToScreen({ type: "end" });
-      this.restBoard();
+      this.resetBoard();
     }
   }
 
@@ -186,7 +195,7 @@ export class BoardScreenController extends ScreenController {
   /*
    * Resets Model and View for a baord and Game State variables used in board.
    */
-  public restBoard(): void {
+  public resetBoard(): void {
     this.gameState.resetGameState();
     this.model.resetBoardModel();
     this.view.resetBoardView();
