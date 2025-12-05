@@ -1,8 +1,8 @@
 export class SoundManager {
-  private hoverSound: HTMLAudioElement;
-  private clickSound: HTMLAudioElement;
-  private successSound: HTMLAudioElement;
-  private failureSound: HTMLAudioElement;
+  private readonly hoverSound: HTMLAudioElement;
+  private readonly clickSound: HTMLAudioElement;
+  private readonly successSound: HTMLAudioElement;
+  private readonly failureSound: HTMLAudioElement;
 
   constructor() {
     this.hoverSound = new Audio("/hover.mp3");

@@ -1,15 +1,13 @@
 import { Fraction } from "../../models/Fraction.ts";
 import { MinigameQuestionService } from "../../services/MinigameQuestionService.ts";
 import { ScreenController } from "../../types.ts";
+import { soundManager } from "../../util/SoundManager.ts";
 
 import { PizzaMinigameModel } from "./PizzaMinigameModel.ts";
 import { PizzaMinigameView } from "./PizzaMinigameView.ts";
 
 import type { GameState } from "../../models/GameState.ts";
 import type { ScreenSwitcher } from "../../types.ts";
-
-import { soundManager } from "../../util/SoundManager.ts";
-
 
 export class PizzaMinigameController extends ScreenController {
   private readonly view: PizzaMinigameView;

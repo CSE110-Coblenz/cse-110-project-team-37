@@ -10,12 +10,11 @@ import { SpaceRescueController } from "./screens/Minigame2Screen/SpaceRescueCont
 import { PauseScreenController } from "./screens/PauseScreen/PauseScreenController.ts";
 import { QuestionScreenController } from "./screens/QuestionScreen/QuestionScreenController.ts";
 import { TutorialScreenController } from "./screens/TutorialScreen/TutorialScreenController.ts";
+import { MusicManager } from "./util/MusicManager";
+import { soundManager } from "./util/SoundManager";
 
 import type { QuestionConfig } from "./services/QuestionService.ts";
 import type { Screen, ScreenSwitcher } from "./types.ts";
-
-import { soundManager } from "./util/SoundManager";
-import { MusicManager } from "./util/MusicManager";
 
 /**
  * Main Application - Coordinates all screens
@@ -79,28 +78,25 @@ class App implements ScreenSwitcher {
       height: window.innerHeight,
     });
 
-   this.stage.on("mouseover", (e) => {
-  const t = e.target as Konva.Node;
-  if (!t) return;
+    this.stage.on("mouseover", (e) => {
+      const t = e.target as Konva.Node;
+      if (!t) return;
 
-  const group = t.getParent();
-  if (t.getAttr("isButton") || group?.getAttr("isButton")) {
-    soundManager.playHover();
-  }
-});
+      const group = t.getParent();
+      if (t.getAttr("isButton") || group?.getAttr("isButton")) {
+        soundManager.playHover();
+      }
+    });
 
-this.stage.on("mousedown", (e) => {
-  const t = e.target as Konva.Node;
-  if (!t) return;
+    this.stage.on("mousedown", (e) => {
+      const t = e.target as Konva.Node;
+      if (!t) return;
 
-  const group = t.getParent();
-  if (t.getAttr("isButton") || group?.getAttr("isButton")) {
-    soundManager.playClick();
-  }
-});
-
-
-
+      const group = t.getParent();
+      if (t.getAttr("isButton") || group?.getAttr("isButton")) {
+        soundManager.playClick();
+      }
+    });
 
     // Initiailize difficulty
     //this.currentDifficulty = "Easy";

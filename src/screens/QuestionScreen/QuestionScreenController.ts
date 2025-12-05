@@ -1,13 +1,12 @@
 import { type QuestionConfig, QuestionService } from "../../services/QuestionService.ts";
 import { ScreenController } from "../../types.ts";
+import { soundManager } from "../../util/SoundManager.ts";
 
 import { QuestionScreenModel } from "./QuestionScreenModel.ts";
 import { QuestionScreenView } from "./QuestionScreenView.ts";
 
 import type { GameState } from "../../models/GameState.ts";
 import type { ScreenSwitcher } from "../../types.ts";
-
-import { soundManager } from "../../util/SoundManager.ts";
 
 export class QuestionScreenController extends ScreenController {
   private readonly model: QuestionScreenModel;
